@@ -1,6 +1,16 @@
 {
-    'conn_info': {
-        'type': 'postgis',
-        'dbname':
+    "conn_info": {
+        "type": "csv",
+        "path": "/Users/matt/Projects/extracto-matic/scripts/example_csv_data.csv",
+        "delimeter": ",",
+        "encoding": "UTF-8"
+    },
+    "layers": {
+        "people": {
+            "fields": ["id","name","gender"]
+        },
+        "addresses": {
+            "fields": ["id","city"]
+        }
     }
 }
