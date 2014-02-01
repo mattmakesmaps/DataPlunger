@@ -1,0 +1,6 @@
+{
+    'conn_info': {
+        'type': 'postgis',
+        'dbname':
+    }
+}

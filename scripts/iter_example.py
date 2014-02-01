@@ -39,68 +39,68 @@ class ListReader:
 
 class ProcessorScreenWriter:
     """
-    A class which implements a file-like object's write() method.
+    A class which implements a file-like object's process() method.
     Simply prints contents of a line.
     """
-    def __init__(self, writer):
-        self.writer = writer
+    def __init__(self, processor):
+        self.processor = processor
 
-    def write(self, inLine):
+    def process(self, inLine):
         print inLine
-        self.writer.write(inLine)
+        self.processor.process(inLine)
 
 
 class ProcessorChangeCase:
     """
-    A decorator class which implements a writer class' public
-    interface, the write() method.
+    A decorator class which implements a Processor class' public
+    interface, the process() method.
     """
-    def __init__(self, writer, case):
-        self.writer = writer
+    def __init__(self, processor, case):
+        self.processor = processor
         self.case = case
 
-    def write(self, inLine):
+    def process(self, inLine):
         if self.case.lower() == 'upper':
-            self.writer.write(inLine.upper())
+            self.processor.process(inLine.upper())
         elif self.case.lower() == 'lower':
-            self.writer.write(inLine.lower())
+            self.processor.process(inLine.lower())
         else:
             raise ValueError("Case Not Supported")
 
 
 class ProcessorTruncateToFirstChar:
     """
-    A decorator class which implements a writer class' public
-    interface, the write() method.
+    A decorator class which implements a Processor class' public
+    interface, the process() method.
     """
-    def __init__(self, writer):
-        self.writer = writer
+    def __init__(self, processor):
+        self.processor = processor
 
-    def write(self, inLine):
+    def process(self, inLine):
         firstElem = inLine[0]
-        self.writer.write(firstElem)
+        self.processor.process(firstElem)
 
 
 class ProcessorAddFoo:
     """
-    A decorator class which implements a writer class' public
-    interface, the write() method.
+    A decorator class which implements a Processor class' public
+    interface, the process() method.
     """
-    def __init__(self, writer):
-        self.writer = writer
+    def __init__(self, processor):
+        self.processor = processor
 
-    def write(self, inLine):
+    def process(self, inLine):
         fooLine = inLine + "fooooo"
-        self.writer.write(fooLine)
+        self.processor.process(fooLine)
 
 
 class ProcessorExplodeFoo:
     """
-    A decorator class which implements a writer class' public
-    interface, the write() method.
+    A decorator class which implements a Processor class' public
+    interface, the process() method.
     """
-    def __init__(self, writer):
-        self.writer = writer
+    def __init__(self, processor):
+        self.processor = processor
 
     def _explode(self, feature):
         index = 0
@@ -111,10 +111,10 @@ class ProcessorExplodeFoo:
             explodedFeatures.append(element)
         return explodedFeatures
 
-    def write(self, inLine):
+    def process(self, inLine):
         explodedFeatures = self._explode(inLine)
         for feature in explodedFeatures:
-            self.writer.write(feature)
+            self.processor.process(feature)
 
 
 class DevNull:
@@ -122,7 +122,7 @@ class DevNull:
     A decorator class intended to be implemented at the last step
     of the processing chain. simply ends the workflow.
     """
-    def write(self, inLine):
+    def process(self, inLine):
         pass
 
 
@@ -152,8 +152,8 @@ class MainController:
         """
         Using the reader classes' context manager, loop through
         a reader's contents using the reader's __iter__() method.
-        Output is written (serialized) using the writer class's
-        write() method.
+        Output is written (serialized) using the Processor class's
+        process() method.
         """
         with self.reader as local_reader:
             for record in local_reader:
@@ -163,7 +163,7 @@ class MainController:
                         decorated_processor = processor(decorated_processor, *args)
                     else:
                         decorated_processor = processor(decorated_processor)
-                decorated_processor.write(record)
+                decorated_processor.process(record)
 
 
 if __name__ == '__main__':
@@ -175,11 +175,19 @@ if __name__ == '__main__':
     # The processor class to be executed and either a list of positional arguments OR
     # None. This is currently required due to tuple unpacking inside the contoller class'
     # serialize method.
-    processingSteps = [(ProcessorScreenWriter, None),
+    processingSteps = [(ProcessorAddFoo, None),
+                       (ProcessorScreenWriter, None),
                        (ProcessorExplodeFoo, None),
-                       (ProcessorChangeCase,['upper']),
+                       (ProcessorChangeCase,['lower']),
                        (ProcessorScreenWriter, None)]
 
     myControllerWithProcessor = MainController(ListReader(myDataList), processingSteps)
     myControllerWithProcessor.serialize()
 
+
+    processingSteps = [
+                       (ProcessorScreenWriter, None)
+                       ]
+
+    myControllerWithProcessor = MainController(ListReader(myDataList), processingSteps)
+    myControllerWithProcessor.serialize()
