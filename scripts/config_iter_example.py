@@ -10,12 +10,20 @@ from pprint import pprint
 
 class Configuration(object):
     """
-    Parse a configuration file.
+    This class is responsible the conversion of a JSON-formatted configuration
+    file into a python object.
+
+    self.inConfigPath - The full pathway to a JSON-formatted configuration file.
+    self.conn_info - Extracted from a parsed configuration file.
+                A dict representing relevant configuration information.
+    self.layers - Extracted from a parsed configuration file.
+                A dict with keys representing layer names and values representing
+                properties for that layer.
     """
 
     def __init__(self):
         """
-        Requires full pathway to conifguration path.
+        Requires full pathway to configuration path.
         """
         self.inConfigPath = ''
         self.conn_info = {}
@@ -23,8 +31,8 @@ class Configuration(object):
 
     def __get_config_data(self, inConfigPath):
         """
-        Given a pathway, return a python object
-        built from a JSON object.
+        Given a file path to a JSON config file, open and
+        convert to a python object.
         """
         with open(inConfigPath) as config_file:
             config_string = config_file.read()
@@ -40,8 +48,8 @@ class Configuration(object):
 
     def parseConfig(self, inConfigPath):
         """
-        Given a configuration path, parse the file into
-        a useable python object.
+        Given a configuration path, call methods to validate
+        and parse the file into a useable python object.
         """
         config_data = self.__get_config_data(inConfigPath)
         if self.__validate_config(config_data):
@@ -52,8 +60,7 @@ class Configuration(object):
 
 class ProcessorScreenWriter:
     """
-    A class which implements a file-like object's process() method.
-    Simply prints contents of a line.
+    A Processor class that simply prints contents of a line.
     """
     def __init__(self, processor, **kwargs):
         self.processor = processor
@@ -65,18 +72,25 @@ class ProcessorScreenWriter:
 
 class ProcessorChangeCase:
     """
-    A decorator class which implements a Processor class' public
-    interface, the process() method.
+    A Processor class which implements a public interface, the process() method.
+    Responsible for changing case of values.
     """
-    def __init__(self, processor, case, **kwargs):
+    # NOTE: Passing a default value for self.case allows us
+    # To not require it as an attribute for every layer.
+    def __init__(self, processor, case=None, **kwargs):
         self.processor = processor
         self.case = case
 
     def process(self, inLine):
-        if self.case.lower() == 'upper':
-            self.processor.process(inLine.upper())
+        # NOTE: Need to check for None type first.
+        if self.case is None:
+            self.processor.process(inLine)
+        elif self.case.lower() == 'upper':
+            inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
+            self.processor.process(inLine)
         elif self.case.lower() == 'lower':
-            self.processor.process(inLine.lower())
+            inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
+            self.processor.process(inLine)
         else:
             raise ValueError("Case Not Supported")
 
@@ -91,7 +105,7 @@ class ProcessorTruncateFields:
 
     def process(self, inLine):
         """
-        Perform dict comprehension given a list of fields
+        Perform dict comprehension to create a dictionary subset to out_fields only.
         """
         truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
         self.processor.process(truncated_line)
@@ -123,11 +137,19 @@ class Controller(object):
 
     NOTE: This now assumes that the same processes will be applied
     to all layers in a configuration file.
+
+    self.config - The Config instance to be passed to the controller.
+    self.processors - A list of Processor class implementations to be used
+        on each record for a given reader.
+    self.reader - Initially set to None, assigned in __get_reader()
+    self.reader_map - Initally set to None, populated in __get_reader().
+        A mapping of 'type' values in a JSON config file to actually Reader class implementations.
     """
 
     def __init__(self, inConfigObject, processors=None):
         self.config = inConfigObject
         self.reader = None
+        self.reader_map = None
         if processors is None:
             raise NoProcessorException("ERROR: No Processors Found.")
         else:
@@ -150,7 +172,12 @@ class Controller(object):
             self.reader = self.reader_map[self.config.conn_info['type']]
 
     def createRecordConstructors(self):
-        # Get required reader
+        """
+        Create a Reader class instance.
+        Create a RecordConstructor for each layer.
+        Initiate processing calling the RecordConstructor's serialize() method.
+        """
+        # Get required reader class and create an instance.
         self.__get_reader()
         selectedReader = self.reader(self.config.conn_info)
         # Spawn RecordConstructors for each layer.
@@ -161,7 +188,11 @@ class Controller(object):
 
 class CSVReader(object):
     """
-    Provides methods to reader through a CSV file.
+    Reader class implementation for CSV files.
+
+    self.conn_info - the connection information (pathway) for a given file.
+    self._file_handler - set in __enter__(), a read only pointer to the CSV.
+    self._dict_reader - an instance of csv.dict_reader()
     """
     def __init__(self, conn_info):
         self.conn_info = conn_info
@@ -170,7 +201,7 @@ class CSVReader(object):
 
     def __enter__(self):
         """
-        Open the connection
+        Open a file connection, pass that to an instance of csv.DictReader
         """
         self._file_handler = open(self.conn_info['path'], 'rt')
         self._dict_reader = csv.DictReader(self._file_handler)
@@ -178,6 +209,7 @@ class CSVReader(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # http://www.itmaybeahack.com/book/python-2.6/html/p03/p03c07_contexts.html
+        # Close the file handler.
         self._file_handler.close()
         if exc_type is not None:
             # Exception occurred
@@ -185,13 +217,20 @@ class CSVReader(object):
         return True # Everything's okay
 
     def __iter__(self):
+        # Generator returning a dict of field name: field value pairs for each record.
         for row in self._dict_reader:
             yield row
 
 class RecordConstructor(object):
     """
-    A RecordConstructor is composed of a reader
-    and n-number of processors.
+    A RecordConstructor is composed of a reader and n-number of processors.
+    The RecordConstructor is responsible for actually iterating through a datasource,
+    provided by self.reader, and processing it using self.processors.
+
+    self.reader - the Reader class responsible for connecting to a data source.
+    self.layer_name - the layer name extracted from a configuration file.
+    self.layer_parameters - any layer parameters extracted from a configuration file.
+    self.processors - Processor class references to be applied to a record.
     """
     def __init__(self, reader, layer_name, layer_parameters, processors=None):
         self.reader = reader
@@ -230,8 +269,8 @@ if __name__ == '__main__':
     print "========================"
 
     processingSteps = [
-        # ProcessorScreenWriter,
         ProcessorTruncateFields,
+        ProcessorChangeCase,
         ProcessorScreenWriter
     ]
 

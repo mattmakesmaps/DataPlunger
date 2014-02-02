@@ -11,7 +11,8 @@
             "someUnusedAttribute": 50
         },
         "addresses": {
-            "fields": ["id","city"]
+            "fields": ["id","city"],
+            "case": "upper"
         }
     }
 }
