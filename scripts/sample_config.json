@@ -1,13 +1,14 @@
 {
     "conn_info": {
         "type": "csv",
-        "path": "/Users/matt/Projects/extracto-matic/scripts/example_csv_data.csv",
+        "path": "/Users/matt/Projects/extracto-matic/scripts/sample_data.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
     "layers": {
         "people": {
-            "fields": ["id","name","gender"]
+            "fields": ["id","name","gender"],
+            "someUnusedAttribute": 50
         },
         "addresses": {
             "fields": ["id","city"]
