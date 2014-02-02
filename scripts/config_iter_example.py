@@ -58,7 +58,7 @@ class Configuration(object):
             self.conn_info = config_data['conn_info']
 
 
-class ProcessorScreenWriter:
+class ProcessorScreenWriter(object):
     """
     A Processor class that simply prints contents of a line.
     """
@@ -70,7 +70,7 @@ class ProcessorScreenWriter:
         self.processor.process(inLine)
 
 
-class ProcessorChangeCase:
+class ProcessorChangeCase(object):
     """
     A Processor class which implements a public interface, the process() method.
     Responsible for changing case of values.
@@ -94,7 +94,7 @@ class ProcessorChangeCase:
         else:
             raise ValueError("Case Not Supported")
 
-class ProcessorTruncateFields:
+class ProcessorTruncateFields(object):
     """
     A decorator class which implements a Processor class' public
     interface, the process() method.
@@ -110,7 +110,7 @@ class ProcessorTruncateFields:
         truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
         self.processor.process(truncated_line)
 
-class DevNull:
+class DevNull(object):
     """
     A decorator class intended to be implemented at the last step
     of the processing chain. simply ends the workflow.
