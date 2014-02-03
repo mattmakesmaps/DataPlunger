@@ -178,7 +178,7 @@ if __name__ == '__main__':
     processingSteps = [(ProcessorAddFoo, None),
                        (ProcessorScreenWriter, None),
                        (ProcessorExplodeFoo, None),
-                       (ProcessorChangeCase,['lower']),
+                       (ProcessorChangeCase, ['lower']),
                        (ProcessorScreenWriter, None)]
 
     myControllerWithProcessor = MainController(ListReader(myDataList), processingSteps)

@@ -142,18 +142,21 @@ class Controller(object):
     self.processors - A list of Processor class implementations to be used
         on each record for a given reader.
     self.reader - Initially set to None, assigned in __get_reader()
-    self.reader_map - Initally set to None, populated in __get_reader().
-        A mapping of 'type' values in a JSON config file to actually Reader class implementations.
+    self.reader_map - A mapping of 'type' values in a JSON config file to
+        an actual Reader class implementations.
     """
 
     def __init__(self, inConfigObject, processors=None):
         self.config = inConfigObject
         self.reader = None
-        self.reader_map = None
+        self.reader_map = {
+            'csv': CSVReader
+        }
+        # Raise error if no processors were found.
         if processors is None:
             raise NoProcessorException("ERROR: No Processors Found.")
         else:
-            # Add an instance of ProcessorDevNull, ensuring process ends.
+            # Populate processors and reverse sort order
             self.processors = processors
             self.processors.reverse()
 
@@ -162,14 +165,12 @@ class Controller(object):
         Based on a Config Object's conn_info type attribute,
         generate an appropriate reader.
         """
-        self.reader_map = {
-            'csv': CSVReader
-        }
-
         # Check if the configuration object contains a Reader type
         # we actually support. If so, build a reader.
         if self.config.conn_info['type'] in self.reader_map:
             self.reader = self.reader_map[self.config.conn_info['type']]
+        else:
+            raise KeyError("ERROR: Config file contains unsupported conn_info type")
 
     def createRecordConstructors(self):
         """
