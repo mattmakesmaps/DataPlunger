@@ -1,6 +1,38 @@
 __author__ = 'mkenny'
+import abc
 
-class ProcessorScreenWriter(object):
+
+class ProcessorBaseClass(object):
+    """
+    Abstract Base Class implementing an interface for Processsors.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def __init__(self, processor, **kwargs):
+        self.processor = processor
+
+    def _log(self, inLine):
+        print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
+
+    def _process(self, inLine):
+        self._log(inLine)
+        # if self.processor:
+        #     self.processor.process(inLine)
+        self.process(inLine)
+
+    @abc.abstractmethod
+    def process(self, inLine):
+        pass
+
+class ProcessorDevNull(ProcessorBaseClass):
+    def __init__(self):
+        self.processor = None
+
+    def process(self, inLine):
+        pass
+
+class ProcessorScreenWriter(ProcessorBaseClass):
     """
     A Processor class that simply prints contents of a line.
     """
@@ -9,10 +41,10 @@ class ProcessorScreenWriter(object):
 
     def process(self, inLine):
         print inLine
-        self.processor.process(inLine)
+        self.processor._process(inLine)
 
 
-class ProcessorChangeCase(object):
+class ProcessorChangeCase(ProcessorBaseClass):
     """
     A Processor class which implements a public interface, the process() method.
     Responsible for changing case of values.
@@ -23,20 +55,26 @@ class ProcessorChangeCase(object):
         self.processor = processor
         self.case = case
 
+    def _log(self, inLine):
+        """
+        This is an example of an overriden _log method
+        """
+        print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
+
     def process(self, inLine):
         # NOTE: Need to check for None type first.
         if self.case is None:
-            self.processor.process(inLine)
+            self.processor._process(inLine)
         elif self.case.lower() == 'upper':
             inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor.process(inLine)
+            self.processor._process(inLine)
         elif self.case.lower() == 'lower':
             inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor.process(inLine)
+            self.processor._process(inLine)
         else:
             raise ValueError("Case Not Supported")
 
-class ProcessorTruncateFields(object):
+class ProcessorTruncateFields(ProcessorBaseClass):
     """
     A decorator class which implements a Processor class' public
     interface, the process() method.
@@ -50,4 +88,4 @@ class ProcessorTruncateFields(object):
         Perform dict comprehension to create a dictionary subset to out_fields only.
         """
         truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        self.processor.process(truncated_line)
+        self.processor._process(truncated_line)

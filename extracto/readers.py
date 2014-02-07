@@ -1,7 +1,31 @@
 __author__ = 'mkenny'
+import abc
 import csv
 
-class CSVReader(object):
+
+class ReaderBaseClass(object):
+    """
+    An abstract base class for a Reader interface.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def __init__(self, conn_info):
+        self.conn_info = conn_info
+
+    @abc.abstractmethod
+    def __enter__(self):
+        pass
+
+    @abc.abstractmethod
+    def __exit__(self, exc_type, exc_val, ext_tb):
+        pass
+
+    @abc.abstractmethod
+    def __iter__(self):
+        pass
+
+class ReaderCSV(ReaderBaseClass):
     """
     Reader class implementation for CSV files.
 

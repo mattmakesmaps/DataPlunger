@@ -1,20 +1,11 @@
 {
     "conn_info": {
-        "type": "csv",
-        "path": "/Users/matt/Projects/extracto-matic/scripts/sample_data.csv",
+        "type": "ReaderCSV",
+        "path": "/home/mkenny/Projects/extracto-matic/scripts/sample_data.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
     "layers": {
-        "people": {
-            "fields": ["id","name","gender"],
-            "processing_steps": [
-                {"ProcessorTruncateFields": null},
-                {"ProcessorChangeCase": {"case":"upper"}},
-                {"ProcessorScreenWriter": null}
-            ],
-            "someUnusedAttribute": 50
-        },
         "addresses": {
             "processing_steps": [
                 {"ProcessorTruncateFields": {"fields": ["id","city"]}},

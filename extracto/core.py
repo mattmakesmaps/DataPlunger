@@ -53,19 +53,6 @@ class Configuration(object):
             self.conn_info = config_data['conn_info']
 
 
-
-class DevNull(object):
-    """
-    A decorator class intended to be implemented at the last step
-    of the processing chain. simply ends the workflow.
-    """
-    def __init__(self, **kwargs):
-        pass
-
-    def process(self, inLine):
-        pass
-
-
 class NoProcessorException(Exception):
     """
     An exception raised when no processors are passed to
@@ -90,10 +77,6 @@ class Controller(object):
 
     def __init__(self, inConfigObject):
         self.config = inConfigObject
-        self.reader = None
-        self.reader_map = {
-            'csv': CSVReader
-        }
 
     def _get_reader(self):
         """
@@ -102,10 +85,10 @@ class Controller(object):
         """
         # Check if the configuration object contains a Reader type
         # we actually support. If so, build a reader.
-        if self.config.conn_info['type'] in self.reader_map:
-            self.reader = self.reader_map[self.config.conn_info['type']]
-        else:
-            raise KeyError("ERROR: Config file contains unsupported conn_info type")
+        for reader_class in ReaderBaseClass.__subclasses__():
+            if self.config.conn_info['type'] == reader_class.__name__:
+                return reader_class
+        raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
 
     def createRecordConstructors(self):
         """
@@ -114,8 +97,8 @@ class Controller(object):
         Initiate processing calling the RecordConstructor's serialize() method.
         """
         # Get required reader class and create an instance.
-        self._get_reader()
-        selectedReader = self.reader(self.config.conn_info)
+        selectedReaderClass = self._get_reader()
+        selectedReader = selectedReaderClass(self.config.conn_info)
         # Spawn RecordConstructors for each layer.
         for layer_name, layer_parameters in self.config.layers.iteritems():
             # Extract processing steps for a layer
@@ -145,11 +128,12 @@ class RecordConstructor(object):
     def _get_processor_instance(self, processor_name):
         """
         Given a string, test if a Processor class exists by that name.
-        TODO: Update using Abstract base class.
         """
-
-        if processor_name in globals():
-            return globals()[processor_name]
+        # A valid processor should be an explicit subclass of ProcessorBaseClass
+        for processor in ProcessorBaseClass.__subclasses__():
+            if processor_name == processor.__name__:
+                return processor
+        raise TypeError("ERROR: %s is not a subclass of ProcessorBaseClass" % processor_name)
 
     def serialize(self):
         """
@@ -161,7 +145,7 @@ class RecordConstructor(object):
         self.processors.reverse()
         with self.reader as local_reader:
             for record in local_reader:
-                decorated_processor = DevNull()
+                decorated_processor = ProcessorDevNull()
                 for processor_dict in self.processors:
                     # Can pass **kwargs when instanciating a class. If that class contains a
                     # property assigned at init sharing the name of a key in the **kwargs dict,
@@ -173,4 +157,4 @@ class RecordConstructor(object):
                         if processor_args:
                             self.layer_config_params.update(processor_args)
                         decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
-                decorated_processor.process(record)
+                decorated_processor._process(record)
