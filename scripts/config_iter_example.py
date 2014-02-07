@@ -29,7 +29,7 @@ class Configuration(object):
         self.conn_info = {}
         self.layers = {}
 
-    def __get_config_data(self, inConfigPath):
+    def _get_config_data(self, inConfigPath):
         """
         Given a file path to a JSON config file, open and
         convert to a python object.
@@ -39,7 +39,7 @@ class Configuration(object):
             config_data = json_loads(config_string)
             return config_data
 
-    def __validate_config(self, config_data):
+    def _validate_config(self, config_data):
         """
         Not implemented.
         Validate we have all required attributes.
@@ -51,8 +51,8 @@ class Configuration(object):
         Given a configuration path, call methods to validate
         and parse the file into a useable python object.
         """
-        config_data = self.__get_config_data(inConfigPath)
-        if self.__validate_config(config_data):
+        config_data = self._get_config_data(inConfigPath)
+        if self._validate_config(config_data):
             # Populate layers and conn_info attributes
             self.layers = config_data['layers']
             self.conn_info = config_data['conn_info']
@@ -139,28 +139,19 @@ class Controller(object):
     to all layers in a configuration file.
 
     self.config - The Config instance to be passed to the controller.
-    self.processors - A list of Processor class implementations to be used
-        on each record for a given reader.
-    self.reader - Initially set to None, assigned in __get_reader()
+    self.reader - Initially set to None, assigned in _get_reader()
     self.reader_map - A mapping of 'type' values in a JSON config file to
         an actual Reader class implementations.
     """
 
-    def __init__(self, inConfigObject, processors=None):
+    def __init__(self, inConfigObject):
         self.config = inConfigObject
         self.reader = None
         self.reader_map = {
             'csv': CSVReader
         }
-        # Raise error if no processors were found.
-        if processors is None:
-            raise NoProcessorException("ERROR: No Processors Found.")
-        else:
-            # Populate processors and reverse sort order
-            self.processors = processors
-            self.processors.reverse()
 
-    def __get_reader(self):
+    def _get_reader(self):
         """
         Based on a Config Object's conn_info type attribute,
         generate an appropriate reader.
@@ -179,11 +170,13 @@ class Controller(object):
         Initiate processing calling the RecordConstructor's serialize() method.
         """
         # Get required reader class and create an instance.
-        self.__get_reader()
+        self._get_reader()
         selectedReader = self.reader(self.config.conn_info)
         # Spawn RecordConstructors for each layer.
         for layer_name, layer_parameters in self.config.layers.iteritems():
-            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, self.processors)
+            # Extract processing steps for a layer
+            processing_steps = layer_parameters['processing_steps']
+            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, processing_steps)
             rBuild_Inst.serialize()
 
 
@@ -230,14 +223,22 @@ class RecordConstructor(object):
 
     self.reader - the Reader class responsible for connecting to a data source.
     self.layer_name - the layer name extracted from a configuration file.
-    self.layer_parameters - any layer parameters extracted from a configuration file.
+    self.layer_config_parameters - any layer parameters extracted from a configuration file.
     self.processors - Processor class references to be applied to a record.
     """
-    def __init__(self, reader, layer_name, layer_parameters, processors=None):
+    def __init__(self, reader, layer_name, layer_config_params, processors=None):
         self.reader = reader
         self.layer_name = layer_name
-        self.layer_parameters = layer_parameters
+        self.layer_config_params = layer_config_params
         self.processors = processors
+
+    def _get_processor_instance(self, processor_name):
+        """
+        Given a string, test if a Processor class exists by that name.
+        TODO: This seems like a __bad__ idea.
+        """
+        if processor_name in globals():
+            return globals()[processor_name]
 
     def serialize(self):
         """
@@ -246,14 +247,21 @@ class RecordConstructor(object):
         Output is written (serialized) using the Processor class's
         process() method.
         """
+        self.processors.reverse()
         with self.reader as local_reader:
             for record in local_reader:
                 decorated_processor = DevNull()
-                for processor in self.processors:
+                for processor_dict in self.processors:
                     # Can pass **kwargs when instanciating a class. If that class contains a
                     # property assigned at init sharing the name of a key in the **kwargs dict,
                     # that property will be assigned the value extracted from **kwargs
-                    decorated_processor = processor(decorated_processor, **self.layer_parameters)
+                    for processor_name, processor_args in processor_dict.iteritems():
+                        # Create an actual instance of the processor
+                        processor_instance = self._get_processor_instance(processor_name)
+                        # update layer_config_params to include processor_args keys
+                        if processor_args:
+                            self.layer_config_params.update(processor_args)
+                        decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
                 decorated_processor.process(record)
 
 if __name__ == '__main__':
@@ -269,24 +277,6 @@ if __name__ == '__main__':
     pprint(csvConfig.conn_info)
     print "========================"
 
-    processingSteps = [
-        ProcessorTruncateFields,
-        ProcessorChangeCase,
-        ProcessorScreenWriter
-    ]
-
     # Build a controller from the given configuration
-    csvController = Controller(csvConfig, processingSteps)
+    csvController = Controller(csvConfig)
     csvController.createRecordConstructors()
-
-    # manual_csv_config = {
-    #     "type": "csv",
-    #     "path": "/Users/matt/Projects/extracto-matic/scripts/sample_data.csv",
-    #     "delimeter": ",",
-    #     "encoding": "UTF-8"
-    # }
-    #
-    # print "test CSV manually"
-    # with CSVReader(manual_csv_config) as test_CSVReader:
-    #     for record in test_CSVReader:
-    #         print record

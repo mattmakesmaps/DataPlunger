@@ -8,11 +8,24 @@
     "layers": {
         "people": {
             "fields": ["id","name","gender"],
+            "processing_steps": [
+                {"ProcessorTruncateFields": null},
+                {"ProcessorChangeCase": {"case":"upper"}},
+                {"ProcessorScreenWriter": null}
+            ],
             "someUnusedAttribute": 50
         },
         "addresses": {
-            "fields": ["id","city"],
-            "case": "upper"
+            "processing_steps": [
+                {"ProcessorTruncateFields": {"fields": ["id","city"]}},
+                {"ProcessorChangeCase": {"case":"upper"}},
+                {"ProcessorScreenWriter": null}
+            ]
+        },
+        "full_meal_deal": {
+            "processing_steps": [
+                {"ProcessorScreenWriter": null}
+            ]
         }
     }
 }

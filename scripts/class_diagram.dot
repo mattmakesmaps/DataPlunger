@@ -1,18 +1,18 @@
-digraph "classes_No_Name" {
+digraph "class_diagram" {
 graph [fontname = "consolas"];
 node [fontname = "consolas"];
 edge [fontname = "consolas"];
 charset="utf-8"
 rankdir=BT
 "CSVReader" [shape="record", label="{CSVReader|_dict_reader : NoneType\lconn_info\l_file_handler : NoneType\l|__iter__()\l__enter__()\l__exit__()\l__init__()\l}"];
-"Configuration" [shape="record", label="{Configuration|layers : dict\lconn_info : dict\linConfigPath : str\l|parseConfig()\l__get_config_data()\l__validate_config()\l__init__()\l}"];
-"Controller" [shape="record", label="{Controller|config\lreader_map : dict\lprocessors : NoneType\lreader : NoneType\l|createRecordConstructors()\l__get_reader()\l__init__()\l}"];
+"Configuration" [shape="record", label="{Configuration|layers : dict\lconn_info : dict\linConfigPath : str\l|_get_config_data()\lparseConfig()\l_validate_config()\l__init__()\l}"];
+"Controller" [shape="record", label="{Controller|config\lreader_map : dict\lreader : NoneType\l|createRecordConstructors()\l_get_reader()\l__init__()\l}"];
 "DevNull" [shape="record", label="{DevNull|\l|process()\l__init__()\l}"];
 "NoProcessorException" [fontcolor="red", shape="record", label="{NoProcessorException|\l|}"];
 "ProcessorChangeCase" [shape="record", label="{ProcessorChangeCase|case : NoneType\lprocessor\l|process()\l__init__()\l}"];
 "ProcessorScreenWriter" [shape="record", label="{ProcessorScreenWriter|processor\l|process()\l__init__()\l}"];
 "ProcessorTruncateFields" [shape="record", label="{ProcessorTruncateFields|out_fields\lprocessor\l|process()\l__init__()\l}"];
-"RecordConstructor" [shape="record", label="{RecordConstructor|layer_parameters\lreader\lprocessors : NoneType\llayer_name\l|serialize()\l__init__()\l}"];
+"RecordConstructor" [shape="record", label="{RecordConstructor|layer_config_params\lreader\lprocessors : NoneType\llayer_name\l|serialize()\l_get_processor_instance()\l__init__()\l}"];
 subgraph "clusterProcessors"{
     "ProcessorTruncateFields" "ProcessorScreenWriter" "ProcessorChangeCase" "DevNull";
     label = "Processor Class Implementations";
@@ -20,6 +20,6 @@ subgraph "clusterProcessors"{
 "CSVReader" -> "RecordConstructor" [arrowhead="odiamond", arrowtail="none", label="0..1:1"];
 "Configuration" -> "Controller" [arrowhead="odiamond", arrowtail="none", label="1:1"];
 "Controller" -> "RecordConstructor" [arrowhead="odiamond", arrowtail="none", label="1:1..*"];
-{"ProcessorChangeCase" "ProcessorTruncateFields" "ProcessorScreenWriter"} -> "Controller" [arrowhead="odiamond", arrowtail="none", label="0..*:1"] 
+{"ProcessorChangeCase" "ProcessorTruncateFields" "ProcessorScreenWriter"} -> "RecordConstructor" [arrowhead="odiamond", arrowtail="none", label="0..*:1"] 
 {"DevNull"} -> "RecordConstructor" [arrowhead="odiamond", arrowtail="none", label="1:1\lDevNull Instantiated in Serialize Method.\lEnds Processing Chain"] 
 }
