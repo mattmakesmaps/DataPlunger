@@ -1,5 +1,6 @@
 __author__ = 'mkenny'
 import abc
+import csv
 
 class AggregateProcessorBaseClass(object):
     """
@@ -62,3 +63,22 @@ class AggregateProcessorScreenWriter(AggregateProcessorBaseClass):
     def process(self, inLine):
         print inLine
         self.processor._process(inLine)
+
+
+class AggregateProcessorCSVWriter(AggregateProcessorBaseClass):
+    """
+    A Processor class that simply prints contents of a line.
+    """
+    def __init__(self, processor, path, fields, **kwargs):
+        self.processor = processor
+        self.path = path
+        self.fields = fields
+
+    def _log(self, inRecords):
+        print "Starting AggregateProcessorCSVWriter"
+
+    def process(self, inRecords):
+        with open(self.path, 'w') as file:
+            dWriter = csv.DictWriter(file, self.fields)
+            dWriter.writerows(inRecords)
+        self.processor._process(inRecords)

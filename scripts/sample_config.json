@@ -1,24 +1,31 @@
 {
     "conn_info": {
         "type": "ReaderCSV",
-        "path": "/home/mkenny/Projects/extracto-matic/scripts/election_2010_kc.csv",
+        "path": "/Users/matt/Projects/extracto-matic/scripts/election_2010_kc.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
     "layers": {
-        "addresses": {
+        "candidates": {
             "record_processing_steps": [
                 {"ProcessorTruncateFields": {"fields": ["Race","Precinct","Candidate","SumOfCount"]}},
                 {"ProcessorChangeCase": {"case":"upper"}}
             ],
             "aggregate_processing_steps": [
                 {"AggregateProcessorSortRecords": {"sortby": "Candidate"}},
-                {"AggregateProcessorScreenWriter": null}
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/candidate_sorted.csv",
+                    "fields": ["Race","Precinct","Candidate","SumOfCount"]}}
             ]
         },
-        "full_meal_deal": {
+        "precinct": {
             "record_processing_steps": [
-                {"ProcessorScreenWriter": null}
+                {"ProcessorTruncateFields": {"fields": ["Race","Precinct","Candidate","SumOfCount"]}},
+                {"ProcessorChangeCase": {"case":"upper"}}
+            ],
+            "aggregate_processing_steps": [
+                {"AggregateProcessorSortRecords": {"sortby": "Precinct"}},
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/precinct_sorted.csv",
+                    "fields": ["Precinct","Race","Candidate","SumOfCount"]}}
             ]
         }
     }

@@ -2,10 +2,12 @@ __author__ = 'mkenny'
 
 from extracto import *
 from pprint import pprint
+from datetime import datetime
 
 if __name__ == '__main__':
     # Build a config object.
-    config_path = '/home/mkenny/Projects/extracto-matic/scripts/sample_config.json'
+    start_time = datetime.now()
+    config_path = '/Users/matt/Projects/extracto-matic/scripts/sample_config.json'
     csvConfig = Configuration()
     csvConfig.parseConfig(config_path)
 
@@ -19,3 +21,5 @@ if __name__ == '__main__':
     # Build a controller from the given configuration
     csvController = Controller(csvConfig)
     csvController.createRecordConstructors()
+    end_time = datetime.now()-start_time
+    print "Total Time: %s" % end_time

@@ -67,6 +67,7 @@ class ProcessorChangeCase(ProcessorBaseClass):
         This is an example of an overriden _log method
         """
         #print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
+        pass
 
     def process(self, inLine):
         # NOTE: Need to check for None type first.
