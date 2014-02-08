@@ -13,7 +13,8 @@ class ProcessorBaseClass(object):
         self.processor = processor
 
     def _log(self, inLine):
-        print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
+        #print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
+        pass
 
     def _process(self, inLine):
         self._log(inLine)
@@ -65,7 +66,7 @@ class ProcessorChangeCase(ProcessorBaseClass):
         """
         This is an example of an overriden _log method
         """
-        print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
+        #print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
 
     def process(self, inLine):
         # NOTE: Need to check for None type first.

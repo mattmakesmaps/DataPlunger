@@ -1,18 +1,18 @@
 {
     "conn_info": {
         "type": "ReaderCSV",
-        "path": "/home/mkenny/Projects/extracto-matic/scripts/sample_data.csv",
+        "path": "/home/mkenny/Projects/extracto-matic/scripts/election_2010_kc.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
     "layers": {
         "addresses": {
             "record_processing_steps": [
-                {"ProcessorTruncateFields": {"fields": ["id","city"]}},
+                {"ProcessorTruncateFields": {"fields": ["Race","Precinct","Candidate","SumOfCount"]}},
                 {"ProcessorChangeCase": {"case":"upper"}}
             ],
             "aggregate_processing_steps": [
-                {"AggregateProcessorSortRecords": {"sortby": "city"}},
+                {"AggregateProcessorSortRecords": {"sortby": "Candidate"}},
                 {"AggregateProcessorScreenWriter": null}
             ]
         },

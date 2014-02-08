@@ -12,7 +12,8 @@ class AggregateProcessorBaseClass(object):
         self.processor = processor
 
     def _log(self, inRecords):
-        print 'DEFAULT log entry for class %s' % (self.__repr__())
+        #print 'DEFAULT log entry for class %s' % (self.__repr__())
+        pass
 
     def _process(self, inRecords):
         self._log(inRecords)
