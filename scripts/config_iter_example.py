@@ -7,6 +7,23 @@ import csv
 from simplejson import loads as json_loads
 from pprint import pprint
 
+"""
+class AbstractProcessor(object):
+
+    def __init__(self, inProcessor):
+        self.processor = inProcessor
+
+    def _log(self, stuff):
+        pass
+
+    def _process(self, inProcessor, inLine):
+        _log(stuff)
+        processor.process(inLine)
+
+    def process(self, inLine):
+        self._process(self.processor, inLine)
+        # Note, subsequent children need to be rewritten to call _process rather then process.
+"""
 
 class Configuration(object):
     """

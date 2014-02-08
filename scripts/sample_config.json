@@ -1,30 +1,31 @@
 {
     "conn_info": {
-        "type": "csv",
-        "path": "/Users/matt/Projects/extracto-matic/scripts/sample_data.csv",
+        "type": "ReaderCSV",
+        "path": "/Users/matt/Projects/extracto-matic/scripts/election_2010_kc.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
     "layers": {
-        "people": {
-            "fields": ["id","name","gender"],
-            "processing_steps": [
-                {"ProcessorTruncateFields": null},
-                {"ProcessorChangeCase": {"case":"upper"}},
-                {"ProcessorScreenWriter": null}
+        "candidates": {
+            "record_processing_steps": [
+                {"ProcessorTruncateFields": {"fields": ["Race","Precinct","Candidate","SumOfCount"]}},
+                {"ProcessorChangeCase": {"case":"upper"}}
             ],
-            "someUnusedAttribute": 50
-        },
-        "addresses": {
-            "processing_steps": [
-                {"ProcessorTruncateFields": {"fields": ["id","city"]}},
-                {"ProcessorChangeCase": {"case":"upper"}},
-                {"ProcessorScreenWriter": null}
+            "aggregate_processing_steps": [
+                {"AggregateProcessorSortRecords": {"sortby": "Candidate"}},
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/candidate_sorted.csv",
+                    "fields": ["Race","Precinct","Candidate","SumOfCount"]}}
             ]
         },
-        "full_meal_deal": {
-            "processing_steps": [
-                {"ProcessorScreenWriter": null}
+        "precinct": {
+            "record_processing_steps": [
+                {"ProcessorTruncateFields": {"fields": ["Race","Precinct","Candidate","SumOfCount"]}},
+                {"ProcessorChangeCase": {"case":"upper"}}
+            ],
+            "aggregate_processing_steps": [
+                {"AggregateProcessorSortRecords": {"sortby": "Precinct"}},
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/precinct_sorted.csv",
+                    "fields": ["Precinct","Race","Candidate","SumOfCount"]}}
             ]
         }
     }
