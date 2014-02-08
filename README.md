@@ -1,6 +1,6 @@
-extracto-matic
-==============
+DataPlunger
+===========
 
-read, process, process, process... beer.
+Given a well thought out plan, and a good plunger... anyone can set their data free.
 
-Or kale. Or kale-beer.
+A prototype for an ETL workflow.
