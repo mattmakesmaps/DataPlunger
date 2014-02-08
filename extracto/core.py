@@ -142,6 +142,24 @@ class RecordConstructor(object):
                 return processor
         raise TypeError("ERROR: %s processor does not exist" % name)
 
+    def _build_decorated_classes(self, data, initial_processor, processors, BaseClass):
+        """
+        For Record and Aggregate processors, apply decorators and begin processing.
+        """
+        decorated_processor = initial_processor
+        # Can pass **kwargs when instantiating a class. If that class contains a
+        # property assigned at init sharing the name of a key in the **kwargs dict,
+        # that property will be assigned the value extracted from **kwargs
+        for processor_dict in processors:
+            for processor_name, processor_args in processor_dict.iteritems():
+                # Create an actual instance of the processor
+                processor_instance = self._get_processor_instance(processor_name, BaseClass)
+                if processor_args:
+                    # update layer_config_params to include processor_args keys
+                    self.layer_config_params.update(processor_args)
+                decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
+        decorated_processor._process(data)
+
     def serialize(self):
         """
         Using the reader classes' context manager, loop through
@@ -155,28 +173,10 @@ class RecordConstructor(object):
                 # TODO only create a DevNull instance that populates record list
                 # if we actually have aggregate processors for that layer.
                 decorated_processor = ProcessorDevNull(self)
-                for processor_dict in self.record_processors:
-                    # Can pass **kwargs when instanciating a class. If that class contains a
-                    # property assigned at init sharing the name of a key in the **kwargs dict,
-                    # that property will be assigned the value extracted from **kwargs
-                    for processor_name, processor_args in processor_dict.iteritems():
-                        # Create an actual instance of the processor
-                        processor_instance = self._get_processor_instance(processor_name, ProcessorBaseClass)
-                        # update layer_config_params to include processor_args keys
-                        if processor_args:
-                            self.layer_config_params.update(processor_args)
-                        decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
-                decorated_processor._process(record)
+                self._build_decorated_classes(record, decorated_processor, self.record_processors, ProcessorBaseClass)
 
         # Begin execution of aggregate processors if applicable.
-        # TODO Abstract into internal method for record/aggregate processors
         if self.aggregate_processors:
             self.aggregate_processors.reverse()
             decorated_aggregate = AggregateProcessorDevNull(self)
-            for aggregate_dict in self.aggregate_processors:
-                for aggregate_name, aggregate_args in aggregate_dict.iteritems():
-                    aggregate_instance = self._get_processor_instance(aggregate_name, AggregateProcessorBaseClass)
-                    if aggregate_args:
-                        self.layer_config_params.update(aggregate_args)
-                    decorated_aggregate = aggregate_instance(decorated_aggregate, **self.layer_config_params)
-            decorated_aggregate._process(self.records)
+            self._build_decorated_classes(self.records, decorated_aggregate, self.aggregate_processors, AggregateProcessorBaseClass)
