@@ -11,12 +11,12 @@ if __name__ == '__main__':
     csvConfig = Configuration()
     csvConfig.parseConfig(config_path)
 
-    # # Examine Contents
-    # print "Layers:"
-    # pprint(csvConfig.layers)
-    # print "Connection Info"
-    # pprint(csvConfig.conn_info)
-    # print "========================"
+    # Examine Contents
+    print "Layers:"
+    pprint(csvConfig.layers)
+    print "Connection Info"
+    pprint(csvConfig.conn_info)
+    print "========================"
 
     # Build a controller from the given configuration
     csvController = Controller(csvConfig)
