@@ -26,11 +26,17 @@ class ProcessorBaseClass(object):
         pass
 
 class ProcessorDevNull(ProcessorBaseClass):
-    def __init__(self):
+    """
+    ProcessorDevNull serves as the last processor in the chain for a specific
+    record. It ends the processing chain by appending the final record value
+    back to the RecordConstructor's records list.
+    """
+    def __init__(self, RecordConstructor):
         self.processor = None
+        self.record_constructor = RecordConstructor
 
     def process(self, inLine):
-        pass
+        self.record_constructor.records.append(inLine)
 
 class ProcessorScreenWriter(ProcessorBaseClass):
     """
@@ -75,6 +81,23 @@ class ProcessorChangeCase(ProcessorBaseClass):
             raise ValueError("Case Not Supported")
 
 class ProcessorTruncateFields(ProcessorBaseClass):
+    """
+    A decorator class which implements a Processor class' public
+    interface, the process() method.
+    """
+    def __init__(self, processor, fields, **kwargs):
+        self.processor = processor
+        self.out_fields = fields
+
+    def process(self, inLine):
+        """
+        Perform dict comprehension to create a dictionary subset to out_fields only.
+        """
+        truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
+        self.processor._process(truncated_line)
+
+
+class ProcessorSortRecords(ProcessorBaseClass):
     """
     A decorator class which implements a Processor class' public
     interface, the process() method.

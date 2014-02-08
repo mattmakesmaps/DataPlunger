@@ -1,6 +1,7 @@
 __author__ = 'mkenny'
 from .readers import *
 from .processors import *
+from .aggregate_processors import *
 from simplejson import loads as json_loads
 
 class Configuration(object):
@@ -102,8 +103,10 @@ class Controller(object):
         # Spawn RecordConstructors for each layer.
         for layer_name, layer_parameters in self.config.layers.iteritems():
             # Extract processing steps for a layer
-            processing_steps = layer_parameters['processing_steps']
-            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, processing_steps)
+            record_processing_steps = layer_parameters['record_processing_steps']
+            if 'aggregate_processing_steps' in layer_parameters:
+                aggregate_processing_steps = layer_parameters['aggregate_processing_steps']
+            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, record_processing_steps, aggregate_processing_steps)
             rBuild_Inst.serialize()
 
 
@@ -117,23 +120,27 @@ class RecordConstructor(object):
     self.reader - the Reader class responsible for connecting to a data source.
     self.layer_name - the layer name extracted from a configuration file.
     self.layer_config_parameters - any layer parameters extracted from a configuration file.
-    self.processors - Processor class references to be applied to a record.
+    self.record_processors - Processor class references to be applied to a record.
+    self.aggregate_processors - Processor class references to be applied to a record.
+    self.records - A list containing the final value of a processed record.
     """
-    def __init__(self, reader, layer_name, layer_config_params, processors=None):
+    def __init__(self, reader, layer_name, layer_config_params, record_processors=None, aggregate_processors=None):
         self.reader = reader
         self.layer_name = layer_name
         self.layer_config_params = layer_config_params
-        self.processors = processors
+        self.record_processors = record_processors
+        self.aggregate_processors = aggregate_processors
+        self.records = []
 
-    def _get_processor_instance(self, processor_name):
+    def _get_processor_instance(self, name, base_class):
         """
         Given a string, test if a Processor class exists by that name.
         """
         # A valid processor should be an explicit subclass of ProcessorBaseClass
-        for processor in ProcessorBaseClass.__subclasses__():
-            if processor_name == processor.__name__:
+        for processor in base_class.__subclasses__():
+            if name == processor.__name__:
                 return processor
-        raise TypeError("ERROR: %s is not a subclass of ProcessorBaseClass" % processor_name)
+        raise TypeError("ERROR: %s processor does not exist" % name)
 
     def serialize(self):
         """
@@ -142,19 +149,34 @@ class RecordConstructor(object):
         Output is written (serialized) using the Processor class's
         process() method.
         """
-        self.processors.reverse()
+        self.record_processors.reverse()
         with self.reader as local_reader:
             for record in local_reader:
-                decorated_processor = ProcessorDevNull()
-                for processor_dict in self.processors:
+                # TODO only create a DevNull instance that populates record list
+                # if we actually have aggregate processors for that layer.
+                decorated_processor = ProcessorDevNull(self)
+                for processor_dict in self.record_processors:
                     # Can pass **kwargs when instanciating a class. If that class contains a
                     # property assigned at init sharing the name of a key in the **kwargs dict,
                     # that property will be assigned the value extracted from **kwargs
                     for processor_name, processor_args in processor_dict.iteritems():
                         # Create an actual instance of the processor
-                        processor_instance = self._get_processor_instance(processor_name)
+                        processor_instance = self._get_processor_instance(processor_name, ProcessorBaseClass)
                         # update layer_config_params to include processor_args keys
                         if processor_args:
                             self.layer_config_params.update(processor_args)
                         decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
                 decorated_processor._process(record)
+
+        # Begin execution of aggregate processors if applicable.
+        # TODO Abstract into internal method for record/aggregate processors
+        if self.aggregate_processors:
+            self.aggregate_processors.reverse()
+            decorated_aggregate = AggregateProcessorDevNull(self)
+            for aggregate_dict in self.aggregate_processors:
+                for aggregate_name, aggregate_args in aggregate_dict.iteritems():
+                    aggregate_instance = self._get_processor_instance(aggregate_name, AggregateProcessorBaseClass)
+                    if aggregate_args:
+                        self.layer_config_params.update(aggregate_args)
+                    decorated_aggregate = aggregate_instance(decorated_aggregate, **self.layer_config_params)
+            decorated_aggregate._process(self.records)

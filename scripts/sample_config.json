@@ -7,14 +7,17 @@
     },
     "layers": {
         "addresses": {
-            "processing_steps": [
+            "record_processing_steps": [
                 {"ProcessorTruncateFields": {"fields": ["id","city"]}},
-                {"ProcessorChangeCase": {"case":"upper"}},
-                {"ProcessorScreenWriter": null}
+                {"ProcessorChangeCase": {"case":"upper"}}
+            ],
+            "aggregate_processing_steps": [
+                {"AggregateProcessorSortRecords": {"sortby": "city"}},
+                {"AggregateProcessorScreenWriter": null}
             ]
         },
         "full_meal_deal": {
-            "processing_steps": [
+            "record_processing_steps": [
                 {"ProcessorScreenWriter": null}
             ]
         }
