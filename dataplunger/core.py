@@ -4,6 +4,7 @@ from .processors import *
 from .aggregate_processors import *
 from simplejson import loads as json_loads
 
+
 class Configuration(object):
     """
     This class is responsible the conversion of a JSON-formatted configuration
@@ -22,8 +23,9 @@ class Configuration(object):
         Requires full pathway to configuration path.
         """
         self.inConfigPath = ''
-        self.conn_info = {}
-        self.layers = {}
+        self.parsed_configs = {}
+        # self.conn_info = {}
+        # self.layers = []
 
     def _get_config_data(self, inConfigPath):
         """
@@ -47,11 +49,14 @@ class Configuration(object):
         Given a configuration path, call methods to validate
         and parse the file into a useable python object.
         """
-        config_data = self._get_config_data(inConfigPath)
-        if self._validate_config(config_data):
-            # Populate layers and conn_info attributes
-            self.layers = config_data['layers']
-            self.conn_info = config_data['conn_info']
+        parsed_configs = self._get_config_data(inConfigPath)
+        if self._validate_config(parsed_configs):
+            # Generate a dictionary of individual configs with a
+            # ConfigCollection JSON object.
+            self.parsed_configs = {
+                config['name']: {'layers': config['layers'], 'conn_info': config['conn_info']}
+                for config in parsed_configs['configs']
+            }
 
 
 class NoProcessorException(Exception):
@@ -71,13 +76,15 @@ class Controller(object):
     to all layers in a configuration file.
 
     self.config - The Config instance to be passed to the controller.
-    self.reader - Initially set to None, assigned in _get_reader()
-    self.reader_map - A mapping of 'type' values in a JSON config file to
-        an actual Reader class implementations.
+    self.config_name - The name of the actual config within a
+        ConfigCollection to be processed.
     """
 
-    def __init__(self, inConfigObject):
+    def __init__(self, inConfigObject, inConfigName):
         self.config = inConfigObject
+        self.config_name = inConfigName
+        self.conn_info = {}
+        self.layers = []
 
     def _get_reader(self):
         """
@@ -87,9 +94,17 @@ class Controller(object):
         # Check if the configuration object contains a Reader type
         # we actually support. If so, build a reader.
         for reader_class in ReaderBaseClass.__subclasses__():
-            if self.config.conn_info['type'] == reader_class.__name__:
+            if self.conn_info['type'] == reader_class.__name__:
                 return reader_class
         raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
+
+    def _extract_config_details(self):
+        """
+        Popluate self.conn_info and self.layers with information
+        specific to the user provided config name.
+        """
+        self.conn_info = self.config.parsed_configs[self.config_name]['conn_info']
+        self.layers = self.config.parsed_configs[self.config_name]['layers']
 
     def createRecordConstructors(self):
         """
@@ -97,18 +112,20 @@ class Controller(object):
         Create a RecordConstructor for each layer.
         Initiate processing calling the RecordConstructor's serialize() method.
         """
+        # Populate self.layers and self.conn_info
+        self._extract_config_details()
         # Get required reader class and create an instance.
         selectedReaderClass = self._get_reader()
-        selectedReader = selectedReaderClass(self.config.conn_info)
+        selectedReader = selectedReaderClass(self.conn_info)
         # Spawn RecordConstructors for each layer.
-        for layer_name, layer_parameters in self.config.layers.iteritems():
+        for layer_name, layer_parameters in self.layers.iteritems():
             # Extract processing steps for a layer
             record_processing_steps = layer_parameters['record_processing_steps']
             if 'aggregate_processing_steps' in layer_parameters:
                 aggregate_processing_steps = layer_parameters['aggregate_processing_steps']
-            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, record_processing_steps, aggregate_processing_steps)
+            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, record_processing_steps,
+                                            aggregate_processing_steps)
             rBuild_Inst.serialize()
-
 
 
 class RecordConstructor(object):
@@ -124,6 +141,7 @@ class RecordConstructor(object):
     self.aggregate_processors - Processor class references to be applied to a record.
     self.records - A list containing the final value of a processed record.
     """
+
     def __init__(self, reader, layer_name, layer_config_params, record_processors=None, aggregate_processors=None):
         self.reader = reader
         self.layer_name = layer_name
@@ -179,4 +197,5 @@ class RecordConstructor(object):
         if self.aggregate_processors:
             self.aggregate_processors.reverse()
             decorated_aggregate = AggregateProcessorDevNull(self)
-            self._build_decorated_classes(self.records, decorated_aggregate, self.aggregate_processors, AggregateProcessorBaseClass)
+            self._build_decorated_classes(self.records, decorated_aggregate, self.aggregate_processors,
+                                          AggregateProcessorBaseClass)

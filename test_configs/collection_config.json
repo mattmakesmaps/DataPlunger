@@ -1,0 +1,120 @@
+{
+    "type": "ConfigCollection",
+    "configs": [
+        {
+            "name": "KC Election Data",
+            "conn_info": {
+                "type": "ReaderCSV",
+                "path": "/Users/matt/Projects/dataplunger/test_data/election_2010_kc.csv",
+                "delimeter": ",",
+                "encoding": "UTF-8"
+            },
+            "layers": {
+                "candidates": {
+                    "record_processing_steps": [
+                        {
+                            "ProcessorTruncateFields": {
+                                "fields": ["Race", "Precinct", "Candidate", "SumOfCount"]
+                            }
+                        },
+                        {
+                            "ProcessorChangeCase": {
+                                "case": "upper"
+                            }
+                        }
+                    ],
+                    "aggregate_processing_steps": [
+                        {
+                            "AggregateProcessorSortRecords": {
+                                "sortby": "Candidate"
+                            }
+                        },
+                        {
+                            "AggregateProcessorCSVWriter": {
+                                "path": "/Users/matt/Projects/dataplunger/test_output/candidate_sorted.csv",
+                                "fields": ["Race", "Precinct", "Candidate", "SumOfCount"]
+                            }
+                        }
+                    ]
+                },
+                "precinct": {
+                    "record_processing_steps": [
+                        {
+                            "ProcessorTruncateFields": {
+                                "fields": ["Race", "Precinct", "Candidate", "SumOfCount"]
+                            }
+                        },
+                        {
+                            "ProcessorChangeCase": {
+                                "case": "upper"
+                            }
+                        }
+                    ],
+                    "aggregate_processing_steps": [
+                        {
+                            "AggregateProcessorSortRecords": {
+                                "sortby": "Precinct"
+                            }
+                        },
+                        {
+                            "AggregateProcessorCSVWriter": {
+                                "path": "/Users/matt/Projects/dataplunger/test_output/precinct_sorted.csv",
+                                "fields": ["Precinct", "Race", "Candidate", "SumOfCount"]
+                            }
+                        }
+                    ]
+                }
+            }
+
+        },
+        {
+            "name": "KC Restaurant Inspection Data",
+            "conn_info": {
+                "type": "ReaderCSV",
+                "path": "/Users/matt/Projects/dataplunger/test_data/Food_Establishment_Inspection_Data.csv",
+                "delimeter": ",",
+                "encoding": "UTF-8"
+            },
+            "layers": {
+                "RestaurantsSortByViolation": {
+                    "record_processing_steps": [
+                        {
+                            "ProcessorTruncateFields": {
+                                "fields": ["Name", "Inspection Score", "Violation Type", "Violation Description"]
+                            }
+                        },
+                        {
+                            "ProcessorChangeCase": {
+                                "case": "upper"
+                            }
+                        }
+                    ],
+                    "aggregate_processing_steps": [
+                        {
+                            "AggregateProcessorSortRecords": {
+                                "sortby": "Violation Description"
+                            }
+                        },
+                        {
+                            "AggregateProcessorSortRecords": {
+                                "sortby": "Name"
+                            }
+                        },
+                        {
+                            "AggregateProcessorSortRecords": {
+                                "sortby": "Violation Description"
+                            }
+                        },
+                        {
+                            "AggregateProcessorCSVWriter": {
+                                "path": "/Users/matt/Projects/dataplunger/test_output/RestaurantsSortByViolation.csv",
+                                "fields": ["Name", "Inspection Score", "Violation Type", "Violation Description"]
+                            }
+                        }
+                    ]
+                }
+            }
+
+        }
+    ]
+}
