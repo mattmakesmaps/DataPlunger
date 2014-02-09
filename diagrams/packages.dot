@@ -1,0 +1,13 @@
+digraph "packages_No_Name" {
+charset="utf-8"
+rankdir=BT
+"0" [shape="box", label="dataplunger"];
+"1" [shape="box", label="dataplunger.aggregate_processors"];
+"2" [shape="box", label="dataplunger.core"];
+"3" [shape="box", label="dataplunger.processors"];
+"4" [shape="box", label="dataplunger.readers"];
+"0" -> "2" [arrowtail="none", arrowhead="open"];
+"2" -> "1" [arrowtail="none", arrowhead="open"];
+"2" -> "3" [arrowtail="none", arrowhead="open"];
+"2" -> "4" [arrowtail="none", arrowhead="open"];
+}

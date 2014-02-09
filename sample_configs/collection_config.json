@@ -5,7 +5,7 @@
             "name": "KC Election Data",
             "conn_info": {
                 "type": "ReaderCSV",
-                "path": "/Users/matt/Projects/dataplunger/test_data/election_2010_kc.csv",
+                "path": "/Users/matt/Projects/dataplunger/sample_data/election_2010_kc.csv",
                 "delimeter": ",",
                 "encoding": "UTF-8"
             },
@@ -31,7 +31,7 @@
                         },
                         {
                             "AggregateProcessorCSVWriter": {
-                                "path": "/Users/matt/Projects/dataplunger/test_output/candidate_sorted.csv",
+                                "path": "/Users/matt/Projects/dataplunger/sample_output/candidate_sorted.csv",
                                 "fields": ["Race", "Precinct", "Candidate", "SumOfCount"]
                             }
                         }
@@ -58,7 +58,7 @@
                         },
                         {
                             "AggregateProcessorCSVWriter": {
-                                "path": "/Users/matt/Projects/dataplunger/test_output/precinct_sorted.csv",
+                                "path": "/Users/matt/Projects/dataplunger/sample_output/precinct_sorted.csv",
                                 "fields": ["Precinct", "Race", "Candidate", "SumOfCount"]
                             }
                         }
@@ -71,7 +71,7 @@
             "name": "KC Restaurant Inspection Data",
             "conn_info": {
                 "type": "ReaderCSV",
-                "path": "/Users/matt/Projects/dataplunger/test_data/Food_Establishment_Inspection_Data.csv",
+                "path": "/Users/matt/Projects/dataplunger/sample_data/Food_Establishment_Inspection_Data.csv",
                 "delimeter": ",",
                 "encoding": "UTF-8"
             },
@@ -107,7 +107,7 @@
                         },
                         {
                             "AggregateProcessorCSVWriter": {
-                                "path": "/Users/matt/Projects/dataplunger/test_output/RestaurantsSortByViolation.csv",
+                                "path": "/Users/matt/Projects/dataplunger/sample_output/RestaurantsSortByViolation.csv",
                                 "fields": ["Name", "Inspection Score", "Violation Type", "Violation Description"]
                             }
                         }
