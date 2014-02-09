@@ -1,0 +1,39 @@
+digraph "classes_No_Name" {
+charset="utf-8"
+rankdir=BT
+graph [fontname = "consolas"];
+node [fontname = "consolas"];
+edge [fontname = "consolas"];
+"AggregateProcessorBaseClass" [shape="record", label="{AggregateProcessorBaseClass|processor\l__metaclass__\l|process()\l_process()\l__init__()\l_log()\l}"];
+"AggregateProcessorCSVWriter" [shape="record", label="{AggregateProcessorCSVWriter|path\lprocessor\lfields\l|process()\l__init__()\l_log()\l}"];
+"AggregateProcessorDevNull" [shape="record", label="{AggregateProcessorDevNull|record_constructor\lprocessor : NoneType\l|process()\l__init__()\l}"];
+"AggregateProcessorScreenWriter" [shape="record", label="{AggregateProcessorScreenWriter|processor\l|process()\l__init__()\l}"];
+"AggregateProcessorSortRecords" [shape="record", label="{AggregateProcessorSortRecords|processor\lsortby\l|process()\l__init__()\l}"];
+"Configuration" [shape="record", label="{Configuration|parsed_configs : dict\linConfigPath : str\l|_get_config_data()\lparseConfig()\l_validate_config()\l__init__()\l}"];
+"Controller" [shape="record", label="{Controller|layers : list\lconfig\lconfig_name\lconn_info : dict\l|createRecordConstructors()\l_get_reader()\l__init__()\l_extract_config_details()\l}"];
+"NoProcessorException" [fontcolor="red", shape="record", label="{NoProcessorException|\l|}"];
+"ProcessorBaseClass" [shape="record", label="{ProcessorBaseClass|processor\l__metaclass__\l|process()\l_process()\l__init__()\l_log()\l}"];
+"ProcessorChangeCase" [shape="record", label="{ProcessorChangeCase|case : NoneType\lprocessor\l|process()\l__init__()\l_log()\l}"];
+"ProcessorDevNull" [shape="record", label="{ProcessorDevNull|record_constructor\lprocessor : NoneType\l|process()\l__init__()\l}"];
+"ProcessorScreenWriter" [shape="record", label="{ProcessorScreenWriter|processor\l|process()\l__init__()\l}"];
+"ProcessorSortRecords" [shape="record", label="{ProcessorSortRecords|out_fields\lprocessor\l|process()\l__init__()\l}"];
+"ProcessorTruncateFields" [shape="record", label="{ProcessorTruncateFields|out_fields\lprocessor\l|process()\l__init__()\l}"];
+"ReaderBaseClass" [shape="record", label="{ReaderBaseClass|conn_info\l__metaclass__\l|__exit__()\l__iter__()\l__enter__()\l__init__()\l}"];
+"ReaderCSV" [shape="record", label="{ReaderCSV|_dict_reader : NoneType\lconn_info\l_file_handler : NoneType\l|__iter__()\l__enter__()\l__exit__()\l__init__()\l}"];
+"RecordConstructor" [shape="record", label="{RecordConstructor|aggregate_processors : NoneType\lrecord_processors : NoneType\lrecords : list\llayer_config_params\llayer_name\lreader\l|_build_decorated_classes()\lserialize()\l_get_processor_instance()\l__init__()\l}"];
+"ReaderBaseClass" -> "Controller" [arrowhead="diamond", arrowtail="none", label="1:1"];
+"ProcessorBaseClass" -> "RecordConstructor" [arrowhead="diamond", arrowtail="none", label="1..*:1"];
+"AggregateProcessorBaseClass" -> "RecordConstructor" [arrowhead="diamond", arrowtail="none", label="0..*:1"];
+"Configuration" -> "Controller" [arrowhead="odiamond", arrowtail="none", label="1:1..*"];
+"RecordConstructor" -> "Controller" [arrowhead="diamond", arrowtail="none", label="1..*:1"];
+"AggregateProcessorCSVWriter" -> "AggregateProcessorBaseClass" [arrowtail="none"];
+"AggregateProcessorDevNull" -> "AggregateProcessorBaseClass" [arrowtail="none"];
+"AggregateProcessorScreenWriter" -> "AggregateProcessorBaseClass" [arrowtail="none"];
+"AggregateProcessorSortRecords" -> "AggregateProcessorBaseClass" [arrowtail="none"];
+"ProcessorChangeCase" -> "ProcessorBaseClass" [arrowtail="none"];
+"ProcessorDevNull" -> "ProcessorBaseClass" [arrowtail="none"];
+"ProcessorScreenWriter" -> "ProcessorBaseClass" [arrowtail="none"];
+"ProcessorSortRecords" -> "ProcessorBaseClass" [arrowtail="none"];
+"ProcessorTruncateFields" -> "ProcessorBaseClass" [arrowtail="none"];
+"ReaderCSV" -> "ReaderBaseClass" [arrowtail="none"];
+}
