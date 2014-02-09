@@ -1,7 +1,7 @@
 {
     "conn_info": {
         "type": "ReaderCSV",
-        "path": "/Users/matt/Projects/extracto-matic/scripts/election_2010_kc.csv",
+        "path": "/Users/matt/Projects/dataplunger/scripts/election_2010_kc.csv",
         "delimeter": ",",
         "encoding": "UTF-8"
     },
@@ -13,7 +13,7 @@
             ],
             "aggregate_processing_steps": [
                 {"AggregateProcessorSortRecords": {"sortby": "Candidate"}},
-                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/candidate_sorted.csv",
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/scripts/candidate_sorted.csv",
                     "fields": ["Race","Precinct","Candidate","SumOfCount"]}}
             ]
         },
@@ -24,7 +24,7 @@
             ],
             "aggregate_processing_steps": [
                 {"AggregateProcessorSortRecords": {"sortby": "Precinct"}},
-                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/extracto-matic/scripts/precinct_sorted.csv",
+                {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/scripts/precinct_sorted.csv",
                     "fields": ["Precinct","Race","Candidate","SumOfCount"]}}
             ]
         }
