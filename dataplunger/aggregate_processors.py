@@ -79,6 +79,6 @@ class AggregateProcessorCSVWriter(AggregateProcessorBaseClass):
 
     def process(self, inRecords):
         with open(self.path, 'w') as file:
-            dWriter = csv.DictWriter(file, self.fields)
+            dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
             dWriter.writerows(inRecords)
         self.processor._process(inRecords)

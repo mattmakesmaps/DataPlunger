@@ -23,26 +23,7 @@ if __name__ == '__main__':
     epaController.createRecordConstructors()
     layer0_time = datetime.now()-start_time
     print "Layer Zero Time: %s" % layer0_time
-
-    epaController1 = Controller(collectionConfig, "EPA FRS1")
-    epaController1.createRecordConstructors()
-    layer1_time = datetime.now()-start_time
-    print "Layer 1 Time: %s" % layer1_time
-
-    epaController2 = Controller(collectionConfig, "EPA FRS2")
-    epaController2.createRecordConstructors()
-    layer2_time = datetime.now()-start_time
-    print "Layer 2 Time: %s" % layer2_time
-
-    epaController3 = Controller(collectionConfig, "EPA FRS3")
-    epaController3.createRecordConstructors()
-    layer3_time = datetime.now()-start_time
-    print "Layer 3 Time: %s" % layer3_time
-
     epaController4 = Controller(collectionConfig, "EPA FRS4")
     epaController4.createRecordConstructors()
-    layer4_time = datetime.now()-start_time
-    print "Layer 4 Time: %s" % layer4_time
-
     total_time = datetime.now()-start_time
     print "Total Time: %s" % total_time
