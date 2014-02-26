@@ -1,6 +1,6 @@
 __author__ = 'mkenny'
 import abc
-
+from c_processorchangecase import process_changecase
 
 class ProcessorBaseClass(object):
     """
@@ -70,17 +70,11 @@ class ProcessorChangeCase(ProcessorBaseClass):
         pass
 
     def process(self, inLine):
-        # NOTE: Need to check for None type first.
-        if self.case is None:
-            self.processor._process(inLine)
-        elif self.case.lower() == 'upper':
-            inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor._process(inLine)
-        elif self.case.lower() == 'lower':
-            inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor._process(inLine)
-        else:
-            raise ValueError("Case Not Supported")
+        case = self.case.lower()
+        if case not in {'lower', 'upper'}:
+            raise ValueError("Case not supported.")
+        case_mod_line = process_changecase(inLine, case)
+        self.processor._process(case_mod_line)
 
 class ProcessorTruncateFields(ProcessorBaseClass):
     """
@@ -92,10 +86,11 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         self.out_fields = fields
 
     def process(self, inLine):
-        """
+        """/home/mkenny
         Perform dict comprehension to create a dictionary subset to out_fields only.
         """
-        truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
+        #truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
+        truncated_line = {field: inLine[field] for field in self.out_fields}
         self.processor._process(truncated_line)
 
 

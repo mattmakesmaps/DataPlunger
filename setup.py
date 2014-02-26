@@ -1,9 +1,12 @@
 import os
 from setuptools import setup
+from distutils.extension import Extension
+from Cython.Build import cythonize
 
 here = os.path.abspath(os.path.dirname(__file__))
 requires = open(os.path.join(here, 'requirements.txt')).read()
 readme = open(os.path.join(here, 'README.md')).read()
+extensions = [Extension("dataplunger.c_processorchangecase", ["dataplunger/c_processorchangecase.pyx"])]
 
 setup(
     name='dataplunger',
@@ -17,6 +20,7 @@ setup(
         'Intended Audience :: Developers'
     ],
     packages=['dataplunger'],
+    ext_modules = cythonize(extensions),
     url='https://github.com/mattmakesmaps/dataplunger',
     license='GNU GENERAL PUBLIC LICENSE V2',
     keywords='gis etl',
