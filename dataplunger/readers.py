@@ -3,6 +3,7 @@ import abc
 import csv
 import os
 
+
 class ReaderBaseClass(object):
     """
     An abstract base class for a Reader interface.
@@ -25,11 +26,13 @@ class ReaderBaseClass(object):
     def __iter__(self):
         pass
 
+
 class ReaderCSV(ReaderBaseClass):
     """
     Reader class implementation for CSV files.
 
     self.conn_info - the connection information (pathway) for a given file.
+    self.delimiter - extracted from conn_info, defaults to ','
     self._file_handler - set in __enter__(), a read only pointer to the CSV.
     self._dict_reader - an instance of csv.dict_reader()
     """
@@ -56,8 +59,8 @@ class ReaderCSV(ReaderBaseClass):
         self._file_handler.close()
         if exc_type is not None:
             # Exception occurred
-            return False # Will raise the exception
-        return True # Everything's okay
+            return False  # Will raise the exception
+        return True  # Everything's okay
 
     def __iter__(self):
         # Generator returning a dict of field name: field value pairs for each record.
@@ -75,6 +78,7 @@ class ReaderCensus(ReaderBaseClass):
         in 'Sequence_Number_and_Table_Number_Lookup.xls' of the Census.
     self.delimiter - extracted from conn_info, defaults to ','
     self._estimate_reader - csv.reader instance parsing estimate tables.
+    self._estimate_handler - file handler for estimate file.
     self._estimate_path - path to estimate file, generated based on user
         provided path and sequence value.
     self._geography_path - path to geography file, generated based on
@@ -90,6 +94,7 @@ class ReaderCensus(ReaderBaseClass):
         # If no delimiter given in config, default to ','
         self.delimiter = conn_info.get('delimiter', ',')
         self._estimate_reader = None
+        self._estimate_handler = None
         self._estimate_path = None
         self._geography_path = None
         self._geography_records = {}
@@ -122,9 +127,9 @@ class ReaderCensus(ReaderBaseClass):
         """
         geography_file_handle = open(self._geography_path, 'rt')
         geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
-        dReader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
+        geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
-        for record in dReader:
+        for record in geography_reader:
             self._geography_records[record['LOGRECNO']] = {
                 'COMPONENT': record['COMPONENT'],
                 'FILEID': record['FILEID'],
@@ -135,13 +140,12 @@ class ReaderCensus(ReaderBaseClass):
 
     def _build_estimate_reader(self):
         """
-        TODO: Create a CSV reader that contains the six
-        expected fields within the estimates file, along with
-        the n-number of named fields provided by the user in the
-        conn_info configuration block.
+        Create a CSV reader using the estimate file.
+        Reformat starting_position and individual field indexes
+        for use in list lookup.
         """
-        estimate_handler = open(self._estimate_path, 'rt')
-        self._estimate_reader = csv.reader(estimate_handler, delimiter=self.delimiter)
+        self._estimate_handler = open(self._estimate_path, 'rt')
+        self._estimate_reader = csv.reader(self._estimate_handler, delimiter=self.delimiter)
 
         # Reformat the user-provided field indexes with values reflecting starting_position
         # Decrement by two to account for both the user-provided starting position and the field values
@@ -156,30 +160,33 @@ class ReaderCensus(ReaderBaseClass):
         self._get_paths()
         self._build_logrecno_dict()
         self._build_estimate_reader()
-
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # http://www.itmaybeahack.com/book/python-2.6/html/p03/p03c07_contexts.html
         # Close the file handler.
-        self._file_handler.close()
+        self._estimate_handler.close()
         if exc_type is not None:
             # Exception occurred
-            return False # Will raise the exception
-        return True # Everything's okay
+            return False  # Will raise the exception
+        return True  # Everything's okay
 
     def __iter__(self):
-        # Generator returning a dict of field name: field value pairs for each record.
+        """
+        Generator returning a dict of field name: field value pairs for each record.
+        Combines estimate row with corresponding geography row based on common LOGRECNO value.
+        """
         fields = self.conn_info['fields']
         for row in self._estimate_reader:
+            logrecno = row[5]
             estimate_vals = {k: row[v] for k, v in fields.items()}
             # get the corresponding geographic record
-            if row[5] in self._geography_records:
+            if logrecno in self._geography_records:
                 # yield a concatenated estimate and geography dictionary
-                geography_vals = self._geography_records[row[5]]
+                geography_vals = self._geography_records[logrecno]
                 yield dict(estimate_vals.items() + geography_vals.items())
             else:
-                raise KeyError("LOGRECNO: %s not found in geography table." % str(row[5]))
+                raise KeyError("LOGRECNO: %s not found in geography table." % str(logrecno))
 
 
 if __name__ == '__main__':
