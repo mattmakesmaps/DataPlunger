@@ -35,15 +35,19 @@ class ReaderCSV(ReaderBaseClass):
     """
     def __init__(self, conn_info):
         self.conn_info = conn_info
+        # If no delimiter given in config, default to ','
+        self.delimiter = conn_info.get('delimiter', ',')
         self._file_handler = None
         self._dict_reader = None
+
+
 
     def __enter__(self):
         """
         Open a file connection, pass that to an instance of csv.DictReader
         """
         self._file_handler = open(self.conn_info['path'], 'rt')
-        self._dict_reader = csv.DictReader(self._file_handler)
+        self._dict_reader = csv.DictReader(self._file_handler, delimiter=self.delimiter)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -69,17 +73,23 @@ class ReaderCensus(ReaderBaseClass):
         This directory contains estimates and geography tables.
     self.conn_info.sequence - the sequence number of interest as defined
         in 'Sequence_Number_and_Table_Number_Lookup.xls' of the Census.
+    self.delimiter - extracted from conn_info, defaults to ','
+    self._estimate_reader - csv.reader instance parsing estimate tables.
+    self._estimate_path - path to estimate file, generated based on user
+        provided path and sequence value.
+    self._geography_path - path to geography file, generated based on
+        user provided path.
+    self._geography_records - populated by parsing a geography file.
+        a dictionary populated with keys representing LOGRECNO values
+        for a given row, and values representing the first six fields
+        of that row.
 
-    TODO: Reader should parse the geometry table first, creating a lookup table
-    of LOGRECNO values that can mapped by the generator to each record from
-    the estimate table.
-
-    Could be composed of two CSV readers for parsing geography/estimate CSVs.
     """
     def __init__(self, conn_info):
         self.conn_info = conn_info
-        self._file_handler = None
-        self._estimate_dict_reader = None
+        # If no delimiter given in config, default to ','
+        self.delimiter = conn_info.get('delimiter', ',')
+        self._estimate_reader = None
         self._estimate_path = None
         self._geography_path = None
         self._geography_records = {}
@@ -112,7 +122,7 @@ class ReaderCensus(ReaderBaseClass):
         """
         geography_file_handle = open(self._geography_path, 'rt')
         geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
-        dReader = csv.DictReader(geography_file_handle, geography_field_names)
+        dReader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
         for record in dReader:
             self._geography_records[record['LOGRECNO']] = {
@@ -130,14 +140,19 @@ class ReaderCensus(ReaderBaseClass):
         the n-number of named fields provided by the user in the
         conn_info configuration block.
         """
-        self._file_handler = open(self._estimate_path, 'rt')
-        self._estimate_dict_reader = csv.DictReader(self._file_handler)
+        estimate_handler = open(self._estimate_path, 'rt')
+        self._estimate_reader = csv.reader(estimate_handler, delimiter=self.delimiter)
+
+        # Reformat the user-provided field indexes with values reflecting starting_position
+        # Decrement by two to account for both the user-provided starting position and the field values
+        start_index = int(self.conn_info['starting_position']) - 2
+        for k, v in self.conn_info['fields'].iteritems():
+            self.conn_info['fields'][k] = start_index + int(v)
 
     def __enter__(self):
         """
-        Open a file connection, pass that to an instance of csv.DictReader
+        Call internal setup functions.
         """
-        # populate paths
         self._get_paths()
         self._build_logrecno_dict()
         self._build_estimate_reader()
@@ -155,12 +170,26 @@ class ReaderCensus(ReaderBaseClass):
 
     def __iter__(self):
         # Generator returning a dict of field name: field value pairs for each record.
-        for row in self._dict_reader:
-            yield row
+        fields = self.conn_info['fields']
+        for row in self._estimate_reader:
+            estimate_vals = {k: row[v] for k, v in fields.items()}
+            # get the corresponding geographic record
+            if row[5] in self._geography_records:
+                # yield a concatenated estimate and geography dictionary
+                geography_vals = self._geography_records[row[5]]
+                yield dict(estimate_vals.items() + geography_vals.items())
+            else:
+                raise KeyError("LOGRECNO: %s not found in geography table." % str(row[5]))
+
 
 if __name__ == '__main__':
-    conn_info = {'path': '/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only', 'sequence': 2}
-    mR = ReaderCensus(conn_info)
-    mR._get_paths()
-    mR._build_logrecno_dict()
+    conn_info = {
+        'path': '/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only',
+        'sequence': 2,
+        'fields': {"Total:": 1, "Male:": 2, "Female:": 26},
+        'starting_position': 7
+    }
+    with ReaderCensus(conn_info) as mR:
+        for row in mR:
+            print row
     print "done"

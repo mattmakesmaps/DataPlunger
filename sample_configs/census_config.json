@@ -2,11 +2,11 @@
     "type": "ConfigCollection",
     "configs": [
         {
-            "name": "Sex By Age (Black or African American)",
+            "name": "Sex By Age",
             "conn_info": {
                 "type": "ReaderCensus",
                 "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
-                "delimeter": ",",
+                "delimiter": ",",
                 "encoding": "UTF-8",
                 "sequence": 2,
                 "fields": {
@@ -18,7 +18,7 @@
                 "sumlevels": [140]
             },
             "layers": {
-                "Sex_By_Age_Black_Or_African_American": {
+                "Sex_By_Age": {
                     "record_processing_steps": [
                     ],
                     "aggregate_processing_steps": [
