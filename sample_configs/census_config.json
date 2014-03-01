@@ -10,9 +10,9 @@
                 "encoding": "UTF-8",
                 "sequence": 2,
                 "fields": {
-                    "Total:": 1,
-                    "Male:": 2,
-                    "Female:": 17
+                    "Total": 1,
+                    "Male": 2,
+                    "Female": 17
                 },
                 "starting_position": 87,
                 "sumlevels": [140]
@@ -20,8 +20,15 @@
             "layers": {
                 "Sex_By_Age": {
                     "record_processing_steps": [
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
                     ],
                     "aggregate_processing_steps": [
+                        {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
+                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
                     ]
                 }
             }

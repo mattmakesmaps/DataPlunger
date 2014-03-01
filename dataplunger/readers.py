@@ -109,10 +109,10 @@ class ReaderCensus(ReaderBaseClass):
         sequence_num = int(self.conn_info["sequence"])
         for f in dir_contents:
             if f[0] == 'g' and f[len(f)-3:] == 'csv':
-                self._geography_path = os.path.join(conn_info['path'], f)
+                self._geography_path = os.path.join(self.conn_info['path'], f)
             # TODO: trap for instance in which file length <12 char.
             if f[0] == 'e' and int(f[8:12]) == sequence_num:
-                self._estimate_path = os.path.join(conn_info['path'], f)
+                self._estimate_path = os.path.join(self.conn_info['path'], f)
 
         # Raise Errors if not populated.
         if not self._geography_path:
@@ -187,16 +187,3 @@ class ReaderCensus(ReaderBaseClass):
                 yield dict(estimate_vals.items() + geography_vals.items())
             else:
                 raise KeyError("LOGRECNO: %s not found in geography table." % str(logrecno))
-
-
-if __name__ == '__main__':
-    conn_info = {
-        'path': '/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only',
-        'sequence': 2,
-        'fields': {"Total:": 1, "Male:": 2, "Female:": 26},
-        'starting_position': 7
-    }
-    with ReaderCensus(conn_info) as mR:
-        for row in mR:
-            print row
-    print "done"

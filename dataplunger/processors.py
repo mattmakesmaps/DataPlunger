@@ -26,6 +26,51 @@ class ProcessorBaseClass(object):
     def process(self, inLine):
         pass
 
+class ProcessorMatchValue(ProcessorBaseClass):
+    """
+    Keep or discard a record that matches a user-defined field-value pair.
+
+    Required Config Parameters:
+
+    "matches" - A dictionary containing field names (keys) and field entries (values).
+        A match will be subjected to the action specified in the "action" param.
+    "action" - A string, either "Keep" or "Discard". DEFAULTS to "Keep"
+
+    If multiple matches are provided, a hit of any match will trigger the action.
+
+    Example usage:
+        {"ProcessorMatchValue": {
+            "matches":{"SumLevel":140},
+            "action":"Keep"
+        }}
+    """
+    def __init__(self, processor, matches=None, action="Keep", **kwargs):
+        self.processor = processor
+        self.matches = matches
+        self.action = action.lower()
+
+    def _take_action(self, inLine, match_found):
+        """
+        If record meets criteria for inclusion, keep it processing.
+        """
+        if self.action == 'keep' and match_found == True:
+            self.processor._process(inLine)
+        elif self.action == 'discard' and match_found == False:
+            self.processor._process(inLine)
+
+    def process(self, inLine):
+        """
+        Iterate through our user-provided list of matches.
+        If we find a match, take action specified by user.
+        """
+        match_found = False
+        for match_key, match_value in self.matches.iteritems():
+            if str(match_value) == str(inLine[match_key]):
+                print inLine[match_key]
+                match_found = True
+        self._take_action(inLine, match_found)
+
+
 class ProcessorDevNull(ProcessorBaseClass):
     """
     ProcessorDevNull serves as the last processor in the chain for a specific
