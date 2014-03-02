@@ -72,9 +72,6 @@ class Controller(object):
     Given a configuration object, manage the creation of
     RecordConstructor instances, one for each layer.
 
-    NOTE: This now assumes that the same processes will be applied
-    to all layers in a configuration file.
-
     self.config - The Config instance to be passed to the controller.
     self.config_name - The name of the actual config within a
         ConfigCollection to be processed.
