@@ -5,6 +5,16 @@ import abc
 class ProcessorBaseClass(object):
     """
     Abstract Base Class implementing an interface for Processsors.
+
+    Required methods for subclasses:
+    __init__() - takes an input processor to decorate, and any kwargs
+    process() - takes a single parsed record as a dictionary of field names and field values.
+        Method calls the '_process()' method of a decorated processor. Method returns the
+        modified version of the record.
+
+    Non-Required methods for subclasses:
+    _process() - Responsible for calling process() followed by _log().
+    _log() - Responsible for executing logging if overridden. Takes modified record as input.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -12,19 +22,21 @@ class ProcessorBaseClass(object):
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
-    def _log(self, inLine):
+    def _log(self, modLine):
         #print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
         pass
 
     def _process(self, inLine):
-        self._log(inLine)
         # if self.processor:
         #     self.processor.process(inLine)
-        self.process(inLine)
+        modLine = self.process(inLine)
+        self._log(modLine)
 
     @abc.abstractmethod
     def process(self, inLine):
-        pass
+        self.processor._process(inLine)
+        return inLine # return processed line, useful for testing.
+
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """
@@ -53,10 +65,14 @@ class ProcessorMatchValue(ProcessorBaseClass):
         """
         If record meets criteria for inclusion, keep it processing.
         """
-        if self.action == 'keep' and match_found == True:
+        if self.action == 'keep' and  match_found is True:
             self.processor._process(inLine)
-        elif self.action == 'discard' and match_found == False:
+            return True
+        elif self.action == 'discard' and match_found is False:
             self.processor._process(inLine)
+            return True
+        else:
+            return False
 
     def process(self, inLine):
         """
@@ -66,9 +82,11 @@ class ProcessorMatchValue(ProcessorBaseClass):
         match_found = False
         for match_key, match_value in self.matches.iteritems():
             if str(match_value) == str(inLine[match_key]):
-                print inLine[match_key]
                 match_found = True
-        self._take_action(inLine, match_found)
+        if self._take_action(inLine, match_found):
+            # Return inLine only if we have continued processing.
+            # Used to validate function in test_processors.py
+            return inLine
 
 
 class ProcessorDevNull(ProcessorBaseClass):
@@ -84,6 +102,7 @@ class ProcessorDevNull(ProcessorBaseClass):
     def process(self, inLine):
         self.record_constructor.records.append(inLine)
 
+
 class ProcessorScreenWriter(ProcessorBaseClass):
     """
     A Processor class that simply prints contents of a line.
@@ -94,6 +113,7 @@ class ProcessorScreenWriter(ProcessorBaseClass):
     def process(self, inLine):
         print inLine
         self.processor._process(inLine)
+        return inLine
 
 
 class ProcessorChangeCase(ProcessorBaseClass):
@@ -107,11 +127,12 @@ class ProcessorChangeCase(ProcessorBaseClass):
         self.processor = processor
         self.case = case
 
-    def _log(self, inLine):
+    def _log(self, modLine):
         """
         This is an example of an overriden _log method
         """
         #print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
+        #print "Finished Line is %s" % modLine
         pass
 
     def process(self, inLine):
@@ -126,6 +147,7 @@ class ProcessorChangeCase(ProcessorBaseClass):
             self.processor._process(inLine)
         else:
             raise ValueError("Case Not Supported")
+        return inLine
 
 class ProcessorTruncateFields(ProcessorBaseClass):
     """
@@ -142,20 +164,4 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         """
         truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
         self.processor._process(truncated_line)
-
-
-class ProcessorSortRecords(ProcessorBaseClass):
-    """
-    A decorator class which implements a Processor class' public
-    interface, the process() method.
-    """
-    def __init__(self, processor, fields, **kwargs):
-        self.processor = processor
-        self.out_fields = fields
-
-    def process(self, inLine):
-        """
-        Perform dict comprehension to create a dictionary subset to out_fields only.
-        """
-        truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        self.processor._process(truncated_line)
+        return truncated_line
