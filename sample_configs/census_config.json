@@ -23,7 +23,8 @@
                             "matches":{"SUMLEVEL":140},
                             "action":"Keep"
                         }},
-                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
+                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
+                        {"ProcessorScreenWriter": null}
                     ],
                     "aggregate_processing_steps": [
                         {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",

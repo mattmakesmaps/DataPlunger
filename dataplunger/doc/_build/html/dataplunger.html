@@ -209,15 +209,18 @@ process() method.</p>
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorBaseClass</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Abstract Base Class implementing an interface for Processsors.</p>
-<p>Required methods for subclasses:
-__init__() - takes an input processor to decorate, and any kwargs
-process() - takes a single parsed record as a dictionary of field names and field values.</p>
-<blockquote>
-<div>Method calls the &#8216;_process()&#8217; method of a decorated processor. Method returns the
-modified version of the record.</div></blockquote>
-<p>Non-Required methods for subclasses:
-_process() - Responsible for calling process() followed by _log().
-_log() - Responsible for executing logging if overridden. Takes modified record as input.</p>
+<p>Required methods for subclasses:</p>
+<ul class="simple">
+<li>__init__(): takes an input processor to decorate, and any kwargs</li>
+<li>process(): takes a single parsed record as a dictionary of field names and field values.
+Method calls the &#8216;_process()&#8217; method of a decorated processor. Method returns the
+modified version of the record.</li>
+</ul>
+<p>Non-Required methods for subclasses:</p>
+<ul class="simple">
+<li>_process() - Responsible for calling process() followed by _log().</li>
+<li>_log() - Responsible for executing logging if overridden. Takes modified record as input.</li>
+</ul>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorBaseClass.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass.process" title="Permalink to this definition">¶</a></dt>
@@ -229,12 +232,25 @@ _log() - Responsible for executing logging if overridden. Takes modified record 
 <dt id="dataplunger.processors.ProcessorChangeCase">
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorChangeCase</tt><big>(</big><em>processor</em>, <em>case=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorChangeCase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
-<p>A Processor class which implements a public interface, the process() method.
-Responsible for changing case of values.</p>
+<p>Responsible for changing case of values.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>case</strong> (<em>str</em>) &#8211; Either &#8220;Upper&#8221; or &#8220;Lower&#8221;.</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;ProcessorChangeCase&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;case&quot;</span><span class="p">:</span> <span class="s">&quot;upper&quot;</span><span class="p">}}</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorChangeCase.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorChangeCase.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform dictionary comprehension to change case based on user input.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -248,7 +264,8 @@ back to the RecordConstructor&#8217;s records list.</p>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorDevNull.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorDevNull.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add record to the associated record_constructor&#8217;s record list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -256,24 +273,29 @@ back to the RecordConstructor&#8217;s records list.</p>
 <dt id="dataplunger.processors.ProcessorMatchValue">
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorMatchValue</tt><big>(</big><em>processor</em>, <em>matches=None</em>, <em>action='Keep'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorMatchValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
-<p>Keep or discard a record that matches a user-defined field-value pair.</p>
+<p>Keep or discard a record that matches a user-defined field-value pair.
+A match will be subjected to the action specified in the &#8220;action&#8221; param.</p>
 <p>Required Config Parameters:</p>
-<dl class="docutils">
-<dt>&#8220;matches&#8221; - A dictionary containing field names (keys) and field entries (values).</dt>
-<dd>A match will be subjected to the action specified in the &#8220;action&#8221; param.</dd>
-</dl>
-<p>&#8220;action&#8221; - A string, either &#8220;Keep&#8221; or &#8220;Discard&#8221;. DEFAULTS to &#8220;Keep&#8221;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matches</strong> (<em>dict</em>) &#8211; Field names (keys) and field entries (values).</li>
+<li><strong>action</strong> (<em>str</em>) &#8211; Either &#8220;Keep&#8221; or &#8220;Discard&#8221;. DEFAULTS to &#8220;Keep&#8221;.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>If multiple matches are provided, a hit of any match will trigger the action.</p>
-<dl class="docutils">
-<dt>Example usage:</dt>
-<dd><dl class="first docutils">
-<dt>{&#8220;ProcessorMatchValue&#8221;: {</dt>
-<dd>&#8220;matches&#8221;:{&#8220;SumLevel&#8221;:140},
-&#8220;action&#8221;:&#8221;Keep&#8221;</dd>
-</dl>
-<p class="last">}}</p>
-</dd>
-</dl>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;ProcessorMatchValue&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;matches&quot;</span><span class="p">:{</span><span class="s">&quot;SumLevel&quot;</span><span class="p">:</span><span class="mi">140</span><span class="p">},</span>
+    <span class="s">&quot;action&quot;</span><span class="p">:</span><span class="s">&quot;Keep&quot;</span>
+<span class="p">}}</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorMatchValue.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorMatchValue.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue.process" title="Permalink to this definition">¶</a></dt>
@@ -287,11 +309,17 @@ If we find a match, take action specified by user.</p>
 <dt id="dataplunger.processors.ProcessorScreenWriter">
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorScreenWriter</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorScreenWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
-<p>A Processor class that simply prints contents of a line.</p>
+<p>A Processor class that simply prints a record&#8217;s key, values.</p>
+<p>Required Config Parameters: <strong>None</strong></p>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;ProcessorScreenWriter&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorScreenWriter.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorScreenWriter.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Print record to screen.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -300,7 +328,22 @@ If we find a match, take action specified by user.</p>
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorTruncateFields</tt><big>(</big><em>processor</em>, <em>fields</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorTruncateFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
 <p>A decorator class which implements a Processor class&#8217; public
-interface, the process() method.</p>
+interface, the process() method. Designed to truncate a record
+to a specific set of fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fields</strong> (<em>list</em>) &#8211; field names to keep.</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;ProcessorTruncateFields&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Total&quot;</span><span class="p">,</span> <span class="s">&quot;Male&quot;</span><span class="p">,</span> <span class="s">&quot;Female&quot;</span><span class="p">,</span> <span class="s">&quot;SUMLEVEL&quot;</span><span class="p">,</span> <span class="s">&quot;LOGRECNO&quot;</span><span class="p">]</span>
+<span class="p">}}</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorTruncateFields.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorTruncateFields.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields.process" title="Permalink to this definition">¶</a></dt>

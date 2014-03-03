@@ -65,14 +65,16 @@
 <span class="sd">    Abstract Base Class implementing an interface for Processsors.</span>
 
 <span class="sd">    Required methods for subclasses:</span>
-<span class="sd">    __init__() - takes an input processor to decorate, and any kwargs</span>
-<span class="sd">    process() - takes a single parsed record as a dictionary of field names and field values.</span>
-<span class="sd">        Method calls the &#39;_process()&#39; method of a decorated processor. Method returns the</span>
-<span class="sd">        modified version of the record.</span>
+
+<span class="sd">    - __init__(): takes an input processor to decorate, and any kwargs</span>
+<span class="sd">    - process(): takes a single parsed record as a dictionary of field names and field values.</span>
+<span class="sd">      Method calls the &#39;_process()&#39; method of a decorated processor. Method returns the</span>
+<span class="sd">      modified version of the record.</span>
 
 <span class="sd">    Non-Required methods for subclasses:</span>
-<span class="sd">    _process() - Responsible for calling process() followed by _log().</span>
-<span class="sd">    _log() - Responsible for executing logging if overridden. Takes modified record as input.</span>
+
+<span class="sd">    - _process() - Responsible for calling process() followed by _log().</span>
+<span class="sd">    - _log() - Responsible for executing logging if overridden. Takes modified record as input.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
@@ -93,22 +95,23 @@
     <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="ProcessorBaseClass.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">inLine</span> <span class="c"># return processed line, useful for testing.</span>
+        <span class="k">return</span> <span class="n">inLine</span>  <span class="c"># return processed line, useful for testing.</span>
 
 </div></div>
 <div class="viewcode-block" id="ProcessorMatchValue"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorMatchValue">[docs]</a><span class="k">class</span> <span class="nc">ProcessorMatchValue</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Keep or discard a record that matches a user-defined field-value pair.</span>
+<span class="sd">    A match will be subjected to the action specified in the &quot;action&quot; param.</span>
 
 <span class="sd">    Required Config Parameters:</span>
 
-<span class="sd">    &quot;matches&quot; - A dictionary containing field names (keys) and field entries (values).</span>
-<span class="sd">        A match will be subjected to the action specified in the &quot;action&quot; param.</span>
-<span class="sd">    &quot;action&quot; - A string, either &quot;Keep&quot; or &quot;Discard&quot;. DEFAULTS to &quot;Keep&quot;</span>
+<span class="sd">    :param dict matches: Field names (keys) and field entries (values).</span>
+<span class="sd">    :param str action: Either &quot;Keep&quot; or &quot;Discard&quot;. DEFAULTS to &quot;Keep&quot;.</span>
 
 <span class="sd">    If multiple matches are provided, a hit of any match will trigger the action.</span>
 
-<span class="sd">    Example usage:</span>
+<span class="sd">    Example configuration file entry::</span>
+
 <span class="sd">        {&quot;ProcessorMatchValue&quot;: {</span>
 <span class="sd">            &quot;matches&quot;:{&quot;SumLevel&quot;:140},</span>
 <span class="sd">            &quot;action&quot;:&quot;Keep&quot;</span>
@@ -158,17 +161,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span> <span class="o">=</span> <span class="n">RecordConstructor</span>
 
 <div class="viewcode-block" id="ProcessorDevNull.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorDevNull.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add record to the associated record_constructor&#39;s record list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="ProcessorScreenWriter"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorScreenWriter">[docs]</a><span class="k">class</span> <span class="nc">ProcessorScreenWriter</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A Processor class that simply prints contents of a line.</span>
+<span class="sd">    A Processor class that simply prints a record&#39;s key, values.</span>
+
+<span class="sd">    Required Config Parameters: **None**</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorScreenWriter&quot;: null}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
 
 <div class="viewcode-block" id="ProcessorScreenWriter.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorScreenWriter.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print record to screen.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">print</span> <span class="n">inLine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">inLine</span>
@@ -176,8 +191,15 @@
 </div></div>
 <div class="viewcode-block" id="ProcessorChangeCase"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase">[docs]</a><span class="k">class</span> <span class="nc">ProcessorChangeCase</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A Processor class which implements a public interface, the process() method.</span>
 <span class="sd">    Responsible for changing case of values.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str case: Either &quot;Upper&quot; or &quot;Lower&quot;.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorChangeCase&quot;: {&quot;case&quot;: &quot;upper&quot;}}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># NOTE: Passing a default value for self.case allows us</span>
     <span class="c"># To not require it as an attribute for every layer.</span>
@@ -194,6 +216,9 @@
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="ProcessorChangeCase.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform dictionary comprehension to change case based on user input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># NOTE: Need to check for None type first.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
@@ -210,7 +235,16 @@
 <div class="viewcode-block" id="ProcessorTruncateFields"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorTruncateFields">[docs]</a><span class="k">class</span> <span class="nc">ProcessorTruncateFields</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A decorator class which implements a Processor class&#39; public</span>
-<span class="sd">    interface, the process() method.</span>
+<span class="sd">    interface, the process() method. Designed to truncate a record</span>
+<span class="sd">    to a specific set of fields.</span>
+
+<span class="sd">    :param list fields: field names to keep.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorTruncateFields&quot;: {</span>
+<span class="sd">                &quot;fields&quot;: [&quot;Total&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;SUMLEVEL&quot;, &quot;LOGRECNO&quot;]</span>
+<span class="sd">        }}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>

@@ -16,14 +16,16 @@ class ProcessorBaseClass(object):
     Abstract Base Class implementing an interface for Processsors.
 
     Required methods for subclasses:
-    __init__() - takes an input processor to decorate, and any kwargs
-    process() - takes a single parsed record as a dictionary of field names and field values.
-        Method calls the '_process()' method of a decorated processor. Method returns the
-        modified version of the record.
+
+    - __init__(): takes an input processor to decorate, and any kwargs
+    - process(): takes a single parsed record as a dictionary of field names and field values.
+      Method calls the '_process()' method of a decorated processor. Method returns the
+      modified version of the record.
 
     Non-Required methods for subclasses:
-    _process() - Responsible for calling process() followed by _log().
-    _log() - Responsible for executing logging if overridden. Takes modified record as input.
+
+    - _process() - Responsible for calling process() followed by _log().
+    - _log() - Responsible for executing logging if overridden. Takes modified record as input.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -44,22 +46,23 @@ class ProcessorBaseClass(object):
     @abc.abstractmethod
     def process(self, inLine):
         self.processor._process(inLine)
-        return inLine # return processed line, useful for testing.
+        return inLine  # return processed line, useful for testing.
 
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """
     Keep or discard a record that matches a user-defined field-value pair.
+    A match will be subjected to the action specified in the "action" param.
 
     Required Config Parameters:
 
-    "matches" - A dictionary containing field names (keys) and field entries (values).
-        A match will be subjected to the action specified in the "action" param.
-    "action" - A string, either "Keep" or "Discard". DEFAULTS to "Keep"
+    :param dict matches: Field names (keys) and field entries (values).
+    :param str action: Either "Keep" or "Discard". DEFAULTS to "Keep".
 
     If multiple matches are provided, a hit of any match will trigger the action.
 
-    Example usage:
+    Example configuration file entry::
+
         {"ProcessorMatchValue": {
             "matches":{"SumLevel":140},
             "action":"Keep"
@@ -109,17 +112,29 @@ class ProcessorDevNull(ProcessorBaseClass):
         self.record_constructor = RecordConstructor
 
     def process(self, inLine):
+        """
+        Add record to the associated record_constructor's record list.
+        """
         self.record_constructor.records.append(inLine)
 
 
 class ProcessorScreenWriter(ProcessorBaseClass):
     """
-    A Processor class that simply prints contents of a line.
+    A Processor class that simply prints a record's key, values.
+
+    Required Config Parameters: **None**
+
+    Example configuration file entry::
+
+        {"ProcessorScreenWriter": null}
     """
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
     def process(self, inLine):
+        """
+        Print record to screen.
+        """
         print inLine
         self.processor._process(inLine)
         return inLine
@@ -127,8 +142,15 @@ class ProcessorScreenWriter(ProcessorBaseClass):
 
 class ProcessorChangeCase(ProcessorBaseClass):
     """
-    A Processor class which implements a public interface, the process() method.
     Responsible for changing case of values.
+
+    Required Config Parameters:
+
+    :param str case: Either "Upper" or "Lower".
+
+    Example configuration file entry::
+
+        {"ProcessorChangeCase": {"case": "upper"}}
     """
     # NOTE: Passing a default value for self.case allows us
     # To not require it as an attribute for every layer.
@@ -145,6 +167,9 @@ class ProcessorChangeCase(ProcessorBaseClass):
         pass
 
     def process(self, inLine):
+        """
+        Perform dictionary comprehension to change case based on user input.
+        """
         # NOTE: Need to check for None type first.
         if self.case is None:
             self.processor._process(inLine)
@@ -161,7 +186,16 @@ class ProcessorChangeCase(ProcessorBaseClass):
 class ProcessorTruncateFields(ProcessorBaseClass):
     """
     A decorator class which implements a Processor class' public
-    interface, the process() method.
+    interface, the process() method. Designed to truncate a record
+    to a specific set of fields.
+
+    :param list fields: field names to keep.
+
+    Example configuration file entry::
+
+        {"ProcessorTruncateFields": {
+                "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]
+        }}
     """
     def __init__(self, processor, fields, **kwargs):
         self.processor = processor
