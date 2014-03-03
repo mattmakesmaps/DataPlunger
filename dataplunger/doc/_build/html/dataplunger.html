@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dataplunger package &mdash; DataPlunger 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="DataPlunger 0.1 documentation" href="index.html" />
+    <link rel="next" title="dataplunger.tests package" href="dataplunger.tests.html" />
+    <link rel="prev" title="DataPlunger Documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dataplunger.tests.html" title="dataplunger.tests package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="DataPlunger Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dataplunger-package">
+<h1>dataplunger package<a class="headerlink" href="#dataplunger-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-dataplunger.aggregate_processors">
+<span id="dataplunger-aggregate-processors"></span><h2>dataplunger.aggregate_processors<a class="headerlink" href="#module-dataplunger.aggregate_processors" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-aggregate_processors.py"></span><p>Aggregate processors perform changes on an entire set of records.</p>
+<dl class="class">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass">
+<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorBaseClass</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract Base Class implementing an interface for Aggregate Processsors.</p>
+<dl class="method">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass.process">
+<tt class="descname">process</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorBaseClass.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter">
+<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorCSVWriter</tt><big>(</big><em>processor</em>, <em>path</em>, <em>fields</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="dataplunger.aggregate_processors.AggregateProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.aggregate_processors.AggregateProcessorBaseClass</span></tt></a></p>
+<p>A Processor class that simply prints contents of a line.</p>
+<dl class="method">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter.process">
+<tt class="descname">process</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull">
+<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorDevNull</tt><big>(</big><em>RecordConstructor</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorDevNull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="dataplunger.aggregate_processors.AggregateProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.aggregate_processors.AggregateProcessorBaseClass</span></tt></a></p>
+<p>ProcessorDevNull serves as the last processor in the chain for a specific
+record. It ends the processing chain by appending the final aggregate modified
+set of records back to the record constructor.</p>
+<dl class="method">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull.process">
+<tt class="descname">process</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorDevNull.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the originial record_constructor&#8217;s records list to the final list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter">
+<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorScreenWriter</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorScreenWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="dataplunger.aggregate_processors.AggregateProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.aggregate_processors.AggregateProcessorBaseClass</span></tt></a></p>
+<p>A Processor class that simply prints contents of a line.</p>
+<dl class="method">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorScreenWriter.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords">
+<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorSortRecords</tt><big>(</big><em>processor</em>, <em>sortby</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorSortRecords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="dataplunger.aggregate_processors.AggregateProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.aggregate_processors.AggregateProcessorBaseClass</span></tt></a></p>
+<p>A Processor class sorts a collection of records</p>
+<dl class="method">
+<dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords.process">
+<tt class="descname">process</tt><big>(</big><em>records</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorSortRecords.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dataplunger.core">
+<span id="dataplunger-core"></span><h2>dataplunger.core<a class="headerlink" href="#module-dataplunger.core" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-core.py"></span><p>Contains configuration and control code.</p>
+<dl class="class">
+<dt id="dataplunger.core.Configuration">
+<em class="property">class </em><tt class="descclassname">dataplunger.core.</tt><tt class="descname">Configuration</tt><a class="reference internal" href="_modules/dataplunger/core.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This class is responsible the conversion of a JSON-formatted configuration
+file into a python object.</p>
+<p>self.inConfigPath - The full pathway to a JSON-formatted configuration file.
+self.conn_info - Extracted from a parsed configuration file.</p>
+<blockquote>
+<div>A dict representing relevant configuration information.</div></blockquote>
+<dl class="docutils">
+<dt>self.layers - Extracted from a parsed configuration file.</dt>
+<dd>A dict with keys representing layer names and values representing
+properties for that layer.</dd>
+</dl>
+<dl class="method">
+<dt id="dataplunger.core.Configuration.parseConfig">
+<tt class="descname">parseConfig</tt><big>(</big><em>inConfigPath</em><big>)</big><a class="reference internal" href="_modules/dataplunger/core.html#Configuration.parseConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.Configuration.parseConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a configuration path, call methods to validate
+and parse the file into a useable python object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.core.Controller">
+<em class="property">class </em><tt class="descclassname">dataplunger.core.</tt><tt class="descname">Controller</tt><big>(</big><em>inConfigObject</em>, <em>inConfigName</em><big>)</big><a class="reference internal" href="_modules/dataplunger/core.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Given a configuration object, manage the creation of
+RecordConstructor instances, one for each layer.</p>
+<p>self.config - The Config instance to be passed to the controller.
+self.config_name - The name of the actual config within a</p>
+<blockquote>
+<div>ConfigCollection to be processed.</div></blockquote>
+<dl class="method">
+<dt id="dataplunger.core.Controller.createRecordConstructors">
+<tt class="descname">createRecordConstructors</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/core.html#Controller.createRecordConstructors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.Controller.createRecordConstructors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Reader class instance.
+Create a RecordConstructor for each layer.
+Initiate processing calling the RecordConstructor&#8217;s serialize() method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="dataplunger.core.NoProcessorException">
+<em class="property">exception </em><tt class="descclassname">dataplunger.core.</tt><tt class="descname">NoProcessorException</tt><a class="reference internal" href="_modules/dataplunger/core.html#NoProcessorException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.NoProcessorException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>An exception raised when no processors are passed to
+the controller.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.core.RecordConstructor">
+<em class="property">class </em><tt class="descclassname">dataplunger.core.</tt><tt class="descname">RecordConstructor</tt><big>(</big><em>reader</em>, <em>layer_name</em>, <em>layer_config_params</em>, <em>record_processors=None</em>, <em>aggregate_processors=None</em><big>)</big><a class="reference internal" href="_modules/dataplunger/core.html#RecordConstructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.RecordConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A RecordConstructor is composed of a reader and n-number of processors.
+The RecordConstructor is responsible for actually iterating through a datasource,
+provided by self.reader, and processing it using self.processors.</p>
+<p>self.reader - the Reader class responsible for connecting to a data source.
+self.layer_name - the layer name extracted from a configuration file.
+self.layer_config_parameters - any layer parameters extracted from a configuration file.
+self.record_processors - Processor class references to be applied to a record.
+self.aggregate_processors - Processor class references to be applied to a record.
+self.records - A list containing the final value of a processed record.</p>
+<dl class="method">
+<dt id="dataplunger.core.RecordConstructor.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/core.html#RecordConstructor.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.core.RecordConstructor.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using the reader classes&#8217; context manager, loop through
+a reader&#8217;s contents using the reader&#8217;s __iter__() method.
+Output is written (serialized) using the Processor class&#8217;s
+process() method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dataplunger.processors">
+<span id="dataplunger-processors"></span><h2>dataplunger.processors<a class="headerlink" href="#module-dataplunger.processors" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-processors.py"></span><p>Processors perform changes on an individual record.</p>
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorBaseClass">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorBaseClass</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract Base Class implementing an interface for Processsors.</p>
+<p>Required methods for subclasses:
+__init__() - takes an input processor to decorate, and any kwargs
+process() - takes a single parsed record as a dictionary of field names and field values.</p>
+<blockquote>
+<div>Method calls the &#8216;_process()&#8217; method of a decorated processor. Method returns the
+modified version of the record.</div></blockquote>
+<p>Non-Required methods for subclasses:
+_process() - Responsible for calling process() followed by _log().
+_log() - Responsible for executing logging if overridden. Takes modified record as input.</p>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorBaseClass.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorChangeCase">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorChangeCase</tt><big>(</big><em>processor</em>, <em>case=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorChangeCase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
+<p>A Processor class which implements a public interface, the process() method.
+Responsible for changing case of values.</p>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorChangeCase.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorChangeCase.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorDevNull">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorDevNull</tt><big>(</big><em>RecordConstructor</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorDevNull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
+<p>ProcessorDevNull serves as the last processor in the chain for a specific
+record. It ends the processing chain by appending the final record value
+back to the RecordConstructor&#8217;s records list.</p>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorDevNull.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorDevNull.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorMatchValue">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorMatchValue</tt><big>(</big><em>processor</em>, <em>matches=None</em>, <em>action='Keep'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorMatchValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
+<p>Keep or discard a record that matches a user-defined field-value pair.</p>
+<p>Required Config Parameters:</p>
+<dl class="docutils">
+<dt>&#8220;matches&#8221; - A dictionary containing field names (keys) and field entries (values).</dt>
+<dd>A match will be subjected to the action specified in the &#8220;action&#8221; param.</dd>
+</dl>
+<p>&#8220;action&#8221; - A string, either &#8220;Keep&#8221; or &#8220;Discard&#8221;. DEFAULTS to &#8220;Keep&#8221;</p>
+<p>If multiple matches are provided, a hit of any match will trigger the action.</p>
+<dl class="docutils">
+<dt>Example usage:</dt>
+<dd><dl class="first docutils">
+<dt>{&#8220;ProcessorMatchValue&#8221;: {</dt>
+<dd>&#8220;matches&#8221;:{&#8220;SumLevel&#8221;:140},
+&#8220;action&#8221;:&#8221;Keep&#8221;</dd>
+</dl>
+<p class="last">}}</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorMatchValue.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorMatchValue.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate through our user-provided list of matches.
+If we find a match, take action specified by user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorScreenWriter">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorScreenWriter</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorScreenWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
+<p>A Processor class that simply prints contents of a line.</p>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorScreenWriter.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorScreenWriter.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.processors.ProcessorTruncateFields">
+<em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorTruncateFields</tt><big>(</big><em>processor</em>, <em>fields</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorTruncateFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.processors.ProcessorBaseClass" title="dataplunger.processors.ProcessorBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.processors.ProcessorBaseClass</span></tt></a></p>
+<p>A decorator class which implements a Processor class&#8217; public
+interface, the process() method.</p>
+<dl class="method">
+<dt id="dataplunger.processors.ProcessorTruncateFields.process">
+<tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorTruncateFields.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform dict comprehension to create a dictionary subset to out_fields only.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dataplunger.readers">
+<span id="dataplunger-readers"></span><h2>dataplunger.readers<a class="headerlink" href="#module-dataplunger.readers" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-readers.py"></span><p>Readers are responsible for creating a connection to a backing datasource,
+and returning an iterable that yields a single record of data from that datasource.</p>
+<dl class="class">
+<dt id="dataplunger.readers.ReaderBaseClass">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderBaseClass</tt><big>(</big><em>conn_info</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An abstract base class for a Reader interface.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.readers.ReaderCSV">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderCSV</tt><big>(</big><em>conn_info</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCSV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.readers.ReaderBaseClass" title="dataplunger.readers.ReaderBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.readers.ReaderBaseClass</span></tt></a></p>
+<p>Reader class implementation for CSV files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn_info</strong> &#8211; the connection information (pathway) for a given CSV file.</li>
+<li><strong>conn_info.path</strong> &#8211; attribute containing the actual file path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.readers.ReaderCensus">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderCensus</tt><big>(</big><em>conn_info</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataplunger.readers.ReaderBaseClass" title="dataplunger.readers.ReaderBaseClass"><tt class="xref py py-class docutils literal"><span class="pre">dataplunger.readers.ReaderBaseClass</span></tt></a></p>
+<p>Reader class implementation for Census ACS Summary Files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn_info</strong> &#8211; contains path and sequence attributes (see below).</li>
+<li><strong>conn_info.path</strong> &#8211; contains a pathway to an ACS formatted directory of estimate and geography tables.</li>
+<li><strong>conn_info.sequence</strong> &#8211; Sequence No. From, &#8216;Sequence_Number_and_Table_Number_Lookup.xls&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dataplunger.tests.html">dataplunger.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dataplunger.tests.html#module-dataplunger.tests.tests_processors">dataplunger.tests.tests_processors</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dataplunger package</a><ul>
+<li><a class="reference internal" href="#module-dataplunger.aggregate_processors">dataplunger.aggregate_processors</a></li>
+<li><a class="reference internal" href="#module-dataplunger.core">dataplunger.core</a></li>
+<li><a class="reference internal" href="#module-dataplunger.processors">dataplunger.processors</a></li>
+<li><a class="reference internal" href="#module-dataplunger.readers">dataplunger.readers</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">DataPlunger Documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dataplunger.tests.html"
+                        title="next chapter">dataplunger.tests package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dataplunger.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dataplunger.tests.html" title="dataplunger.tests package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="DataPlunger Documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Kenny.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

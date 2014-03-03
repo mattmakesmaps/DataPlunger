@@ -1,3 +1,12 @@
+"""
+.. module:: aggregate_processors.py
+   :platform: Unix
+   :synopsis: Aggregate processors perform changes on an entire set of records.
+
+.. moduleauthor:: Matt
+
+Aggregate processors perform changes on an entire set of records.
+"""
 __author__ = 'mkenny'
 import abc
 import csv

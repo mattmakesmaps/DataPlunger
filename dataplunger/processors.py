@@ -1,3 +1,12 @@
+"""
+.. module:: processors.py
+   :platform: Unix
+   :synopsis: Processors perform changes on an individual record.
+
+.. moduleauthor:: Matt
+
+Processors perform changes on an individual record.
+"""
 __author__ = 'mkenny'
 import abc
 

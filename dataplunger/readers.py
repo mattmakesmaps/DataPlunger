@@ -1,3 +1,13 @@
+"""
+.. module:: readers.py
+   :platform: Unix
+   :synopsis: Readers connect to data and return individual records.
+
+.. moduleauthor:: Matt
+
+Readers are responsible for creating a connection to a backing datasource,
+and returning an iterable that yields a single record of data from that datasource.
+"""
 __author__ = 'mkenny'
 import abc
 import csv
@@ -30,13 +40,17 @@ class ReaderBaseClass(object):
 class ReaderCSV(ReaderBaseClass):
     """
     Reader class implementation for CSV files.
-
-    self.conn_info - the connection information (pathway) for a given file.
-    self.delimiter - extracted from conn_info, defaults to ','
-    self._file_handler - set in __enter__(), a read only pointer to the CSV.
-    self._dict_reader - an instance of csv.dict_reader()
+    
+    :param conn_info: the connection information (pathway) for a given CSV file.
+    :param conn_info.path: attribute containing the actual file path.
     """
     def __init__(self, conn_info):
+        """
+        :param conn_info: the connection information (pathway) for a given file.
+        :param delimiter:  extracted from conn_info, defaults to ','
+        :param _file_handler:  set in __enter__(), a read only pointer to the CSV.
+        :param _dict_reader:  an instance of csv.dict_reader()
+        """
         self.conn_info = conn_info
         # If no delimiter given in config, default to ','
         self.delimiter = conn_info.get('delimiter', ',')
@@ -54,8 +68,9 @@ class ReaderCSV(ReaderBaseClass):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # http://www.itmaybeahack.com/book/python-2.6/html/p03/p03c07_contexts.html
-        # Close the file handler.
+        """
+        Close the file handler.
+        """
         self._file_handler.close()
         if exc_type is not None:
             # Exception occurred
@@ -63,7 +78,9 @@ class ReaderCSV(ReaderBaseClass):
         return True  # Everything's okay
 
     def __iter__(self):
-        # Generator returning a dict of field name: field value pairs for each record.
+        """
+        Generator returning a dict of field name: field value pairs for each record.
+        """
         for row in self._dict_reader:
             yield row
 
@@ -72,24 +89,24 @@ class ReaderCensus(ReaderBaseClass):
     """
     Reader class implementation for Census ACS Summary Files.
 
-    self.conn_info.path - contains a pathway to an ACS formatted directory.
-        This directory contains estimates and geography tables.
-    self.conn_info.sequence - the sequence number of interest as defined
-        in 'Sequence_Number_and_Table_Number_Lookup.xls' of the Census.
-    self.delimiter - extracted from conn_info, defaults to ','
-    self._estimate_reader - csv.reader instance parsing estimate tables.
-    self._estimate_handler - file handler for estimate file.
-    self._estimate_path - path to estimate file, generated based on user
-        provided path and sequence value.
-    self._geography_path - path to geography file, generated based on
-        user provided path.
-    self._geography_records - populated by parsing a geography file.
-        a dictionary populated with keys representing LOGRECNO values
-        for a given row, and values representing the first six fields
-        of that row.
-
+    :param conn_info: contains path and sequence attributes (see below).
+    :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.
+    :param conn_info.sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
     """
+
     def __init__(self, conn_info):
+        """
+        :param conn_info: contains path and sequence attributes (see above).
+        :param delimiter: extracted from conn_info, defaults to ','.
+        :param _estimate_reader: csv.reader instance parsing estimate tables.
+        :param _estimate_handler: file handler for estimate file.
+        :param _estimate_path: path to estimate file, generated based on user provided path and sequence value.
+        :param _geography_path: path to geography file, generated based on user provided path.
+        :param _geography_records: populated by parsing a geography file.
+            a dictionary populated with keys representing LOGRECNO values
+            for a given row, and values representing the first six fields
+            of that row.
+        """
         self.conn_info = conn_info
         # If no delimiter given in config, default to ','
         self.delimiter = conn_info.get('delimiter', ',')
@@ -101,9 +118,9 @@ class ReaderCensus(ReaderBaseClass):
 
     def _get_paths(self):
         """
-        Given a directory, build paths for the geography and estimate files.
+        Build paths for the geography and estimate files.
         Geography files begin a 'g' and have a CSV extension.
-        Estimate files are based on the sequence number
+        Estimate files are based on the sequence number.
         """
         dir_contents = os.listdir(self.conn_info['path'])
         sequence_num = int(self.conn_info["sequence"])

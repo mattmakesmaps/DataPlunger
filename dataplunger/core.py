@@ -1,3 +1,12 @@
+"""
+.. module:: core.py
+   :platform: Unix
+   :synopsis: Contains configuration and control code.
+
+.. moduleauthor:: Matt
+
+Contains configuration and control code.
+"""
 __author__ = 'mkenny'
 from .readers import *
 from .processors import *
