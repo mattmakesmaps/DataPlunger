@@ -18,13 +18,13 @@ class ProcessorBaseClass(object):
     Required methods for subclasses:
 
     - __init__(): takes an input processor to decorate, and any kwargs
-    - process(): takes a single parsed record as a dictionary of field names and field values.
-      Method calls the '_process()' method of a decorated processor. Method returns the
+    - _process(): takes a single parsed record as a dictionary of field names and field values.
+      Method calls the 'process()' method of a decorated processor. Method returns the
       modified version of the record.
 
     Non-Required methods for subclasses:
 
-    - _process() - Responsible for calling process() followed by _log().
+    - process() - Responsible for calling _process() followed by _log().
     - _log() - Responsible for executing logging if overridden. Takes modified record as input.
     """
     __metaclass__ = abc.ABCMeta
@@ -37,16 +37,14 @@ class ProcessorBaseClass(object):
         #print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
         pass
 
-    def _process(self, inLine):
-        # if self.processor:
-        #     self.processor.process(inLine)
-        modLine = self.process(inLine)
-        self._log(modLine)
-
     @abc.abstractmethod
+    def _process(self, inLine):
+        return self.processor.process(inLine)
+
     def process(self, inLine):
-        self.processor._process(inLine)
-        return inLine  # return processed line, useful for testing.
+        modLine = self._process(inLine)
+        self._log(modLine)
+        return modLine  # return processed line, useful for testing.
 
 
 class ProcessorMatchValue(ProcessorBaseClass):
@@ -78,15 +76,15 @@ class ProcessorMatchValue(ProcessorBaseClass):
         If record meets criteria for inclusion, keep it processing.
         """
         if self.action == 'keep' and  match_found is True:
-            self.processor._process(inLine)
+            self.processor.process(inLine)
             return True
         elif self.action == 'discard' and match_found is False:
-            self.processor._process(inLine)
+            self.processor.process(inLine)
             return True
         else:
             return False
 
-    def process(self, inLine):
+    def _process(self, inLine):
         """
         Iterate through our user-provided list of matches.
         If we find a match, take action specified by user.
@@ -111,7 +109,7 @@ class ProcessorDevNull(ProcessorBaseClass):
         self.processor = None
         self.record_constructor = RecordConstructor
 
-    def process(self, inLine):
+    def _process(self, inLine):
         """
         Add record to the associated record_constructor's record list.
         """
@@ -131,12 +129,12 @@ class ProcessorScreenWriter(ProcessorBaseClass):
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
-    def process(self, inLine):
+    def _process(self, inLine):
         """
         Print record to screen.
         """
         print inLine
-        self.processor._process(inLine)
+        self.processor.process(inLine)
         return inLine
 
 
@@ -166,19 +164,19 @@ class ProcessorChangeCase(ProcessorBaseClass):
         #print "Finished Line is %s" % modLine
         pass
 
-    def process(self, inLine):
+    def _process(self, inLine):
         """
         Perform dictionary comprehension to change case based on user input.
         """
         # NOTE: Need to check for None type first.
         if self.case is None:
-            self.processor._process(inLine)
+            self.processor.process(inLine)
         elif self.case.lower() == 'upper':
             inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor._process(inLine)
+            self.processor.process(inLine)
         elif self.case.lower() == 'lower':
             inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor._process(inLine)
+            self.processor.process(inLine)
         else:
             raise ValueError("Case Not Supported")
         return inLine
@@ -201,10 +199,10 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         self.processor = processor
         self.out_fields = fields
 
-    def process(self, inLine):
+    def _process(self, inLine):
         """
         Perform dict comprehension to create a dictionary subset to out_fields only.
         """
         truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        self.processor._process(truncated_line)
+        self.processor.process(truncated_line)
         return truncated_line

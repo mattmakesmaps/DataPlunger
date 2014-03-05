@@ -19,19 +19,39 @@ class AggregateProcessorBaseClass(object):
 
     @abc.abstractmethod
     def __init__(self, processor, **kwargs):
+        """
+        Required argument
+
+        :param processor: A decorated processor to be executed.
+        """
         self.processor = processor
 
     def _log(self, inRecords):
-        #print 'DEFAULT log entry for class %s' % (self.__repr__())
-        pass
+        """
+        Responsible for executing logging if overridden.
 
-    def _process(self, inRecords):
-        self._log(inRecords)
-        self.process(inRecords)
+        :param inRecods: A list of records to log an action against.
+        """
+        pass
 
     @abc.abstractmethod
+    def _process(self, inRecords):
+        """
+        Perform an action against a list of records.
+
+        :param inRecords: A list of records to log an action against.
+        """
+        return self.processor.process(inRecords)
+
     def process(self, inRecords):
-        pass
+        """
+        Call _log() followed by process()
+
+        :param inRecods: A list of records to log an action against.
+        """
+        modRecords = self._process(inRecords)
+        self._log(modRecords)
+        return modRecords
 
 class AggregateProcessorDevNull(AggregateProcessorBaseClass):
     """
@@ -43,7 +63,7 @@ class AggregateProcessorDevNull(AggregateProcessorBaseClass):
         self.processor = None
         self.record_constructor = RecordConstructor
 
-    def process(self, inRecords):
+    def _process(self, inRecords):
         """
         Reset the originial record_constructor's records list to the final list.
         """
@@ -57,9 +77,9 @@ class AggregateProcessorSortRecords(AggregateProcessorBaseClass):
         self.processor = processor
         self.sortby = sortby
 
-    def process(self, records):
+    def _process(self, records):
         sorted_records = sorted(records, key=lambda k: k[self.sortby])
-        self.processor._process(sorted_records)
+        self.processor.process(sorted_records)
 
 
 class AggregateProcessorScreenWriter(AggregateProcessorBaseClass):
@@ -69,9 +89,9 @@ class AggregateProcessorScreenWriter(AggregateProcessorBaseClass):
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
-    def process(self, inLine):
+    def _process(self, inLine):
         print inLine
-        self.processor._process(inLine)
+        self.processor.process(inLine)
 
 
 class AggregateProcessorCSVWriter(AggregateProcessorBaseClass):
@@ -86,8 +106,8 @@ class AggregateProcessorCSVWriter(AggregateProcessorBaseClass):
     def _log(self, inRecords):
         print "Starting AggregateProcessorCSVWriter"
 
-    def process(self, inRecords):
+    def _process(self, inRecords):
         with open(self.path, 'w') as file:
             dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
             dWriter.writerows(inRecords)
-        self.processor._process(inRecords)
+        self.processor.process(inRecords)

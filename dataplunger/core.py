@@ -182,7 +182,7 @@ class RecordConstructor(object):
                     # update layer_config_params to include processor_args keys
                     self.layer_config_params.update(processor_args)
                 decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
-        decorated_processor._process(data)
+        decorated_processor.process(data)
 
     def serialize(self):
         """
