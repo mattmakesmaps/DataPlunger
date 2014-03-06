@@ -2,6 +2,8 @@
 *.py[cod]
 *.DS_STORE
 *.csv
+cython_profiles
+dumpprof.py
 
 # C extensions
 *.so

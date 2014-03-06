@@ -1,3 +1,12 @@
+"""
+.. module:: core.py
+   :platform: Unix
+   :synopsis: Contains configuration and control code.
+
+.. moduleauthor:: Matt
+
+Contains configuration and control code.
+"""
 __author__ = 'mkenny'
 from .readers import *
 from .processors import *
@@ -71,9 +80,6 @@ class Controller(object):
     """
     Given a configuration object, manage the creation of
     RecordConstructor instances, one for each layer.
-
-    NOTE: This now assumes that the same processes will be applied
-    to all layers in a configuration file.
 
     self.config - The Config instance to be passed to the controller.
     self.config_name - The name of the actual config within a
@@ -176,7 +182,7 @@ class RecordConstructor(object):
                     # update layer_config_params to include processor_args keys
                     self.layer_config_params.update(processor_args)
                 decorated_processor = processor_instance(decorated_processor, **self.layer_config_params)
-        decorated_processor._process(data)
+        decorated_processor.process(data)
 
     def serialize(self):
         """
