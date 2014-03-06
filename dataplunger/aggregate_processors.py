@@ -20,9 +20,7 @@ class AggregateProcessorBaseClass(object):
     @abc.abstractmethod
     def __init__(self, processor, **kwargs):
         """
-        Required argument
-
-        :param processor: A decorated processor to be executed.
+        :param processor: A decorated processor object to be executed.
         """
         self.processor = processor
 

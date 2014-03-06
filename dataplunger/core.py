@@ -19,12 +19,8 @@ class Configuration(object):
     This class is responsible the conversion of a JSON-formatted configuration
     file into a python object.
 
-    self.inConfigPath - The full pathway to a JSON-formatted configuration file.
-    self.conn_info - Extracted from a parsed configuration file.
-                A dict representing relevant configuration information.
-    self.layers - Extracted from a parsed configuration file.
-                A dict with keys representing layer names and values representing
-                properties for that layer.
+    :param str inConfigPath: The full pathway to a JSON-formatted configuration file.
+    :param dict parsed_configs: Configuration info populated by parsedConfig.
     """
 
     def __init__(self):
@@ -33,13 +29,13 @@ class Configuration(object):
         """
         self.inConfigPath = ''
         self.parsed_configs = {}
-        # self.conn_info = {}
-        # self.layers = []
 
     def _get_config_data(self, inConfigPath):
         """
         Given a file path to a JSON config file, open and
         convert to a python object.
+
+        :param str inConfigPath: full pathway to a JSON-formatted config file.
         """
         with open(inConfigPath) as config_file:
             config_string = config_file.read()
@@ -50,6 +46,8 @@ class Configuration(object):
         """
         Not implemented.
         Validate we have all required attributes.
+
+        :param dict config_data: parsed config info via _get_config_data()
         """
         return config_data
 
@@ -57,6 +55,8 @@ class Configuration(object):
         """
         Given a configuration path, call methods to validate
         and parse the file into a useable python object.
+
+        :param str inConifgPath: full pathway to a JSON-formatted config file.
         """
         parsed_configs = self._get_config_data(inConfigPath)
         if self._validate_config(parsed_configs):
@@ -81,16 +81,14 @@ class Controller(object):
     Given a configuration object, manage the creation of
     RecordConstructor instances, one for each layer.
 
-    self.config - The Config instance to be passed to the controller.
-    self.config_name - The name of the actual config within a
-        ConfigCollection to be processed.
+    :param config: Config instance to be passed to the controller.
+    :param config_name: Name of the individual config within a ConfigCollection to be processed.
     """
 
-    def __init__(self, inConfigObject, inConfigName):
-        self.config = inConfigObject
-        self.config_name = inConfigName
-        self.conn_info = {}
-        self.layers = []
+    def __init__(self, config, config_name):
+        self.config_name = config_name 
+        self.conn_info = config.parsed_configs[self.config_name]['conn_info']
+        self.layers = config.parsed_configs[self.config_name]['layers']
 
     def _get_reader(self):
         """
@@ -104,22 +102,12 @@ class Controller(object):
                 return reader_class
         raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
 
-    def _extract_config_details(self):
-        """
-        Popluate self.conn_info and self.layers with information
-        specific to the user provided config name.
-        """
-        self.conn_info = self.config.parsed_configs[self.config_name]['conn_info']
-        self.layers = self.config.parsed_configs[self.config_name]['layers']
-
     def createRecordConstructors(self):
         """
         Create a Reader class instance.
         Create a RecordConstructor for each layer.
         Initiate processing calling the RecordConstructor's serialize() method.
         """
-        # Populate self.layers and self.conn_info
-        self._extract_config_details()
         # Get required reader class and create an instance.
         selectedReaderClass = self._get_reader()
         selectedReader = selectedReaderClass(self.conn_info)
@@ -129,8 +117,8 @@ class Controller(object):
             record_processing_steps = layer_parameters['record_processing_steps']
             if 'aggregate_processing_steps' in layer_parameters:
                 aggregate_processing_steps = layer_parameters['aggregate_processing_steps']
-            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, record_processing_steps,
-                                            aggregate_processing_steps)
+            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters,
+                record_processing_steps, aggregate_processing_steps)
             rBuild_Inst.serialize()
 
 
@@ -140,12 +128,12 @@ class RecordConstructor(object):
     The RecordConstructor is responsible for actually iterating through a datasource,
     provided by self.reader, and processing it using self.processors.
 
-    self.reader - the Reader class responsible for connecting to a data source.
-    self.layer_name - the layer name extracted from a configuration file.
-    self.layer_config_parameters - any layer parameters extracted from a configuration file.
-    self.record_processors - Processor class references to be applied to a record.
-    self.aggregate_processors - Processor class references to be applied to a record.
-    self.records - A list containing the final value of a processed record.
+    :param reader: reader class responsible for connecting to a data source.
+    :param layer_name: layer name extracted from a configuration file.
+    :param layer_config_parameters: layer parameters extracted from a configuration file.
+    :param record_processors: processor class references to be applied to a record.
+    :param aggregate_processors: aggregate Processor class references to be applied to a record.
+    :param list records: processed record.
     """
 
     def __init__(self, reader, layer_name, layer_config_params, record_processors=None, aggregate_processors=None):

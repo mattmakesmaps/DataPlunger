@@ -7,4 +7,6 @@ dataplunger.tests.tests_processors
 .. automodule:: dataplunger.tests.tests_processors
     :members:
     :undoc-members:
+    :private-members:
+    :special-members:
     :show-inheritance:

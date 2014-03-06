@@ -70,22 +70,22 @@
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
     <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
+<div class="viewcode-block" id="ReaderBaseClass.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderBaseClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span> <span class="o">=</span> <span class="n">conn_info</span>
-
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">ext_tb</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
-
 </div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ReaderBaseClass.__enter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderBaseClass.__enter__">[docs]</a>    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ReaderBaseClass.__exit__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderBaseClass.__exit__">[docs]</a>    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">ext_tb</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ReaderBaseClass.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderBaseClass.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+</div></div>
 <div class="viewcode-block" id="ReaderCSV"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV">[docs]</a><span class="k">class</span> <span class="nc">ReaderCSV</span><span class="p">(</span><span class="n">ReaderBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reader class implementation for CSV files.</span>
@@ -93,7 +93,7 @@
 <span class="sd">    :param conn_info: the connection information (pathway) for a given CSV file.</span>
 <span class="sd">    :param conn_info.path: attribute containing the actual file path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
+<div class="viewcode-block" id="ReaderCSV.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param conn_info: the connection information (pathway) for a given file.</span>
 <span class="sd">        :param delimiter:  extracted from conn_info, defaults to &#39;,&#39;</span>
@@ -107,16 +107,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dict_reader</span> <span class="o">=</span> <span class="bp">None</span>
 
 
-
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCSV.__enter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__enter__">[docs]</a>    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Open a file connection, pass that to an instance of csv.DictReader</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_handler</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span><span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">],</span> <span class="s">&#39;rt&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dict_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_handler</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCSV.__exit__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__exit__">[docs]</a>    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Close the file handler.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -125,15 +125,15 @@
             <span class="c"># Exception occurred</span>
             <span class="k">return</span> <span class="bp">False</span>  <span class="c"># Will raise the exception</span>
         <span class="k">return</span> <span class="bp">True</span>  <span class="c"># Everything&#39;s okay</span>
-
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCSV.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generator returning a dict of field name: field value pairs for each record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict_reader</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">row</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="ReaderCensus"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus">[docs]</a><span class="k">class</span> <span class="nc">ReaderCensus</span><span class="p">(</span><span class="n">ReaderBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reader class implementation for Census ACS Summary Files.</span>
@@ -143,7 +143,7 @@
 <span class="sd">    :param conn_info.sequence: Sequence No. From, &#39;Sequence_Number_and_Table_Number_Lookup.xls&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
+<div class="viewcode-block" id="ReaderCensus.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param conn_info: contains path and sequence attributes (see above).</span>
 <span class="sd">        :param delimiter: extracted from conn_info, defaults to &#39;,&#39;.</span>
@@ -164,8 +164,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_path</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_geography_path</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_geography_records</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="nf">_get_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus._get_paths"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus._get_paths">[docs]</a>    <span class="k">def</span> <span class="nf">_get_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build paths for the geography and estimate files.</span>
 <span class="sd">        Geography files begin a &#39;g&#39; and have a CSV extension.</span>
@@ -185,8 +185,8 @@
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Expected geography file not found. Starts with &#39;g&#39; and csv extent&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Expected estimate file not found. Sequence given: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span><span class="p">[</span><span class="s">&quot;sequence&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">_build_logrecno_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus._build_logrecno_dict"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus._build_logrecno_dict">[docs]</a>    <span class="k">def</span> <span class="nf">_build_logrecno_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a dictionary of LOGRECNO values with associated attributes.</span>
 <span class="sd">        Will be used as a lookup during iteration of estimate table.</span>
@@ -203,8 +203,8 @@
                 <span class="s">&#39;STUSAB&#39;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s">&#39;STUSAB&#39;</span><span class="p">],</span>
                 <span class="s">&#39;SUMLEVEL&#39;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s">&#39;SUMLEVEL&#39;</span><span class="p">]</span>
             <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">_build_estimate_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus._build_estimate_reader"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus._build_estimate_reader">[docs]</a>    <span class="k">def</span> <span class="nf">_build_estimate_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a CSV reader using the estimate file.</span>
 <span class="sd">        Reformat starting_position and individual field indexes</span>
@@ -218,8 +218,8 @@
         <span class="n">start_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span><span class="p">[</span><span class="s">&#39;starting_position&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">2</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span><span class="p">[</span><span class="s">&#39;fields&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span><span class="p">[</span><span class="s">&#39;fields&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_index</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus.__enter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__enter__">[docs]</a>    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Call internal setup functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -227,8 +227,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_logrecno_dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_estimate_reader</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus.__exit__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__exit__">[docs]</a>    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="c"># http://www.itmaybeahack.com/book/python-2.6/html/p03/p03c07_contexts.html</span>
         <span class="c"># Close the file handler.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -236,8 +236,8 @@
             <span class="c"># Exception occurred</span>
             <span class="k">return</span> <span class="bp">False</span>  <span class="c"># Will raise the exception</span>
         <span class="k">return</span> <span class="bp">True</span>  <span class="c"># Everything&#39;s okay</span>
-
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ReaderCensus.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generator returning a dict of field name: field value pairs for each record.</span>
 <span class="sd">        Combines estimate row with corresponding geography row based on common LOGRECNO value.</span>
@@ -252,7 +252,7 @@
                 <span class="n">geography_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geography_records</span><span class="p">[</span><span class="n">logrecno</span><span class="p">]</span>
                 <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">estimate_vals</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">geography_vals</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;LOGRECNO: </span><span class="si">%s</span><span class="s"> not found in geography table.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">logrecno</span><span class="p">))</span></div>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;LOGRECNO: </span><span class="si">%s</span><span class="s"> not found in geography table.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">logrecno</span><span class="p">))</span></div></div>
 </pre></div>
 
           </div>
