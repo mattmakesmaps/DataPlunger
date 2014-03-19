@@ -61,6 +61,18 @@
 <dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass">
 <em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorBaseClass</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract Base Class implementing an interface for Aggregate Processsors.</p>
+<p>Methods subclasses must override:</p>
+<ul class="simple">
+<li>__init__(): takes an input processor to decorate, and any kwargs.</li>
+<li>_process(): takes a list of records, calls &#8216;process()&#8217; method of
+decorated processor. Method returns modified list of records.</li>
+</ul>
+<p>Methods subclasses can inherit (not required to override):</p>
+<ul class="simple">
+<li>process() - responsible for calling _process followed by _log().</li>
+<li>_log() - Responsible for executing logging if overridden. Takes
+a list of records as input.</li>
+</ul>
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass.__init__">
 <tt class="descname">__init__</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorBaseClass.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass.__init__" title="Permalink to this definition">¶</a></dt>
@@ -76,12 +88,12 @@
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a4d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59290&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a550&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59310&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -91,7 +103,7 @@
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a410&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a591d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -102,7 +114,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inRecods</strong> &#8211; A list of records to log an action against.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inRecords</strong> &#8211; A list of records to log an action against.</td>
 </tr>
 </tbody>
 </table>
@@ -130,7 +142,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inRecods</strong> &#8211; A list of records to log an action against.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inRecords</strong> &#8211; A list of records to log an action against.</td>
 </tr>
 </tbody>
 </table>
@@ -141,7 +153,27 @@
 <dl class="class">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter">
 <em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorCSVWriter</tt><big>(</big><em>processor</em>, <em>path</em>, <em>fields</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Processor class that simply prints contents of a line.</p>
+<dd><p>Write records to an output CSV file.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Absolute path for output CSV file.</li>
+<li><strong>fields</strong> (<em>list</em>) &#8211; A list of field names to output.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;AggregateProcessorCSVWriter&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;path&quot;</span><span class="p">:</span><span class="s">&quot;/path/to/out_data.csv&quot;</span><span class="p">,</span>
+    <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Age&quot;</span><span class="p">,</span> <span class="s">&quot;Gender&quot;</span><span class="p">,</span> <span class="s">&quot;Name&quot;</span><span class="p">]</span>
+<span class="p">}}</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter.__init__">
 <tt class="descname">__init__</tt><big>(</big><em>processor</em>, <em>path</em>, <em>fields</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter.__init__" title="Permalink to this definition">¶</a></dt>
@@ -149,12 +181,12 @@
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319ac10&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a597d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319ac90&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59850&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -164,18 +196,20 @@
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319ab50&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59710&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter._log">
 <tt class="descname">_log</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter._log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._log" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Alert that CSV output is beginning.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorCSVWriter._process">
 <tt class="descname">_process</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorCSVWriter._process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Write inRecords out to a given CSV file</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -192,12 +226,12 @@ set of records back to the record constructor.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a690&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59450&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a710&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a594d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -207,57 +241,36 @@ set of records back to the record constructor.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a5d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59390&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorDevNull._process">
 <tt class="descname">_process</tt><big>(</big><em>inRecords</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorDevNull._process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorDevNull._process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset the originial record_constructor&#8217;s records list to the final list.</p>
+<dd><p>Reset the original record_constructor&#8217;s records list to the final list.</p>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter">
-<em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorScreenWriter</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorScreenWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Processor class that simply prints contents of a line.</p>
-<dl class="method">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorScreenWriter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319aa50&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_cache" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319aad0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_negative_cache_version">
-<tt class="descname">_abc_negative_cache_version</tt><em class="property"> = 20</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_negative_cache_version" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a990&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._abc_registry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="dataplunger.aggregate_processors.AggregateProcessorScreenWriter._process">
-<tt class="descname">_process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorScreenWriter._process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords">
 <em class="property">class </em><tt class="descclassname">dataplunger.aggregate_processors.</tt><tt class="descname">AggregateProcessorSortRecords</tt><big>(</big><em>processor</em>, <em>sortby</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorSortRecords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Processor class sorts a collection of records</p>
+<dd><p>Perform ascending sort for a collection of records by a given key.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sortby</strong> (<em>str</em>) &#8211; Field name (dict key) to sort by.</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre>&quot;AggregateProcessorSortRecords&quot;: {
+    &quot;sortby&quot;: &quot;CITY_NAME&quot;
+}
+</pre></div>
+</div>
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords.__init__">
 <tt class="descname">__init__</tt><big>(</big><em>processor</em>, <em>sortby</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorSortRecords.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords.__init__" title="Permalink to this definition">¶</a></dt>
@@ -265,12 +278,12 @@ set of records back to the record constructor.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a890&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59610&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a910&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59690&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -280,13 +293,14 @@ set of records back to the record constructor.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10319a7d0&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a59550&gt;</em><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.aggregate_processors.AggregateProcessorSortRecords._process">
 <tt class="descname">_process</tt><big>(</big><em>records</em><big>)</big><a class="reference internal" href="_modules/dataplunger/aggregate_processors.html#AggregateProcessorSortRecords._process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.aggregate_processors.AggregateProcessorSortRecords._process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Use the builtin sorted() method to asc sort by a given key</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -468,14 +482,14 @@ process() method.</p>
 <dt id="dataplunger.processors.ProcessorBaseClass">
 <em class="property">class </em><tt class="descclassname">dataplunger.processors.</tt><tt class="descname">ProcessorBaseClass</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract Base Class implementing an interface for Processsors.</p>
-<p>Required methods for subclasses:</p>
+<p>Methods subclasses must override:</p>
 <ul class="simple">
 <li>__init__(): takes an input processor to decorate, and any kwargs</li>
 <li>_process(): takes a single parsed record as a dictionary of field names and field values.
 Method calls the &#8216;process()&#8217; method of a decorated processor. Method returns the
 modified version of the record.</li>
 </ul>
-<p>Non-Required methods for subclasses:</p>
+<p>Methods subclasses can inherit (not override):</p>
 <ul class="simple">
 <li>process() - Responsible for calling _process() followed by _log().</li>
 <li>_log() - Responsible for executing logging if overridden. Takes modified record as input.</li>
@@ -483,16 +497,24 @@ modified version of the record.</li>
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorBaseClass.__init__">
 <tt class="descname">__init__</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>processor</strong> &#8211; A decorated processor object to be executed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorBaseClass._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192550&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52410&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorBaseClass._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x1031925d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52490&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -502,23 +524,50 @@ modified version of the record.</li>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorBaseClass._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192490&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52350&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorBaseClass._log">
 <tt class="descname">_log</tt><big>(</big><em>modLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass._log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._log" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Responsible for executing logging if overridden.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>modLine</strong> &#8211; A record returned by a call to _process().</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorBaseClass._process">
 <tt class="descname">_process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass._process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass._process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform an action against a list of records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inLine</strong> &#8211; A dictionary representing an individual record.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="dataplunger.processors.ProcessorBaseClass.process">
 <tt class="descname">process</tt><big>(</big><em>inLine</em><big>)</big><a class="reference internal" href="_modules/dataplunger/processors.html#ProcessorBaseClass.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.processors.ProcessorBaseClass.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Call _log() followed by process()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inLine</strong> &#8211; A dictionary representing an individual record.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -546,12 +595,12 @@ modified version of the record.</li>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorChangeCase._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192c90&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52b50&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorChangeCase._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192d10&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52bd0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -561,7 +610,7 @@ modified version of the record.</li>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorChangeCase._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192bd0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52a90&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorChangeCase._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -591,12 +640,12 @@ back to the RecordConstructor&#8217;s records list.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorDevNull._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x1031928d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52790&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorDevNull._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192950&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52810&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -606,7 +655,7 @@ back to the RecordConstructor&#8217;s records list.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorDevNull._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192810&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a526d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorDevNull._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -650,12 +699,12 @@ A match will be subjected to the action specified in the &#8220;action&#8221; pa
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorMatchValue._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192710&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a525d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorMatchValue._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192790&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52650&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -665,7 +714,7 @@ A match will be subjected to the action specified in the &#8220;action&#8221; pa
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorMatchValue._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192650&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52510&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorMatchValue._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -699,12 +748,12 @@ If we find a match, take action specified by user.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorScreenWriter._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192a90&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52950&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorScreenWriter._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192b10&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a529d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -714,7 +763,7 @@ If we find a match, take action specified by user.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorScreenWriter._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x1031929d0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52890&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorScreenWriter._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -752,12 +801,12 @@ to a specific set of fields.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorTruncateFields._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192e50&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52d10&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorTruncateFields._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192ed0&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52d90&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -767,7 +816,7 @@ to a specific set of fields.</p>
 
 <dl class="attribute">
 <dt id="dataplunger.processors.ProcessorTruncateFields._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103192d90&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a52c50&gt;</em><a class="headerlink" href="#dataplunger.processors.ProcessorTruncateFields._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -804,12 +853,12 @@ and returning an iterable that yields a single record of data from that datasour
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderBaseClass._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187990&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48910&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderBaseClass._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187a10&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48990&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -819,7 +868,7 @@ and returning an iterable that yields a single record of data from that datasour
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderBaseClass._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187310&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48290&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -873,12 +922,12 @@ and returning an iterable that yields a single record of data from that datasour
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCSV._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187b50&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48ad0&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCSV._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187bd0&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48b50&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -888,7 +937,7 @@ and returning an iterable that yields a single record of data from that datasour
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCSV._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187a90&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48a10&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCSV._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -948,12 +997,12 @@ of that row.</li>
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCensus._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187d10&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48c90&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCensus._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187d90&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48d10&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -963,7 +1012,7 @@ of that row.</li>
 
 <dl class="attribute">
 <dt id="dataplunger.readers.ReaderCensus._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x103187c50&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x105a48bd0&gt;</em><a class="headerlink" href="#dataplunger.readers.ReaderCensus._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
