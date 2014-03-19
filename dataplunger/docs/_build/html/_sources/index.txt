@@ -8,9 +8,10 @@ DataPlunger
 
 DataPlunger is a prototype for an ETL workflow.
 A JSON configuration file contains the following information:
-- Connection information to source data for processing.
-- Processing steps to be applied to individual records extracted from source.
-- Processing steps to be applied to aggregate records from the source.
+
+* Connection information to source data for processing.
+* Processing steps to be applied to individual records extracted from source.
+* Processing steps to be applied to aggregate records from the source.
 
 Source code for this project can be found at: `<https://github.com/mattmakesmaps/DataPlunger>`_
 
