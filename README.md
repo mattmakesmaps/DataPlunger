@@ -15,3 +15,11 @@ DataPlunger
 ```
 
 A prototype for an ETL workflow.
+
+dev-branch
+
+![dev-branch](https://travis-ci.org/mattmakesmaps/DataPlunger.png?branch=development)
+
+master
+
+![master](https://travis-ci.org/mattmakesmaps/DataPlunger.png?branch=master)
