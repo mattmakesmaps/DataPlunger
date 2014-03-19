@@ -1,8 +1,8 @@
 dataplunger package
 ===================
 
-dataplunger.aggregate_processors
----------------------------------------
+``aggregate_processors``
+------------------------
 
 .. automodule:: dataplunger.aggregate_processors
     :members:
@@ -10,8 +10,8 @@ dataplunger.aggregate_processors
     :private-members: _process
     :special-members: __init__, __enter__, __exit__
 
-dataplunger.core
------------------------
+``core``
+--------
 
 .. automodule:: dataplunger.core
     :members:
@@ -19,8 +19,8 @@ dataplunger.core
     :private-members: _process
     :special-members: __init__, __enter__, __exit__, __iter__
 
-dataplunger.processors
------------------------------
+``processors``
+--------------
 
 .. automodule:: dataplunger.processors
     :members:
@@ -28,18 +28,11 @@ dataplunger.processors
     :private-members: _process
     :special-members: __init__, __enter__, __exit__
 
-dataplunger.readers
---------------------------
+``readers``
+-----------
 
 .. automodule:: dataplunger.readers
     :members:
     :undoc-members:
     :private-members: _process
     :special-members: __init__, __enter__, __exit__
-
-Subpackages
------------
-
-.. toctree::
-
-    dataplunger.tests
