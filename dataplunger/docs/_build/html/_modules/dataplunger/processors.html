@@ -64,14 +64,14 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract Base Class implementing an interface for Processsors.</span>
 
-<span class="sd">    Required methods for subclasses:</span>
+<span class="sd">    Methods subclasses must override:</span>
 
 <span class="sd">    - __init__(): takes an input processor to decorate, and any kwargs</span>
 <span class="sd">    - _process(): takes a single parsed record as a dictionary of field names and field values.</span>
 <span class="sd">      Method calls the &#39;process()&#39; method of a decorated processor. Method returns the</span>
 <span class="sd">      modified version of the record.</span>
 
-<span class="sd">    Non-Required methods for subclasses:</span>
+<span class="sd">    Methods subclasses can inherit (not override):</span>
 
 <span class="sd">    - process() - Responsible for calling _process() followed by _log().</span>
 <span class="sd">    - _log() - Responsible for executing logging if overridden. Takes modified record as input.</span>
@@ -80,17 +80,35 @@
 
     <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="ProcessorBaseClass.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param processor: A decorated processor object to be executed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
 </div>
 <div class="viewcode-block" id="ProcessorBaseClass._log"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Responsible for executing logging if overridden.</span>
+
+<span class="sd">        :param modLine: A record returned by a call to _process().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c">#print &#39;DEFAULT log entry for class %s for record %s&#39; % (self.__repr__(), inLine)</span>
         <span class="k">pass</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="ProcessorBaseClass._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform an action against a list of records.</span>
+
+<span class="sd">        :param inLine: A dictionary representing an individual record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ProcessorBaseClass.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call _log() followed by process()</span>
+
+<span class="sd">        :param inLine: A dictionary representing an individual record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">modLine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">modLine</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">modLine</span>  <span class="c"># return processed line, useful for testing.</span>
