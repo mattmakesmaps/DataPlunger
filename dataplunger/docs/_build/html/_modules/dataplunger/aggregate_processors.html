@@ -67,20 +67,38 @@
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
     <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregateProcessorBaseClass.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorBaseClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param processor: A decorated processor object to be executed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorBaseClass._log"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorBaseClass._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Responsible for executing logging if overridden.</span>
 
-    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
-        <span class="c">#print &#39;DEFAULT log entry for class %s&#39; % (self.__repr__())</span>
+<span class="sd">        :param inRecods: A list of records to log an action against.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span>
-
+</div>
     <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="AggregateProcessorBaseClass._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorBaseClass._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform an action against a list of records.</span>
+
+<span class="sd">        :param inRecords: A list of records to log an action against.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="AggregateProcessorBaseClass.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorBaseClass.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
-        <span class="k">pass</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call _log() followed by process()</span>
+
+<span class="sd">        :param inRecods: A list of records to log an action against.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modRecords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">modRecords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">modRecords</span>
 </div></div>
 <div class="viewcode-block" id="AggregateProcessorDevNull"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorDevNull">[docs]</a><span class="k">class</span> <span class="nc">AggregateProcessorDevNull</span><span class="p">(</span><span class="n">AggregateProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -88,11 +106,11 @@
 <span class="sd">    record. It ends the processing chain by appending the final aggregate modified</span>
 <span class="sd">    set of records back to the record constructor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RecordConstructor</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregateProcessorDevNull.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorDevNull.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RecordConstructor</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span> <span class="o">=</span> <span class="n">RecordConstructor</span>
-
-<div class="viewcode-block" id="AggregateProcessorDevNull.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorDevNull.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorDevNull._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorDevNull._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset the originial record_constructor&#39;s records list to the final list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -102,44 +120,44 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Processor class sorts a collection of records</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">sortby</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregateProcessorSortRecords.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorSortRecords.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">sortby</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sortby</span> <span class="o">=</span> <span class="n">sortby</span>
-
-<div class="viewcode-block" id="AggregateProcessorSortRecords.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorSortRecords.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorSortRecords._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorSortRecords._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">):</span>
         <span class="n">sorted_records</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">sorted_records</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">sorted_records</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="AggregateProcessorScreenWriter"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorScreenWriter">[docs]</a><span class="k">class</span> <span class="nc">AggregateProcessorScreenWriter</span><span class="p">(</span><span class="n">AggregateProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Processor class that simply prints contents of a line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregateProcessorScreenWriter.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorScreenWriter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
-
-<div class="viewcode-block" id="AggregateProcessorScreenWriter.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorScreenWriter.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorScreenWriter._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorScreenWriter._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
         <span class="k">print</span> <span class="n">inLine</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="AggregateProcessorCSVWriter"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorCSVWriter">[docs]</a><span class="k">class</span> <span class="nc">AggregateProcessorCSVWriter</span><span class="p">(</span><span class="n">AggregateProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Processor class that simply prints contents of a line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregateProcessorCSVWriter.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorCSVWriter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
-
-    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorCSVWriter._log"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
         <span class="k">print</span> <span class="s">&quot;Starting AggregateProcessorCSVWriter&quot;</span>
-
-<div class="viewcode-block" id="AggregateProcessorCSVWriter.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorCSVWriter.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="AggregateProcessorCSVWriter._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.aggregate_processors.AggregateProcessorCSVWriter._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inRecords</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
             <span class="n">dWriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">extrasaction</span><span class="o">=</span><span class="s">&#39;ignore&#39;</span><span class="p">)</span>
             <span class="n">dWriter</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inRecords</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

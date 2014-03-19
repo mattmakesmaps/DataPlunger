@@ -7,7 +7,8 @@ dataplunger.aggregate_processors
 .. automodule:: dataplunger.aggregate_processors
     :members:
     :undoc-members:
-    :show-inheritance:
+    :private-members: _process
+    :special-members: __init__, __enter__, __exit__
 
 dataplunger.core
 -----------------------
@@ -15,7 +16,8 @@ dataplunger.core
 .. automodule:: dataplunger.core
     :members:
     :undoc-members:
-    :show-inheritance:
+    :private-members: _process
+    :special-members: __init__, __enter__, __exit__, __iter__
 
 dataplunger.processors
 -----------------------------
@@ -23,7 +25,8 @@ dataplunger.processors
 .. automodule:: dataplunger.processors
     :members:
     :undoc-members:
-    :show-inheritance:
+    :private-members: _process
+    :special-members: __init__, __enter__, __exit__
 
 dataplunger.readers
 --------------------------
@@ -31,7 +34,8 @@ dataplunger.readers
 .. automodule:: dataplunger.readers
     :members:
     :undoc-members:
-    :show-inheritance:
+    :private-members: _process
+    :special-members: __init__, __enter__, __exit__
 
 Subpackages
 -----------

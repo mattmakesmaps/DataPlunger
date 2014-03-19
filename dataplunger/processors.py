@@ -15,14 +15,14 @@ class ProcessorBaseClass(object):
     """
     Abstract Base Class implementing an interface for Processsors.
 
-    Required methods for subclasses:
+    Methods subclasses must override:
 
     - __init__(): takes an input processor to decorate, and any kwargs
     - _process(): takes a single parsed record as a dictionary of field names and field values.
       Method calls the 'process()' method of a decorated processor. Method returns the
       modified version of the record.
 
-    Non-Required methods for subclasses:
+    Methods subclasses can inherit (not override):
 
     - process() - Responsible for calling _process() followed by _log().
     - _log() - Responsible for executing logging if overridden. Takes modified record as input.
@@ -31,17 +31,35 @@ class ProcessorBaseClass(object):
 
     @abc.abstractmethod
     def __init__(self, processor, **kwargs):
+        """
+        :param processor: A decorated processor object to be executed.
+        """
         self.processor = processor
 
     def _log(self, modLine):
+        """
+        Responsible for executing logging if overridden.
+
+        :param modLine: A record returned by a call to _process().
+        """
         #print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
         pass
 
     @abc.abstractmethod
     def _process(self, inLine):
+        """
+        Perform an action against a list of records.
+
+        :param inLine: A dictionary representing an individual record.
+        """
         return self.processor.process(inLine)
 
     def process(self, inLine):
+        """
+        Call _log() followed by process()
+
+        :param inLine: A dictionary representing an individual record.
+        """
         modLine = self._process(inLine)
         self._log(modLine)
         return modLine  # return processed line, useful for testing.

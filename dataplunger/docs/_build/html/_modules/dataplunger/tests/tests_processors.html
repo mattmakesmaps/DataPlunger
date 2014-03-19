@@ -54,17 +54,17 @@
 
 
 <div class="viewcode-block" id="RecordConstructorMock"><a class="viewcode-back" href="../../../dataplunger.tests.html#dataplunger.tests.tests_processors.RecordConstructorMock">[docs]</a><span class="k">class</span> <span class="nc">RecordConstructorMock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RecordConstructorMock.__init__"><a class="viewcode-back" href="../../../dataplunger.tests.html#dataplunger.tests.tests_processors.RecordConstructorMock.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="TestBase"><a class="viewcode-back" href="../../../dataplunger.tests.html#dataplunger.tests.tests_processors.TestBase">[docs]</a><span class="k">class</span> <span class="nc">TestBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestBase.__init__"><a class="viewcode-back" href="../../../dataplunger.tests.html#dataplunger.tests.tests_processors.TestBase.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Matt&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="s">&#39;27&#39;</span><span class="p">,</span> <span class="s">&#39;gender&#39;</span><span class="p">:</span> <span class="s">&#39;male&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span> <span class="o">=</span> <span class="n">RecordConstructorMock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">devnull</span> <span class="o">=</span> <span class="n">ProcessorDevNull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span><span class="p">)</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="TestProcessorMatchValue"><a class="viewcode-back" href="../../../dataplunger.tests.html#dataplunger.tests.tests_processors.TestProcessorMatchValue">[docs]</a><span class="k">class</span> <span class="nc">TestProcessorMatchValue</span><span class="p">(</span><span class="n">TestBase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test different combinations of ProcessorMatchValue.</span>
