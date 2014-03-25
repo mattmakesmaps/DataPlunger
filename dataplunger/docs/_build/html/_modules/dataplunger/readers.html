@@ -82,16 +82,29 @@
         <span class="k">pass</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="ReaderBaseClass.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderBaseClass.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-</div></div>
+</div>
 <div class="viewcode-block" id="ReaderCSV"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV">[docs]</a><span class="k">class</span> <span class="nc">ReaderCSV</span><span class="p">(</span><span class="n">ReaderBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reader class implementation for CSV files.</span>
 <span class="sd">    </span>
+<span class="sd">    Required Config Parameters:</span>
+<span class="sd">    </span>
 <span class="sd">    :param conn_info: the connection information (pathway) for a given CSV file.</span>
 <span class="sd">    :param conn_info.path: attribute containing the actual file path.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {</span>
+<span class="sd">        &quot;name&quot;: &quot;KC Election Data&quot;,</span>
+<span class="sd">        &quot;conn_info&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;ReaderCSV&quot;,</span>
+<span class="sd">            &quot;path&quot;: &quot;/Users/matt/Projects/dataplunger/sample_data/election_2010_kc.csv&quot;,</span>
+<span class="sd">            &quot;delimeter&quot;: &quot;,&quot;,</span>
+<span class="sd">            &quot;encoding&quot;: &quot;UTF-8&quot;</span>
+<span class="sd">        }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ReaderCSV.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -99,6 +112,7 @@
 <span class="sd">        :param delimiter:  extracted from conn_info, defaults to &#39;,&#39;</span>
 <span class="sd">        :param _file_handler:  set in __enter__(), a read only pointer to the CSV.</span>
 <span class="sd">        :param _dict_reader:  an instance of csv.dict_reader()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conn_info</span> <span class="o">=</span> <span class="n">conn_info</span>
         <span class="c"># If no delimiter given in config, default to &#39;,&#39;</span>
@@ -126,21 +140,43 @@
             <span class="k">return</span> <span class="bp">False</span>  <span class="c"># Will raise the exception</span>
         <span class="k">return</span> <span class="bp">True</span>  <span class="c"># Everything&#39;s okay</span>
 </div>
-<div class="viewcode-block" id="ReaderCSV.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCSV.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generator returning a dict of field name: field value pairs for each record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict_reader</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">row</span>
 
-</div></div>
+</div>
 <div class="viewcode-block" id="ReaderCensus"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus">[docs]</a><span class="k">class</span> <span class="nc">ReaderCensus</span><span class="p">(</span><span class="n">ReaderBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reader class implementation for Census ACS Summary Files.</span>
 
+<span class="sd">    Required Config Parameters:</span>
+
 <span class="sd">    :param conn_info: contains path and sequence attributes (see below).</span>
 <span class="sd">    :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.</span>
 <span class="sd">    :param conn_info.sequence: Sequence No. From, &#39;Sequence_Number_and_Table_Number_Lookup.xls&#39;</span>
+<span class="sd">    :param conn_info.starting_position: Starting Position for table of int. From, &#39;Sequence_Number_and_Table_Number_Lookup.xls&#39;</span>
+<span class="sd">    :param conn_info.fields: an array of field names with line numbers. From, &#39;Sequence_Number_and_Table_Number_Lookup.xls&#39;</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {</span>
+<span class="sd">        &quot;name&quot;: &quot;Sex By Age&quot;,</span>
+<span class="sd">        &quot;conn_info&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;ReaderCensus&quot;,</span>
+<span class="sd">            &quot;path&quot;: &quot;/path/to/folder/of/EstimatesAndGeographyTables&quot;,</span>
+<span class="sd">            &quot;delimiter&quot;: &quot;,&quot;,</span>
+<span class="sd">            &quot;encoding&quot;: &quot;UTF-8&quot;,</span>
+<span class="sd">            &quot;fields&quot;: {</span>
+<span class="sd">                &quot;Total&quot;: 1,</span>
+<span class="sd">                &quot;Male&quot;: 2,</span>
+<span class="sd">                &quot;Female&quot;: 17</span>
+<span class="sd">            },</span>
+<span class="sd">            &quot;sequence&quot;: 2,</span>
+<span class="sd">            &quot;starting_position&quot;: 87</span>
+<span class="sd">        }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ReaderCensus.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_info</span><span class="p">):</span>
@@ -237,7 +273,7 @@
             <span class="k">return</span> <span class="bp">False</span>  <span class="c"># Will raise the exception</span>
         <span class="k">return</span> <span class="bp">True</span>  <span class="c"># Everything&#39;s okay</span>
 </div>
-<div class="viewcode-block" id="ReaderCensus.__iter__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.readers.ReaderCensus.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generator returning a dict of field name: field value pairs for each record.</span>
 <span class="sd">        Combines estimate row with corresponding geography row based on common LOGRECNO value.</span>
@@ -252,7 +288,7 @@
                 <span class="n">geography_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geography_records</span><span class="p">[</span><span class="n">logrecno</span><span class="p">]</span>
                 <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">estimate_vals</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">geography_vals</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;LOGRECNO: </span><span class="si">%s</span><span class="s"> not found in geography table.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">logrecno</span><span class="p">))</span></div></div>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;LOGRECNO: </span><span class="si">%s</span><span class="s"> not found in geography table.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">logrecno</span><span class="p">))</span></div>
 </pre></div>
 
           </div>

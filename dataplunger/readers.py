@@ -41,8 +41,21 @@ class ReaderCSV(ReaderBaseClass):
     """
     Reader class implementation for CSV files.
     
+    Required Config Parameters:
+    
     :param conn_info: the connection information (pathway) for a given CSV file.
     :param conn_info.path: attribute containing the actual file path.
+
+    Example configuration file entry::
+
+        {
+        "name": "KC Election Data",
+        "conn_info": {
+            "type": "ReaderCSV",
+            "path": "/Users/matt/Projects/dataplunger/sample_data/election_2010_kc.csv",
+            "delimeter": ",",
+            "encoding": "UTF-8"
+        }
     """
     def __init__(self, conn_info):
         """
@@ -50,6 +63,7 @@ class ReaderCSV(ReaderBaseClass):
         :param delimiter:  extracted from conn_info, defaults to ','
         :param _file_handler:  set in __enter__(), a read only pointer to the CSV.
         :param _dict_reader:  an instance of csv.dict_reader()
+
         """
         self.conn_info = conn_info
         # If no delimiter given in config, default to ','
@@ -89,9 +103,31 @@ class ReaderCensus(ReaderBaseClass):
     """
     Reader class implementation for Census ACS Summary Files.
 
+    Required Config Parameters:
+
     :param conn_info: contains path and sequence attributes (see below).
     :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.
     :param conn_info.sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param conn_info.starting_position: Starting Position for table of int. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param conn_info.fields: an array of field names with line numbers. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+
+    Example configuration file entry::
+
+        {
+        "name": "Sex By Age",
+        "conn_info": {
+            "type": "ReaderCensus",
+            "path": "/path/to/folder/of/EstimatesAndGeographyTables",
+            "delimiter": ",",
+            "encoding": "UTF-8",
+            "fields": {
+                "Total": 1,
+                "Male": 2,
+                "Female": 17
+            },
+            "sequence": 2,
+            "starting_position": 87
+        }
     """
 
     def __init__(self, conn_info):
