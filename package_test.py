@@ -7,7 +7,7 @@ from datetime import datetime
 if __name__ == '__main__':
     # Build a config object.
     start_time = datetime.now()
-    config_path = '/Users/matt/Projects/dataplunger/sample_configs/census_config.json'
+    config_path = '/Users/matt/Projects/dataplunger/sample_configs/processor_refactor.json'
     collectionConfig = Configuration()
     collectionConfig.parseConfig(config_path)
 
