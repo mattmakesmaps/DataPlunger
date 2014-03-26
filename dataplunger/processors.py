@@ -1,7 +1,7 @@
 """
 .. module:: processors.py
    :platform: Unix
-   :synopsis: Aggregate processors perform changes on an entire set of records.
+   :synopsis: Processors perform changes on an entire set of records.
 
 .. moduleauthor:: Matt
 
@@ -18,13 +18,13 @@ class ProcessorBaseClass(object):
     Methods subclasses must override:
 
     - __init__(): takes an input processor to decorate, and any kwargs.
-    - _process(): takes a list of records, calls 'process()' method of
-      decorated processor. Method returns modified list of records.
+    - _process(): takes a list of records and performs processing actions on them.
 
     Methods subclasses can inherit (not required to override):
 
-    - process() - responsible for calling _process followed by _log().
-    - _log() - Responsible for executing logging if overridden. Takes
+    - process(): responsible for calling _process(), _log(),
+      then a decorated class' process() method.
+    - _log(): Responsible for executing logging if overridden. Takes
       a list of records as input.
     """
     __metaclass__ = abc.ABCMeta
@@ -47,11 +47,13 @@ class ProcessorBaseClass(object):
     @abc.abstractmethod
     def _process(self, inRecords):
         """
-        Perform an action against a list of records.
+        Returns a list of records after having performed some processing
+        actions on them.
 
         :param inRecords: A list of records to log an action against.
         """
-        return self.processor.process(inRecords)
+        mod_records = inRecords
+        return mod_records
 
     def process(self, inRecords):
         """
@@ -64,6 +66,40 @@ class ProcessorBaseClass(object):
         self._log(modRecords)
         self.processor.process(modRecords)
         return modRecords
+
+
+class ProcessorCSVWriter(ProcessorBaseClass):
+    """
+    Write records to an output CSV file.
+
+    Required Config Parameters:
+
+    :param str path: Absolute path for output CSV file.
+    :param list fields: A list of field names to output.
+
+    Example configuration file entry::
+
+        {"ProcessorCSVWriter": {
+            "path":"/path/to/out_data.csv",
+            "fields": ["Age", "Gender", "Name"]
+        }}
+
+    """
+    def __init__(self, processor, path, fields, **kwargs):
+        self.processor = processor
+        self.path = path
+        self.fields = fields
+
+    def _log(self, inRecords):
+        """Alert that CSV output is beginning."""
+        print "Starting AggregateProcessorCSVWriter"
+
+    def _process(self, inRecords):
+        """Write inRecords out to a given CSV file"""
+        with open(self.path, 'w') as file:
+            dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
+            dWriter.writerows(inRecords)
+        return inRecords
 
 
 class ProcessorDevNull(ProcessorBaseClass):
@@ -126,6 +162,77 @@ class ProcessorChangeCase(ProcessorBaseClass):
         return mod_records
 
 
+class ProcessorMatchValue(ProcessorBaseClass):
+    """
+    Keep or discard a record that matches a user-defined field-value pair.
+    A match will be subjected to the action specified in the "action" param.
+
+    Required Config Parameters:
+
+    :param dict matches: Field names (keys) and field entries (values).
+    :param str action: Either "Keep" or "Discard". DEFAULTS to "Keep".
+
+    If multiple matches are provided, a hit of any match will trigger the action.
+
+    Example configuration file entry::
+
+        {"ProcessorMatchValue": {
+            "matches":{"SumLevel":140},
+            "action":"Keep"
+        }}
+    """
+    def __init__(self, processor, matches=None, action="Keep", **kwargs):
+        self.processor = processor
+        self.matches = matches
+        self.action = action.lower()
+
+    def _match_value(self, inLine):
+        """
+        Iterate through our user-provided list of matches.
+        If we find a match, take action specified by user.
+        """
+        match_found = False
+        for match_key, match_value in self.matches.iteritems():
+            if str(match_value) == str(inLine[match_key]):
+                match_found = True
+
+        if self.action == 'keep' and match_found is True:
+            return True
+        elif self.action == 'discard' and match_found is False:
+            return True
+        else:
+            return False
+
+    def _process(self, records):
+        """
+        Return a list of records based on a user's match criteria
+        """
+        matched_records = [r for r in records if self._match_value(r)]
+        return matched_records
+
+
+class ProcessorScreenWriter(ProcessorBaseClass):
+    """
+    A Processor class that simply prints a record's key, values.
+
+    Required Config Parameters: **None**
+
+    Example configuration file entry::
+
+        {"ProcessorScreenWriter": null}
+    """
+    def __init__(self, processor, **kwargs):
+        self.processor = processor
+
+    def _process(self, records):
+        """
+        Print record to screen.
+        """
+        for record in records:
+            print record
+        return records
+
+
 class ProcessorSortRecords(ProcessorBaseClass):
     """
     Perform ascending sort for a collection of records by a given key.
@@ -183,108 +290,3 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         """
         truncated_records = [self._truncate_line(record) for record in records]
         return truncated_records
-
-
-class ProcessorScreenWriter(ProcessorBaseClass):
-    """
-    A Processor class that simply prints a record's key, values.
-
-    Required Config Parameters: **None**
-
-    Example configuration file entry::
-
-        {"ProcessorScreenWriter": null}
-    """
-    def __init__(self, processor, **kwargs):
-        self.processor = processor
-
-    def _process(self, records):
-        """
-        Print record to screen.
-        """
-        for record in records:
-            print record
-        return records
-
-
-class ProcessorMatchValue(ProcessorBaseClass):
-    """
-    Keep or discard a record that matches a user-defined field-value pair.
-    A match will be subjected to the action specified in the "action" param.
-
-    Required Config Parameters:
-
-    :param dict matches: Field names (keys) and field entries (values).
-    :param str action: Either "Keep" or "Discard". DEFAULTS to "Keep".
-
-    If multiple matches are provided, a hit of any match will trigger the action.
-
-    Example configuration file entry::
-
-        {"ProcessorMatchValue": {
-            "matches":{"SumLevel":140},
-            "action":"Keep"
-        }}
-    """
-    def __init__(self, processor, matches=None, action="Keep", **kwargs):
-        self.processor = processor
-        self.matches = matches
-        self.action = action.lower()
-
-    def _match_value(self, inLine):
-        """
-        Iterate through our user-provided list of matches.
-        If we find a match, take action specified by user.
-        """
-        match_found = False
-        for match_key, match_value in self.matches.iteritems():
-            if str(match_value) == str(inLine[match_key]):
-                match_found = True
-
-        if self.action == 'keep' and match_found is True:
-            return True
-        elif self.action == 'discard' and match_found is False:
-            return True
-        else:
-            return False
-
-    def _process(self, records):
-        """
-        Return a list of records based on a user's match criteria
-        """
-        matched_records = [r for r in records if self._match_value(r)]
-        return matched_records
-
-
-class ProcessorCSVWriter(ProcessorBaseClass):
-    """
-    Write records to an output CSV file.
-
-    Required Config Parameters:
-
-    :param str path: Absolute path for output CSV file.
-    :param list fields: A list of field names to output.
-
-    Example configuration file entry::
-
-        {"ProcessorCSVWriter": {
-            "path":"/path/to/out_data.csv",
-            "fields": ["Age", "Gender", "Name"]
-        }}
-
-    """
-    def __init__(self, processor, path, fields, **kwargs):
-        self.processor = processor
-        self.path = path
-        self.fields = fields
-
-    def _log(self, inRecords):
-        """Alert that CSV output is beginning."""
-        print "Starting AggregateProcessorCSVWriter"
-
-    def _process(self, inRecords):
-        """Write inRecords out to a given CSV file"""
-        with open(self.path, 'w') as file:
-            dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
-            dWriter.writerows(inRecords)
-        return inRecords
