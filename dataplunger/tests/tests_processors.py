@@ -60,6 +60,10 @@ class TestProcessorDevNull(object):
         self.records_constructor = RecordConstructorMock()
 
     def test_devnull(self):
+        """
+        Assert ProcessorDevNull resets its record constructor with
+        processed records.
+        """
         devnull = ProcessorDevNull(self.records_constructor)
         devnull.process(self.records)
         assert self.records_constructor.records == self.records
@@ -97,22 +101,34 @@ class TestProcessorMatchValue(TestBase):
       - A positive match is found, and the action is 'keep'.
       - A positive match is not found, and the action is 'discard'
     Processing should not continue if:
-      - A positive match is found, and the action is 'disard'.
+      - A positive match is found, and the action is 'discard'.
       - A positive match is not found, and the action is 'keep'.
     """
     def test_positivematch_actionkeep(self):
+        """
+        Assert record processing continues.
+        """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='keep')
         assert p.process(self.records) == self.records
 
     def test_positivematch_actiondiscard(self):
+        """
+        Assert record was removed from processing.
+        """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='discard')
         assert p.process(self.records) == []
 
     def test_negativematch_actionkeep(self):
+        """
+        Assert record was removed from processing.
+        """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='keep')
         assert p.process(self.records) == []
 
     def test_negativematch_actiondiscard(self):
+        """
+        Assert record processing continues.
+        """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='discard')
         assert p.process(self.records) == self.records
 
@@ -127,11 +143,17 @@ class TestProcessorChangeCase(TestBase):
     case = 'Lower' - call lower() method on string.
     """
     def test_upper(self):
+        """
+        Assert values are converted to upper-case.
+        """
         p = ProcessorChangeCase(self.devnull, case='Upper')
         expected = [{'name': 'MATT', 'age': '27', 'gender': 'MALE'}]
         assert p.process(self.records) == expected
 
     def test_lower(self):
+        """
+        Assert values are converted to lower-case.
+        """
         p = ProcessorChangeCase(self.devnull, case='Lower')
         expected = [{'name': 'matt', 'age': '27', 'gender': 'male'}]
         assert p.process(self.records) == expected
@@ -151,6 +173,9 @@ class TestProcessorTruncateFields(TestBase):
     krwarg 'fields', a list of field names, is used to truncate an input record.
     """
     def test_truncate(self):
+        """
+        Assert record is truncated to name and age fields only.
+        """
         p = ProcessorTruncateFields(self.devnull, fields=['name', 'age'])
         expected = [{'name': 'Matt', 'age': '27'}]
         assert p.process(self.records) == expected
