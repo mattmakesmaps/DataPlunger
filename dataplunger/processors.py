@@ -139,7 +139,7 @@ class ProcessorChangeCase(ProcessorBaseClass):
     """
     def __init__(self, processor, case=None, **kwargs):
         self.processor = processor
-        self.case = case
+        self.case = case.lower()
 
     def _change_case(self, inLine):
         """
@@ -148,9 +148,9 @@ class ProcessorChangeCase(ProcessorBaseClass):
         # # NOTE: Need to check for None type first.
         # if self.case is None:
         #     pass
-        if self.case.lower() == 'upper':
+        if self.case == 'upper':
             inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-        elif self.case.lower() == 'lower':
+        elif self.case == 'lower':
             inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
         else:
             raise ValueError("Case Not Supported")

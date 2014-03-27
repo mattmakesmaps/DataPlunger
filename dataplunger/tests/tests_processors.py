@@ -136,6 +136,14 @@ class TestProcessorChangeCase(TestBase):
         expected = [{'name': 'matt', 'age': '27', 'gender': 'male'}]
         assert p.process(self.records) == expected
 
+    @raises(ValueError)
+    def test_bad_case(self):
+        """
+        A bad case should raise a ValueError.
+        """
+        p = ProcessorChangeCase(self.devnull, case='Blerch')
+        p.process(self.records)
+
 
 class TestProcessorTruncateFields(TestBase):
     """
