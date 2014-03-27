@@ -5,14 +5,14 @@ from nose.tools import raises
 
 
 class RecordConstructorMock(object):
-    def __init__(self):
-        self.records = []
+    def __init__(self, records):
+        self.records = records
 
 
 class TestBase(object):
     def __init__(self):
-        self.record = {'name': 'Matt', 'age': '27', 'gender': 'male'}
-        self.record_constructor = RecordConstructorMock()
+        self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'}]
+        self.record_constructor = RecordConstructorMock(self.records)
         self.devnull = ProcessorDevNull(self.record_constructor)
 
 
@@ -28,19 +28,19 @@ class TestProcessorMatchValue(TestBase):
     """
     def test_positivematch_actionkeep(self):
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='keep')
-        assert p.process(self.record) == self.record
+        assert p.process(self.records) == self.records
 
     def test_positivematch_actiondiscard(self):
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='discard')
-        assert p.process(self.record) is None
+        assert p.process(self.records) == []
 
     def test_negativematch_actionkeep(self):
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='keep')
-        assert p.process(self.record) is None
+        assert p.process(self.records) == []
 
     def test_negativematch_actiondiscard(self):
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='discard')
-        assert p.process(self.record) == self.record
+        assert p.process(self.records) == self.records
 
 
 class TestProcessorChangeCase(TestBase):
@@ -54,13 +54,13 @@ class TestProcessorChangeCase(TestBase):
     """
     def test_upper(self):
         p = ProcessorChangeCase(self.devnull, case='Upper')
-        expected = {'name': 'MATT', 'age': '27', 'gender': 'MALE'}
-        assert p.process(self.record) == expected
+        expected = [{'name': 'MATT', 'age': '27', 'gender': 'MALE'}]
+        assert p.process(self.records) == expected
 
     def test_lower(self):
         p = ProcessorChangeCase(self.devnull, case='Lower')
-        expected = {'name': 'matt', 'age': '27', 'gender': 'male'}
-        assert p.process(self.record) == expected
+        expected = [{'name': 'matt', 'age': '27', 'gender': 'male'}]
+        assert p.process(self.records) == expected
 
 
 class TestProcessorTruncateFields(TestBase):
@@ -70,5 +70,5 @@ class TestProcessorTruncateFields(TestBase):
     """
     def test_truncate(self):
         p = ProcessorTruncateFields(self.devnull, fields=['name', 'age'])
-        expected = {'name': 'Matt', 'age': '27'}
-        assert p.process(self.record) == expected
+        expected = [{'name': 'Matt', 'age': '27'}]
+        assert p.process(self.records) == expected
