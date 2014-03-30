@@ -182,5 +182,5 @@ class RecordConstructor(object):
             # self._build_decorated_classes(self.records, decorated_processor, self.processors, ProcessorBaseClass)
 
             # Trying to pass the object since it is an iterator.
-            decorated_processor = ProcessorDevNull(self)
+            decorated_processor = ProcessorDevNull()
             self._build_decorated_classes(local_reader_iter, decorated_processor, self.processors, ProcessorBaseClass)

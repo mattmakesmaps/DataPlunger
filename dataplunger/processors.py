@@ -11,6 +11,7 @@ __author__ = 'mkenny'
 import abc
 import csv
 import itertools
+import os
 
 class ProcessorBaseClass(object):
     """
@@ -96,16 +97,25 @@ class ProcessorCSVWriter(ProcessorBaseClass):
         print "Starting AggregateProcessorCSVWriter"
 
     def _write_row(self, row):
+        print "in _write_row"
         self.dWriter.writerow(row)
         return row
 
     def _process(self, inRecords):
         """Write inRecords out to a given CSV file"""
-        file = open(self.path, 'w')
-        self.dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
+        self.file = open(self.path, 'w')
+        self.dWriter = csv.DictWriter(self.file, self.fields, extrasaction='ignore')
         self.dWriter.writeheader()
         write_record_iterator = itertools.imap(self._write_row, inRecords)
         return write_record_iterator
+
+    def __exit__(self):
+        """
+        Close File Handle
+        """
+        if os.path.isfile(self.file.name):
+            if not self.file.closed:
+                self.file.close()
 
 
 class ProcessorDevNull(ProcessorBaseClass):
@@ -114,9 +124,8 @@ class ProcessorDevNull(ProcessorBaseClass):
     processing chain by appending the final aggregate modified
     set of records back to the record constructor.
     """
-    def __init__(self, RecordConstructor):
+    def __init__(self):
         self.processor = None
-        self.record_constructor = RecordConstructor
 
     def _process(self, inRecords):
         """
@@ -125,12 +134,16 @@ class ProcessorDevNull(ProcessorBaseClass):
         """
         for record in inRecords:
             pass
+        # If given a list, will return contents.
+        # If given an iterator, will return a spent iterator.
+        return inRecords
 
     def process(self, inRecords):
         """
         Override to omit call to any additional processors.
         """
-        self._process(inRecords)
+        modrecords = self._process(inRecords)
+        return modrecords
 
 
 class ProcessorChangeCase(ProcessorBaseClass):

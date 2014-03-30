@@ -14,8 +14,7 @@ class RecordConstructorMock(object):
 class TestBase(object):
     def __init__(self):
         self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'}]
-        self.record_constructor = RecordConstructorMock(records=self.records)
-        self.devnull = ProcessorDevNull(self.record_constructor)
+        self.devnull = ProcessorDevNull()
 
 class TestProcessorCSVWriter(TestBase):
     """
@@ -35,11 +34,17 @@ class TestProcessorCSVWriter(TestBase):
         """
         csv_writer = ProcessorCSVWriter(self.devnull, self.test_file[1], ['name', 'age', 'gender'])
         csv_writer.process(self.records)
+        # Need to manually delete csv_writer, calling it's __exit__() method.
+        # This closes the output file handle, allowing us to assert its contents.
+        # I think that this happens normally when the processor is running as
+        # part of a larger processing chain.
+        del csv_writer
         # Check the output file.
         # test_file returns a tuple, with the path as the second element.
+        expected = ['name,age,gender\r\n', 'Matt,27,male\r\n']
         with open(self.test_file[1], 'r') as test_file_handle:
-            contents = test_file_handle.readline().strip()
-            assert contents == 'Matt,27,male'
+            contents = test_file_handle.readlines()
+            assert contents == expected
 
     def teardown(self):
         """
@@ -57,16 +62,15 @@ class TestProcessorDevNull(object):
     """
     def __init__(self):
         self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'}]
-        self.records_constructor = RecordConstructorMock()
 
     def test_devnull(self):
         """
         Assert ProcessorDevNull resets its record constructor with
         processed records.
         """
-        devnull = ProcessorDevNull(self.records_constructor)
-        devnull.process(self.records)
-        assert self.records_constructor.records == self.records
+        p = ProcessorDevNull()
+        records = p.process(self.records)
+        assert records == self.records
 
 
 class TestProcessorSortRecords(object):
@@ -78,8 +82,7 @@ class TestProcessorSortRecords(object):
         self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'},
                         {'name': 'Bob', 'age': '30', 'gender': 'male'},
                         {'name': 'Luke', 'age': '31', 'gender': 'male'}]
-        self.record_constructor = RecordConstructorMock(records=self.records)
-        self.devnull = ProcessorDevNull(self.record_constructor)
+        self.devnull = ProcessorDevNull()
 
     def test_sortrecords(self):
         """
