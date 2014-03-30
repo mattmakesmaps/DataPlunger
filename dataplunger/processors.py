@@ -10,6 +10,7 @@ Processors perform changes on an entire set of records.
 __author__ = 'mkenny'
 import abc
 import csv
+import itertools
 
 class ProcessorBaseClass(object):
     """
@@ -94,12 +95,17 @@ class ProcessorCSVWriter(ProcessorBaseClass):
         """Alert that CSV output is beginning."""
         print "Starting AggregateProcessorCSVWriter"
 
+    def _write_row(self, row):
+        self.dWriter.writerow(row)
+        return row
+
     def _process(self, inRecords):
         """Write inRecords out to a given CSV file"""
-        with open(self.path, 'w') as file:
-            dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
-            dWriter.writerows(inRecords)
-        return inRecords
+        file = open(self.path, 'w')
+        self.dWriter = csv.DictWriter(file, self.fields, extrasaction='ignore')
+        self.dWriter.writeheader()
+        write_record_iterator = itertools.imap(self._write_row, inRecords)
+        return write_record_iterator
 
 
 class ProcessorDevNull(ProcessorBaseClass):
@@ -114,9 +120,11 @@ class ProcessorDevNull(ProcessorBaseClass):
 
     def _process(self, inRecords):
         """
-        Reset the original record_constructor's records list to the final list.
+        Iterate through records to ensure that last decorated process is executed.
+        This is required if last process returns an itertools class, as opposed to a list.
         """
-        self.record_constructor.records = inRecords
+        for record in inRecords:
+            pass
 
     def process(self, inRecords):
         """
@@ -160,8 +168,10 @@ class ProcessorChangeCase(ProcessorBaseClass):
 
     def _process(self, records):
         """Return a list of records with Case Changed"""
-        mod_records = [self._change_case(record) for record in records]
-        return mod_records
+        # mod_records = [self._change_case(record) for record in records]
+        # return mod_records
+        change_case_iterator = itertools.imap(self._change_case, records)
+        return change_case_iterator
 
 
 class ProcessorMatchValue(ProcessorBaseClass):
@@ -209,8 +219,10 @@ class ProcessorMatchValue(ProcessorBaseClass):
         """
         Return a list of records based on a user's match criteria
         """
-        matched_records = [r for r in records if self._match_value(r)]
-        return matched_records
+        # matched_records = [r for r in records if self._match_value(r)]
+        # return matched_records
+        matched_iterator = itertools.ifilter(self._match_value, records)
+        return matched_iterator
 
 
 class ProcessorScreenWriter(ProcessorBaseClass):
@@ -226,13 +238,16 @@ class ProcessorScreenWriter(ProcessorBaseClass):
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
+    def _print_line(self, inLine):
+        print inLine
+        return inLine
+
     def _process(self, records):
         """
         Print record to screen.
         """
-        for record in records:
-            print record
-        return records
+        screen_writer_iterator = itertools.imap(self._print_line, records)
+        return screen_writer_iterator
 
 
 class ProcessorSortRecords(ProcessorBaseClass):
@@ -283,13 +298,12 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         """
         Preform dict comprehension to create a dictionary subset to out_fields only.
         """
-        # truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        inLine.update((k, v) for k, v in inLine.items() if k in self.out_fields)
-        return inLine
+        return {r: inLine[r] for r in self.out_fields}
 
     def _process(self, records):
         """
         Return a list of records truncated to self.out_fields
         """
-        truncated_records = [self._truncate_line(record) for record in records]
-        return truncated_records
+        truncate_iterator = itertools.imap(self._truncate_line, records)
+        return truncate_iterator
+        #return [self._truncate_line(record) for record in records]

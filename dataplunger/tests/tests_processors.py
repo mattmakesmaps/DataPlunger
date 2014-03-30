@@ -109,28 +109,38 @@ class TestProcessorMatchValue(TestBase):
         Assert record processing continues.
         """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='keep')
-        assert p.process(self.records) == self.records
+        iter = p.process(self.records)
+        expected = self.records[0]
+        for record in iter:
+            assert record == expected
 
     def test_positivematch_actiondiscard(self):
         """
         Assert record was removed from processing.
         """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='discard')
-        assert p.process(self.records) == []
+        iter = p.process(self.records)
+        for record in iter:
+            assert record is None
 
     def test_negativematch_actionkeep(self):
         """
         Assert record was removed from processing.
         """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='keep')
-        assert p.process(self.records) == []
+        iter = p.process(self.records)
+        for record in iter:
+            assert record is None
 
     def test_negativematch_actiondiscard(self):
         """
         Assert record processing continues.
         """
         p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='discard')
-        assert p.process(self.records) == self.records
+        iter = p.process(self.records)
+        expected = self.records[0]
+        for record in iter:
+            assert record == expected
 
 
 class TestProcessorChangeCase(TestBase):
@@ -147,16 +157,21 @@ class TestProcessorChangeCase(TestBase):
         Assert values are converted to upper-case.
         """
         p = ProcessorChangeCase(self.devnull, case='Upper')
-        expected = [{'name': 'MATT', 'age': '27', 'gender': 'MALE'}]
-        assert p.process(self.records) == expected
+        expected = {'name': 'MATT', 'age': '27', 'gender': 'MALE'}
+        iter = p.process(self.records)
+        for record in iter:
+            assert record == expected
+
 
     def test_lower(self):
         """
         Assert values are converted to lower-case.
         """
         p = ProcessorChangeCase(self.devnull, case='Lower')
-        expected = [{'name': 'matt', 'age': '27', 'gender': 'male'}]
-        assert p.process(self.records) == expected
+        expected = {'name': 'matt', 'age': '27', 'gender': 'male'}
+        iter = p.process(self.records)
+        for record in iter:
+            assert record == expected
 
     @raises(ValueError)
     def test_bad_case(self):
@@ -164,8 +179,9 @@ class TestProcessorChangeCase(TestBase):
         A bad case should raise a ValueError.
         """
         p = ProcessorChangeCase(self.devnull, case='Blerch')
-        p.process(self.records)
-
+        iter = p.process(self.records)
+        for record in iter:
+            pass
 
 class TestProcessorTruncateFields(TestBase):
     """
@@ -177,5 +193,7 @@ class TestProcessorTruncateFields(TestBase):
         Assert record is truncated to name and age fields only.
         """
         p = ProcessorTruncateFields(self.devnull, fields=['name', 'age'])
-        expected = [{'name': 'Matt', 'age': '27'}]
-        assert p.process(self.records) == expected
+        expected = {'name': 'Matt', 'age': '27'}
+        iter = p.process(self.records)
+        for record in iter:
+            assert record == expected

@@ -136,7 +136,6 @@ class RecordConstructor(object):
         self.layer_name = layer_name
         self.layer_config_params = layer_config_params
         self.processors = processors
-        self.records = []
 
     def _get_processor_instance(self, name, base_class):
         """
@@ -174,10 +173,14 @@ class RecordConstructor(object):
         process() method.
         """
         self.processors.reverse()
-        with self.reader as local_reader:
-            # Build Record List
-            for record in local_reader:
-                self.records.append(record)
-            # Begin processing chain.
+        with self.reader as local_reader_iter:
+            # # Build Record List
+            # for record in local_reader:
+            #     self.records.append(record)
+            # # Begin processing chain.
+            # decorated_processor = ProcessorDevNull(self)
+            # self._build_decorated_classes(self.records, decorated_processor, self.processors, ProcessorBaseClass)
+
+            # Trying to pass the object since it is an iterator.
             decorated_processor = ProcessorDevNull(self)
-            self._build_decorated_classes(self.records, decorated_processor, self.processors, ProcessorBaseClass)
+            self._build_decorated_classes(local_reader_iter, decorated_processor, self.processors, ProcessorBaseClass)
