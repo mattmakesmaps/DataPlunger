@@ -94,7 +94,7 @@ class TestProcessorSortRecords(object):
             {'name': 'Luke', 'age': '31', 'gender': 'male'},
             {'name': 'Matt', 'age': '27', 'gender': 'male'}
         ]
-        sort_processor = ProcessorSortRecords(self.devnull, sortby='name')
+        sort_processor = ProcessorSortRecords(self.devnull, sort_key='name')
         assert sort_processor.process(self.records) == expected_list
 
 class TestProcessorMatchValue(TestBase):
