@@ -71,8 +71,6 @@ class ReaderCSV(ReaderBaseClass):
         self._file_handler = None
         self._dict_reader = None
 
-
-
     def __enter__(self):
         """
         Open a file connection, pass that to an instance of csv.DictReader

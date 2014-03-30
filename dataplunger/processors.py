@@ -149,9 +149,11 @@ class ProcessorChangeCase(ProcessorBaseClass):
         # if self.case is None:
         #     pass
         if self.case == 'upper':
-            inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
+            #inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
+            inLine.update((k, v.upper()) for k, v in inLine.items() if isinstance(v, str))
         elif self.case == 'lower':
-            inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
+            #inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
+            inLine.update((k, v.lower()) for k, v in inLine.items() if isinstance(v, str))
         else:
             raise ValueError("Case Not Supported")
         return inLine
@@ -275,14 +277,15 @@ class ProcessorTruncateFields(ProcessorBaseClass):
     """
     def __init__(self, processor, fields, **kwargs):
         self.processor = processor
-        self.out_fields = fields
+        self.out_fields = set(fields)
 
     def _truncate_line(self, inLine):
         """
         Preform dict comprehension to create a dictionary subset to out_fields only.
         """
-        truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        return truncated_line
+        # truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
+        inLine.update((k, v) for k, v in inLine.items() if k in self.out_fields)
+        return inLine
 
     def _process(self, records):
         """
