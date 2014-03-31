@@ -24,7 +24,7 @@
                         },
                         {
                             "ProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
@@ -60,7 +60,7 @@
                         },
                         {
                             "ProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
@@ -96,7 +96,7 @@
                         },
                         {
                             "ProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
@@ -132,7 +132,7 @@
                         },
                         {
                             "ProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
