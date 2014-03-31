@@ -14,7 +14,7 @@ DataPlunger
                 ||     ||
 ```
 
-A prototype for an ETL workflow.
+A prototype for an ETL workflow. Hooray!
 
 dev-branch
 
