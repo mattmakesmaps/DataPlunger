@@ -98,20 +98,20 @@ class ProcessorCSVWriter(ProcessorBaseClass):
         self.processor = processor
         self.path = path
         self.fields = fields
+        self.file = open(self.path, 'w')
+        self.d_writer = csv.DictWriter(self.file, self.fields, extrasaction='ignore')
 
-    def _log(self, inRecords):
+    def _log(self, mod_records_iterable):
         """Alert that CSV output is beginning."""
         print "Starting AggregateProcessorCSVWriter"
 
     def _write_row(self, row):
-        self.dWriter.writerow(row)
+        self.d_writer.writerow(row)
         return row
 
     def _process(self, records_iterable):
         """Write inRecords out to a given CSV file"""
-        self.file = open(self.path, 'w')
-        self.dWriter = csv.DictWriter(self.file, self.fields, extrasaction='ignore')
-        self.dWriter.writeheader()
+        self.d_writer.writeheader()
         write_record_iterator = itertools.imap(self._write_row, records_iterable)
         return write_record_iterator
 
@@ -212,14 +212,14 @@ class ProcessorMatchValue(ProcessorBaseClass):
         self.matches = matches
         self.action = action.lower()
 
-    def _match_value(self, inLine):
+    def _match_value(self, in_record):
         """
         Returns True or False. Iterate through our user-provided list of matches.
         If we find a match, take action specified by user.
         """
         match_found = False
         for match_key, match_value in self.matches.iteritems():
-            if str(match_value) == str(inLine[match_key]):
+            if str(match_value) == str(in_record[match_key]):
                 match_found = True
 
         if self.action == 'keep' and match_found is True:
