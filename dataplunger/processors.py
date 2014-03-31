@@ -1,15 +1,17 @@
 """
 .. module:: processors.py
    :platform: Unix
-   :synopsis: Processors perform changes on an individual record.
+   :synopsis: Processors perform changes on an entire set of records.
 
 .. moduleauthor:: Matt
 
-Processors perform changes on an individual record.
+Processors perform changes on an entire set of records.
 """
 __author__ = 'mkenny'
 import abc
-
+import csv
+import itertools
+import os
 
 class ProcessorBaseClass(object):
     """
@@ -17,15 +19,15 @@ class ProcessorBaseClass(object):
 
     Methods subclasses must override:
 
-    - __init__(): takes an input processor to decorate, and any kwargs
-    - _process(): takes a single parsed record as a dictionary of field names and field values.
-      Method calls the 'process()' method of a decorated processor. Method returns the
-      modified version of the record.
+    - __init__(): takes an input processor to decorate, and any kwargs.
+    - _process(): takes an iterable object of records and performs processing actions on them.
 
-    Methods subclasses can inherit (not override):
+    Methods subclasses can inherit (not required to override):
 
-    - process() - Responsible for calling _process() followed by _log().
-    - _log() - Responsible for executing logging if overridden. Takes modified record as input.
+    - process(): responsible for calling _process(), _log(),
+      then a decorated class' process() method.
+    - _log(): Responsible for executing logging if overridden. Takes
+      a list of records as input.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -36,33 +38,147 @@ class ProcessorBaseClass(object):
         """
         self.processor = processor
 
-    def _log(self, modLine):
+    def _log(self, inRecords):
         """
         Responsible for executing logging if overridden.
 
-        :param modLine: A record returned by a call to _process().
+        :param inRecords: A list of records to log an action against.
         """
-        #print 'DEFAULT log entry for class %s for record %s' % (self.__repr__(), inLine)
         pass
 
     @abc.abstractmethod
-    def _process(self, inLine):
+    def _process(self, records_iterable):
         """
-        Perform an action against a list of records.
+        Returns a list of records after having performed some processing
+        actions on them.
 
-        :param inLine: A dictionary representing an individual record.
+        :param records_iterable: A list of records to log an action against.
         """
-        return self.processor.process(inLine)
+        mod_records_iterable = records_iterable
+        return mod_records_iterable
 
-    def process(self, inLine):
+    def process(self, records_iterable):
         """
-        Call _log() followed by process()
+        Call internal _process method, _log(), ending with a call
+        to the next class' public process() method.
 
-        :param inLine: A dictionary representing an individual record.
+        :param records_iterable: A list of records to log an action against.
         """
-        modLine = self._process(inLine)
-        self._log(modLine)
-        return modLine  # return processed line, useful for testing.
+        mod_records_iterable = self._process(records_iterable)
+        self._log(mod_records_iterable)
+        self.processor.process(mod_records_iterable)
+        return mod_records_iterable
+
+
+class ProcessorCSVWriter(ProcessorBaseClass):
+    """
+    Write records to an output CSV file.
+
+    Required Config Parameters:
+
+    :param str path: Absolute path for output CSV file.
+    :param list fields: A list of field names to output.
+
+    Example configuration file entry::
+
+        {"ProcessorCSVWriter": {
+            "path":"/path/to/out_data.csv",
+            "fields": ["Age", "Gender", "Name"]
+        }}
+
+    """
+    def __init__(self, processor, path, fields, **kwargs):
+        self.processor = processor
+        self.path = path
+        self.fields = fields
+
+    def _log(self, inRecords):
+        """Alert that CSV output is beginning."""
+        print "Starting AggregateProcessorCSVWriter"
+
+    def _write_row(self, row):
+        self.dWriter.writerow(row)
+        return row
+
+    def _process(self, records_iterable):
+        """Write inRecords out to a given CSV file"""
+        self.file = open(self.path, 'w')
+        self.dWriter = csv.DictWriter(self.file, self.fields, extrasaction='ignore')
+        self.dWriter.writeheader()
+        write_record_iterator = itertools.imap(self._write_row, records_iterable)
+        return write_record_iterator
+
+    def __exit__(self):
+        """
+        Close File Handle
+        """
+        if os.path.isfile(self.file.name):
+            if not self.file.closed:
+                self.file.close()
+
+
+class ProcessorDevNull(ProcessorBaseClass):
+    """
+    ProcessorDevNull serves as the last processor in the chain. It ends the
+    processing chain by iterating through an iterable, ensuring that the last
+    decorated iterable is executed.
+    """
+    def __init__(self):
+        self.processor = None
+
+    def _process(self, records_iterable):
+        """
+        Iterate through records to ensure that last decorated process is executed.
+        This is required if last process returns an itertools class, as opposed to a list.
+        """
+        for record in records_iterable:
+            pass
+        # If given a list, will return contents.
+        # If given an iterator, will return a spent iterator.
+        return records_iterable
+
+    def process(self, records_iterable):
+        """
+        Override to omit call to any additional processors.
+        """
+        mod_records_iterable = self._process(records_iterable)
+        return mod_records_iterable
+
+
+class ProcessorChangeCase(ProcessorBaseClass):
+    """
+    Responsible for changing case of values.
+
+    Required Config Parameters:
+
+    :param str case: Either "upper" or "lower".
+
+    Example configuration file entry::
+
+        {"ProcessorChangeCase": {"case": "upper"}}
+    """
+    def __init__(self, processor, case=None, **kwargs):
+        self.processor = processor
+        self.case = case.lower()
+
+    def _change_case(self, dict_record):
+        """
+        Perform dictionary comprehension to change case based on user input.
+        """
+        if self.case == 'upper':
+            #inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
+            dict_record.update((k, v.upper()) for k, v in dict_record.items() if isinstance(v, str))
+        elif self.case == 'lower':
+            #inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
+            dict_record.update((k, v.lower()) for k, v in dict_record.items() if isinstance(v, str))
+        else:
+            raise ValueError("Case Not Supported")
+        return dict_record
+
+    def _process(self, records_iterable):
+        """Return an iterator of records mapped to _change_case"""
+        change_case_iterator = itertools.imap(self._change_case, records_iterable)
+        return change_case_iterator
 
 
 class ProcessorMatchValue(ProcessorBaseClass):
@@ -89,49 +205,27 @@ class ProcessorMatchValue(ProcessorBaseClass):
         self.matches = matches
         self.action = action.lower()
 
-    def _take_action(self, inLine, match_found):
+    def _match_value(self, inLine):
         """
-        If record meets criteria for inclusion, keep it processing.
-        """
-        if self.action == 'keep' and  match_found is True:
-            self.processor.process(inLine)
-            return True
-        elif self.action == 'discard' and match_found is False:
-            self.processor.process(inLine)
-            return True
-        else:
-            return False
-
-    def _process(self, inLine):
-        """
-        Iterate through our user-provided list of matches.
+        Returns True or False. Iterate through our user-provided list of matches.
         If we find a match, take action specified by user.
         """
         match_found = False
         for match_key, match_value in self.matches.iteritems():
             if str(match_value) == str(inLine[match_key]):
                 match_found = True
-        if self._take_action(inLine, match_found):
-            # Return inLine only if we have continued processing.
-            # Used to validate function in test_processors.py
-            return inLine
 
+        if self.action == 'keep' and match_found is True:
+            return True
+        elif self.action == 'discard' and match_found is False:
+            return True
+        else:
+            return False
 
-class ProcessorDevNull(ProcessorBaseClass):
-    """
-    ProcessorDevNull serves as the last processor in the chain for a specific
-    record. It ends the processing chain by appending the final record value
-    back to the RecordConstructor's records list.
-    """
-    def __init__(self, RecordConstructor):
-        self.processor = None
-        self.record_constructor = RecordConstructor
-
-    def _process(self, inLine):
-        """
-        Add record to the associated record_constructor's record list.
-        """
-        self.record_constructor.records.append(inLine)
+    def _process(self, records_iterable):
+        """Return an iterator mapped to _match_value() as a filter."""
+        matched_iterator = itertools.ifilter(self._match_value, records_iterable)
+        return matched_iterator
 
 
 class ProcessorScreenWriter(ProcessorBaseClass):
@@ -147,63 +241,48 @@ class ProcessorScreenWriter(ProcessorBaseClass):
     def __init__(self, processor, **kwargs):
         self.processor = processor
 
-    def _process(self, inLine):
-        """
-        Print record to screen.
-        """
-        print inLine
-        self.processor.process(inLine)
-        return inLine
+    def _print_line(self, dict_record):
+        """Print a record to screen."""
+        print dict_record
+        return dict_record
+
+    def _process(self, records_iterable):
+        """Return an iterator mapped to _print_line()."""
+        screen_writer_iterator = itertools.imap(self._print_line, records_iterable)
+        return screen_writer_iterator
 
 
-class ProcessorChangeCase(ProcessorBaseClass):
+class ProcessorSortRecords(ProcessorBaseClass):
     """
-    Responsible for changing case of values.
+    Perform ascending sort for a collection of records by a given key.
 
     Required Config Parameters:
 
-    :param str case: Either "Upper" or "Lower".
+    :param str sort_key: Field name (dict key) to sort by.
 
     Example configuration file entry::
 
-        {"ProcessorChangeCase": {"case": "upper"}}
+        "ProcessorSortRecords": {
+            "sort_key": "CITY_NAME"
+        }
     """
-    # NOTE: Passing a default value for self.case allows us
-    # To not require it as an attribute for every layer.
-    def __init__(self, processor, case=None, **kwargs):
+    def __init__(self, processor, sort_key, **kwargs):
         self.processor = processor
-        self.case = case
+        self.sort_key = sort_key
 
-    def _log(self, modLine):
-        """
-        This is an example of an overriden _log method
-        """
-        #print "OVERRIDDEN log for ProcessorChangeCase. Selected case: %s" % self.case
-        #print "Finished Line is %s" % modLine
-        pass
+    def _process(self, records_iterable):
+        """Return a list of sorted records using the builtin sorted() method."""
+        sorted_records_list = sorted(records_iterable, key=lambda k: k[self.sort_key])
+        return sorted_records_list
 
-    def _process(self, inLine):
-        """
-        Perform dictionary comprehension to change case based on user input.
-        """
-        # NOTE: Need to check for None type first.
-        if self.case is None:
-            self.processor.process(inLine)
-        elif self.case.lower() == 'upper':
-            inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor.process(inLine)
-        elif self.case.lower() == 'lower':
-            inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
-            self.processor.process(inLine)
-        else:
-            raise ValueError("Case Not Supported")
-        return inLine
 
 class ProcessorTruncateFields(ProcessorBaseClass):
     """
     A decorator class which implements a Processor class' public
     interface, the process() method. Designed to truncate a record
     to a specific set of fields.
+
+    Required Config Parameters:
 
     :param list fields: field names to keep.
 
@@ -215,12 +294,15 @@ class ProcessorTruncateFields(ProcessorBaseClass):
     """
     def __init__(self, processor, fields, **kwargs):
         self.processor = processor
-        self.out_fields = fields
+        self.out_fields = set(fields)
 
-    def _process(self, inLine):
+    def _truncate_line(self, dict_record):
         """
-        Perform dict comprehension to create a dictionary subset to out_fields only.
+        Preform dict comprehension to create a dictionary subset to out_fields only.
         """
-        truncated_line = {key: value for key, value in inLine.iteritems() if key in self.out_fields}
-        self.processor.process(truncated_line)
-        return truncated_line
+        return {r: dict_record[r] for r in self.out_fields}
+
+    def _process(self, records_iterable):
+        """Return an iterator mapped to _truncate_line()."""
+        truncate_iterator = itertools.imap(self._truncate_line, records_iterable)
+        return truncate_iterator

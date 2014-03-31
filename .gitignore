@@ -2,7 +2,7 @@
 *.py[cod]
 *.DS_STORE
 *.csv
-cython_profiles
+*.profile
 dumpprof.py
 
 # C extensions

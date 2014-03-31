@@ -10,7 +10,6 @@ Contains configuration and control code.
 __author__ = 'mkenny'
 from .readers import *
 from .processors import *
-from .aggregate_processors import *
 from simplejson import loads as json_loads
 
 
@@ -114,11 +113,8 @@ class Controller(object):
         # Spawn RecordConstructors for each layer.
         for layer_name, layer_parameters in self.layers.iteritems():
             # Extract processing steps for a layer
-            record_processing_steps = layer_parameters['record_processing_steps']
-            if 'aggregate_processing_steps' in layer_parameters:
-                aggregate_processing_steps = layer_parameters['aggregate_processing_steps']
-            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters,
-                record_processing_steps, aggregate_processing_steps)
+            processing_steps = layer_parameters['processing_steps']
+            rBuild_Inst = RecordConstructor(selectedReader, layer_name, layer_parameters, processing_steps)
             rBuild_Inst.serialize()
 
 
@@ -131,18 +127,15 @@ class RecordConstructor(object):
     :param reader: reader class responsible for connecting to a data source.
     :param layer_name: layer name extracted from a configuration file.
     :param layer_config_parameters: layer parameters extracted from a configuration file.
-    :param record_processors: processor class references to be applied to a record.
-    :param aggregate_processors: aggregate Processor class references to be applied to a record.
+    :param processors: processor class references to be applied to a record.
     :param list records: processed record.
     """
 
-    def __init__(self, reader, layer_name, layer_config_params, record_processors=None, aggregate_processors=None):
+    def __init__(self, reader, layer_name, layer_config_params, processors=None):
         self.reader = reader
         self.layer_name = layer_name
         self.layer_config_params = layer_config_params
-        self.record_processors = record_processors
-        self.aggregate_processors = aggregate_processors
-        self.records = []
+        self.processors = processors
 
     def _get_processor_instance(self, name, base_class):
         """
@@ -179,17 +172,15 @@ class RecordConstructor(object):
         Output is written (serialized) using the Processor class's
         process() method.
         """
-        self.record_processors.reverse()
-        with self.reader as local_reader:
-            for record in local_reader:
-                # TODO only create a DevNull instance that populates record list
-                # if we actually have aggregate processors for that layer.
-                decorated_processor = ProcessorDevNull(self)
-                self._build_decorated_classes(record, decorated_processor, self.record_processors, ProcessorBaseClass)
+        self.processors.reverse()
+        with self.reader as local_reader_iter:
+            # # Build Record List
+            # for record in local_reader:
+            #     self.records.append(record)
+            # # Begin processing chain.
+            # decorated_processor = ProcessorDevNull(self)
+            # self._build_decorated_classes(self.records, decorated_processor, self.processors, ProcessorBaseClass)
 
-        # Begin execution of aggregate processors if applicable.
-        if self.aggregate_processors:
-            self.aggregate_processors.reverse()
-            decorated_aggregate = AggregateProcessorDevNull(self)
-            self._build_decorated_classes(self.records, decorated_aggregate, self.aggregate_processors,
-                                          AggregateProcessorBaseClass)
+            # Trying to pass the object since it is an iterator.
+            decorated_processor = ProcessorDevNull()
+            self._build_decorated_classes(local_reader_iter, decorated_processor, self.processors, ProcessorBaseClass)

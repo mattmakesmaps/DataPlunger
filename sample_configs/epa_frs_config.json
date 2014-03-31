@@ -11,7 +11,7 @@
             },
             "layers": {
                 "candidates": {
-                    "record_processing_steps": [
+                    "processing_steps": [
                         {
                             "ProcessorTruncateFields": {
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
@@ -21,16 +21,14 @@
                             "ProcessorChangeCase": {
                                 "case": "upper"
                             }
-                        }
-                    ],
-                    "aggregate_processing_steps": [
+                        },
                         {
-                            "AggregateProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                            "ProcessorSortRecords": {
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
-                            "AggregateProcessorCSVWriter": {
+                            "ProcessorCSVWriter": {
                                 "path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED.csv",
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
                             }
@@ -49,7 +47,7 @@
             },
             "layers": {
                 "candidates": {
-                    "record_processing_steps": [
+                    "processing_steps": [
                         {
                             "ProcessorTruncateFields": {
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
@@ -59,16 +57,14 @@
                             "ProcessorChangeCase": {
                                 "case": "lower"
                             }
-                        }
-                    ],
-                    "aggregate_processing_steps": [
+                        },
                         {
-                            "AggregateProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                            "ProcessorSortRecords": {
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
-                            "AggregateProcessorCSVWriter": {
+                            "ProcessorCSVWriter": {
                                 "path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED1.csv",
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
                             }
@@ -87,7 +83,7 @@
             },
             "layers": {
                 "candidates": {
-                    "record_processing_steps": [
+                    "processing_steps": [
                         {
                             "ProcessorTruncateFields": {
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
@@ -97,16 +93,14 @@
                             "ProcessorChangeCase": {
                                 "case": "lower"
                             }
-                        }
-                    ],
-                    "aggregate_processing_steps": [
+                        },
                         {
-                            "AggregateProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                            "ProcessorSortRecords": {
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
-                            "AggregateProcessorCSVWriter": {
+                            "ProcessorCSVWriter": {
                                 "path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED2.csv",
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
                             }
@@ -125,7 +119,7 @@
             },
             "layers": {
                 "candidates": {
-                    "record_processing_steps": [
+                    "processing_steps": [
                         {
                             "ProcessorTruncateFields": {
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
@@ -135,55 +129,15 @@
                             "ProcessorChangeCase": {
                                 "case": "lower"
                             }
-                        }
-                    ],
-                    "aggregate_processing_steps": [
+                        },
                         {
-                            "AggregateProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
+                            "ProcessorSortRecords": {
+                                "sort_key": "CITY_NAME"
                             }
                         },
                         {
-                            "AggregateProcessorCSVWriter": {
+                            "ProcessorCSVWriter": {
                                 "path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED3.csv",
-                                "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "name": "EPA FRS4",
-            "conn_info": {
-                "type": "ReaderCSV",
-                "path": "/Users/matt/Projects/dataplunger/sample_data/NATIONAL_SINGLE.csv",
-                "delimeter": ",",
-                "encoding": "UTF-8"
-            },
-            "layers": {
-                "candidates": {
-                    "record_processing_steps": [
-                        {
-                            "ProcessorTruncateFields": {
-                                "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
-                            }
-                        },
-                        {
-                            "ProcessorChangeCase": {
-                                "case": "lower"
-                            }
-                        }
-                    ],
-                    "aggregate_processing_steps": [
-                        {
-                            "AggregateProcessorSortRecords": {
-                                "sortby": "CITY_NAME"
-                            }
-                        },
-                        {
-                            "AggregateProcessorCSVWriter": {
-                                "path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED4.csv",
                                 "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]
                             }
                         }

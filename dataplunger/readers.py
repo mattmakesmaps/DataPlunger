@@ -71,8 +71,6 @@ class ReaderCSV(ReaderBaseClass):
         self._file_handler = None
         self._dict_reader = None
 
-
-
     def __enter__(self):
         """
         Open a file connection, pass that to an instance of csv.DictReader
@@ -161,11 +159,17 @@ class ReaderCensus(ReaderBaseClass):
         dir_contents = os.listdir(self.conn_info['path'])
         sequence_num = int(self.conn_info["sequence"])
         for f in dir_contents:
+            # Get geography path. Slice doesn't need to be trapped for index error due to string < 3 char.
             if f[0] == 'g' and f[len(f)-3:] == 'csv':
                 self._geography_path = os.path.join(self.conn_info['path'], f)
-            # TODO: trap for instance in which file length <12 char.
-            if f[0] == 'e' and int(f[8:12]) == sequence_num:
-                self._estimate_path = os.path.join(self.conn_info['path'], f)
+            # Set estimate path. Pass over when string is too short (index error) or
+            # when characters f[8:12] are not coercible to integers (Value Error).
+            if f[0] == 'e':
+                try:
+                    if int(f[8:12]) == sequence_num:
+                        self._estimate_path = os.path.join(self.conn_info['path'], f)
+                except (ValueError, IndexError):
+                    pass
 
         # Raise Errors if not populated.
         if not self._geography_path:
