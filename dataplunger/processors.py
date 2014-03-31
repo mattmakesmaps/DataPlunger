@@ -5,13 +5,14 @@
 
 .. moduleauthor:: Matt
 
-Processors perform changes on an entire set of records.
+Processors perform actions on a collection records.
 """
 __author__ = 'mkenny'
 import abc
 import csv
 import itertools
 import os
+
 
 class ProcessorBaseClass(object):
     """
@@ -38,31 +39,37 @@ class ProcessorBaseClass(object):
         """
         self.processor = processor
 
-    def _log(self, inRecords):
+    def _log(self, mod_records_iterable):
         """
-        Responsible for executing logging if overridden.
+        Override to perform logging. Executed in process(),
+        after protected method, _process() returns modified records iterable.
 
-        :param inRecords: A list of records to log an action against.
+        :param mod_records_iterable: A list of records to log an action against.
         """
         pass
 
     @abc.abstractmethod
     def _process(self, records_iterable):
         """
-        Returns a list of records after having performed some processing
-        actions on them.
+        Returns an iterable object containing records, after having performed
+        some processing actions on them.
 
-        :param records_iterable: A list of records to log an action against.
+        By convention, an iterable will be one of:
+
+        - An instance of an iterator within the itertools standard lib.
+        - A list.
+
+        :param records_iterable: An iterable object of records to perform an action against.
         """
         mod_records_iterable = records_iterable
         return mod_records_iterable
 
     def process(self, records_iterable):
         """
-        Call internal _process method, _log(), ending with a call
-        to the next class' public process() method.
+        Call internal _process() method, then pass result to _log(),
+        ending with a call to the decorated class' public process() method.
 
-        :param records_iterable: A list of records to log an action against.
+        :param records_iterable: An iterable object of records to perform an action against.
         """
         mod_records_iterable = self._process(records_iterable)
         self._log(mod_records_iterable)
