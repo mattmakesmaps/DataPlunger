@@ -57,37 +57,19 @@ class ReaderCSV(ReaderBaseClass):
             "encoding": "UTF-8"
         }
     """
-    def __init__(self, conn_info):
+    def __init__(self, path, encoding, delimiter=',', **kwargs):
         """
         :param conn_info: the connection information (pathway) for a given file.
         :param delimiter:  extracted from conn_info, defaults to ','
         :param _file_handler:  set in __enter__(), a read only pointer to the CSV.
         :param _dict_reader:  an instance of csv.dict_reader()
-
         """
-        self.conn_info = conn_info
         # If no delimiter given in config, default to ','
-        self.delimiter = conn_info.get('delimiter', ',')
-        self._file_handler = None
-        self._dict_reader = None
-
-    def __enter__(self):
-        """
-        Open a file connection, pass that to an instance of csv.DictReader
-        """
-        self._file_handler = open(self.conn_info['path'], 'rt')
+        self.delimiter = delimiter
+        self.path = path
+        self.encoding = encoding
+        self._file_handler = open(self.path, 'rt')
         self._dict_reader = csv.DictReader(self._file_handler, delimiter=self.delimiter)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Close the file handler.
-        """
-        self._file_handler.close()
-        if exc_type is not None:
-            # Exception occurred
-            return False  # Will raise the exception
-        return True  # Everything's okay
 
     def __iter__(self):
         """
@@ -95,6 +77,19 @@ class ReaderCSV(ReaderBaseClass):
         """
         for row in self._dict_reader:
             yield row
+
+    def __enter__(self):
+        """Return Self When Called As Context Manager"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Close the file handler."""
+        # TODO Figure out when this gets called.
+        self._file_handler.close()
+        if exc_type is not None:
+            # Exception occurred
+            return False  # Will raise the exception
+        return True  # Everything's okay
 
 
 class ReaderCensus(ReaderBaseClass):
@@ -128,7 +123,7 @@ class ReaderCensus(ReaderBaseClass):
         }
     """
 
-    def __init__(self, conn_info):
+    def __init__(self, conn_info, **kwargs):
         """
         :param conn_info: contains path and sequence attributes (see above).
         :param delimiter: extracted from conn_info, defaults to ','.

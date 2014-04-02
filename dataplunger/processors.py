@@ -12,6 +12,7 @@ import abc
 import csv
 import itertools
 import os
+import readers
 
 
 class ProcessorBaseClass(object):
@@ -187,6 +188,43 @@ class ProcessorChangeCase(ProcessorBaseClass):
         change_case_iterator = itertools.imap(self._change_case, records_iterable)
         return change_case_iterator
 
+
+class ProcessorGetData(ProcessorBaseClass):
+    """
+    Responsible for retrieving a generator from a given reader.
+
+    Required Config Parameters:
+
+    :param str reader: name of a given reader.
+
+    Example configuration file entry::
+
+        {"ProcessorGetData": {"reader": "Grades"}},
+    """
+    def __init__(self, processor, reader, readers, **kwargs):
+        self.processor = processor
+        self.reader_name = reader
+        self.readers = readers
+
+    def _get_reader_class(self):
+        """
+        Based on a Config Object's conn_info type attribute,
+        generate an appropriate reader.
+        """
+        # Check if the configuration object contains a Reader type
+        # we actually support. If so, build a reader.
+        selected_reader = self.readers[self.reader_name]
+        for reader_class in readers.ReaderBaseClass.__subclasses__():
+            if self.readers[self.reader_name]['type'] == reader_class.__name__:
+                return reader_class
+        raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
+
+    def _process(self, reader_name):
+        """Return the generator for a given reader."""
+        reader_class = self._get_reader_class()
+        reader_kwargs = self.readers[reader_name]
+        reader_instance = reader_class(**reader_kwargs)
+        return reader_instance.__iter__()
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """

@@ -27,7 +27,7 @@
                         {"ProcessorScreenWriter": null},
                         {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
                             "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
-                        {"ProcessorSortRecords": {"sortby": "Total"}},
+                        {"ProcessorSortRecords": {"sort_key": "Total"}},
                         {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex_sorted.csv",
                             "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
                     ]

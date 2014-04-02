@@ -1,0 +1,42 @@
+{
+    "type": "ConfigCollection",
+    "configs": [
+        {
+            "name": "PeopleAndGradesConfig",
+            "readers": {
+                "Grades": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "People": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "GradesLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "Grades"}},
+                        {"ProcessorSortRecords": {"sort_key": "subject"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/grades_out.csv",
+                            "fields": ["subject","name","grade"]}}
+                    ]
+                },
+                {
+                    "name" : "PeopleLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "People"}},
+                        {"ProcessorSortRecords": {"sort_key": "name"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/people_out.csv",
+                            "fields": ["name","age","gender"]}}
+                    ]
+                }
+            ]
+        }
+    ]
+}
