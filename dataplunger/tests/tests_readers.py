@@ -160,15 +160,10 @@ class TestReaderCSV(object):
     Test class for the csv reader.
     """
     def __init__(self):
-        """
-        Create connection info
-        """
-        self.conn_info = {
-            "type": "ReaderCSV",
-            "path": os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv"),
-            "delimeter": ",",
-            "encoding": "UTF-8"
-        }
+        """Create connection info"""
+        self.path = os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv")
+        self.delimiter = ","
+        self.encoding = "UTF-8"
 
     def test_readercsv(self):
         """
@@ -184,7 +179,7 @@ class TestReaderCSV(object):
                     'Party': 'NP',
                     'Precinct': 'KELLY',
                     'Congressional District': '8'}
-        with ReaderCSV(self.conn_info) as t_reader:
+        with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break

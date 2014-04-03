@@ -15,25 +15,33 @@ import os
 
 
 class ReaderBaseClass(object):
-    """
-    An abstract base class for a Reader interface.
-    """
+    """An abstract base class for a Reader interface."""
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def __init__(self, conn_info):
-        self.conn_info = conn_info
+    def __init__(self, **kwargs):
+        """Assign parameters extracted from a configuration file
+        to parameters on the instance."""
+        pass
+
+    @abc.abstractmethod
+    def __del__(self, exc_type=None, exc_val=None, ext_tb=None):
+        """Cleanup code performed when the instance is garbage collected."""
+        pass
 
     @abc.abstractmethod
     def __enter__(self):
-        pass
+        """Setup code called when instantiated via context manager."""
+        return self
 
     @abc.abstractmethod
     def __exit__(self, exc_type, exc_val, ext_tb):
-        pass
+        """Cleanup code called when instantiated via context manager."""
+        return self.__del__(exc_type, exc_val, ext_tb)
 
     @abc.abstractmethod
     def __iter__(self):
+        """Return a generator object yielding individual records."""
         pass
 
 
@@ -43,19 +51,21 @@ class ReaderCSV(ReaderBaseClass):
     
     Required Config Parameters:
     
-    :param conn_info: the connection information (pathway) for a given CSV file.
-    :param conn_info.path: attribute containing the actual file path.
+    :param delimiter: Character representing delimiter. Defaults to ','
+    :param path: Attribute containing the actual file path.
+
+    Non-Required Config Parameters:
+
+    :param encoding: The encoding of the file.
 
     Example configuration file entry::
 
-        {
-        "name": "KC Election Data",
-        "conn_info": {
-            "type": "ReaderCSV",
-            "path": "/Users/matt/Projects/dataplunger/sample_data/election_2010_kc.csv",
-            "delimeter": ",",
-            "encoding": "UTF-8"
-        }
+            "Grades": {
+                "type": "ReaderCSV",
+                "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
+                "delimiter": ",",
+                "encoding": "UTF-8"
+            },
     """
     def __init__(self, path, encoding, delimiter=',', **kwargs):
         """
@@ -78,18 +88,22 @@ class ReaderCSV(ReaderBaseClass):
         for row in self._dict_reader:
             yield row
 
-    def __enter__(self):
-        """Return Self When Called As Context Manager"""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """Close the file handler."""
-        # TODO Figure out when this gets called.
         self._file_handler.close()
         if exc_type is not None:
             # Exception occurred
             return False  # Will raise the exception
         return True  # Everything's okay
+
+    def __enter__(self):
+        """Return Self When Called As Context Manager"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Execute __del__() when called using a context manager."""
+        return self.__del__(exc_type, exc_val, exc_tb)
+
 
 
 class ReaderCensus(ReaderBaseClass):
