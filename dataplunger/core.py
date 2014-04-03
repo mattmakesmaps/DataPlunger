@@ -6,6 +6,18 @@
 .. moduleauthor:: Matt
 
 Contains configuration and control code.
+
+A Configuration Object contains the parsed results of a properly formatted JSON config file.
+Each config file can contain multiple configurations, combinations of readers and layers.
+
+A Controller instance is passed an instance of a Configuration object, and the name of an
+individual configuration within the Configuration object to process.
+
+For each layer within the named configuration, the Controller creates an instance of the
+LayerConstructor class.
+
+A LayerConstructor is responsible for executing processing steps for that layer parsed
+from the configuration file, generated some type of computed output.
 """
 __author__ = 'mkenny'
 from .readers import *
@@ -18,8 +30,8 @@ class Configuration(object):
     This class is responsible the conversion of a JSON-formatted configuration
     file into a python object.
 
-    :param str inConfigPath: The full pathway to a JSON-formatted configuration file.
-    :param dict parsed_configs: Configuration info populated by parsedConfig.
+    :param str path: The full pathway to a JSON-formatted configuration file.
+    :param dict configs: Configuration info populated by parsedConfig.
     """
 
     def __init__(self):
@@ -29,14 +41,14 @@ class Configuration(object):
         self.path = ''
         self.configs = {}
 
-    def _get_config_data(self, inConfigPath):
+    def _get_config_data(self, path):
         """
         Given a file path to a JSON config file, open and
         convert to a python object.
 
-        :param str inConfigPath: full pathway to a JSON-formatted config file.
+        :param str path: full pathway to a JSON-formatted config file.
         """
-        with open(inConfigPath) as config_file:
+        with open(path) as config_file:
             config_string = config_file.read()
             config_data = json_loads(config_string)
             return config_data
@@ -84,7 +96,7 @@ class Controller(object):
     Given a configuration object and config name, manage the creation of
     LayerConstructor instances, one for each layer.
 
-    :param config: Config instance to be passed to the controller.
+    :param config_collection: Config instance to be passed to the controller.
     :param config_name: Name of the individual config within a ConfigCollection to be processed.
     """
 
@@ -93,28 +105,12 @@ class Controller(object):
         self.readers = config_collection.configs[self.config_name]['readers']
         self.layers = config_collection.configs[self.config_name]['layers']
 
-    def _get_reader(self):
-        """
-        Based on a Config Object's conn_info type attribute,
-        generate an appropriate reader.
-        """
-        # Check if the configuration object contains a Reader type
-        # we actually support. If so, build a reader.
-        for reader_class in ReaderBaseClass.__subclasses__():
-            if self.conn_info['type'] == reader_class.__name__:
-                return reader_class
-        raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
-
     def process_layers(self):
         """
-        Create a Reader class instance.
         Create a LayerConstructor for each layer.
         Initiate processing calling the LayerConstructor's serialize() method.
         """
-        # Get required reader class and create an instance.
-        #selectedReaderClass = self._get_reader()
-        #selectedReader = selectedReaderClass(self.conn_info)
-        # Spawn RecordConstructors for each layer.
+        # Spawn LayerConstructor Instances for each layer.
         for layer in self.layers:
             # Extract processing steps for a layer
             layer_name = layer['name']
@@ -126,14 +122,12 @@ class Controller(object):
 class LayerConstructor(object):
     """
     A LayerConstructor is composed of a reader and n-number of processors.
-    The LayerConstructor is responsible for actually iterating through a datasource,
-    provided by self.reader, and processing it using self.processors.
+    It is responsible for building a decorated series of processing instances,
+    and executing them.
 
-    :param reader: reader class responsible for connecting to a data source.
     :param layer_name: layer name extracted from a configuration file.
-    :param layer_config_parameters: layer parameters extracted from a configuration file.
-    :param processors: processor class references to be applied to a record.
-    :param list records: processed record.
+    :param processing_steps: processor class references to be applied to a record.
+    :param readers: reader classes references extracted from a config file.
     """
 
     def __init__(self, layer_name, processing_steps, readers):
@@ -152,9 +146,7 @@ class LayerConstructor(object):
         raise TypeError("ERROR: %s processor does not exist" % name)
 
     def _build_decorated_classes(self, initial_processor, processors, BaseClass):
-        """
-        For Record and Aggregate processors, apply decorators and begin processing.
-        """
+        """Construct decorator chain, and begin processing workflow."""
         decorated_processor = initial_processor
         # Can pass **kwargs when instantiating a class. If that class contains a
         # property assigned at init sharing the name of a key in the **kwargs dict,
