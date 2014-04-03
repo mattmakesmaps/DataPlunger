@@ -37,6 +37,43 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "WACensusConfig",
+            "readers": {
+                "WA_All": {
+                    "type": "ReaderCensus",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "delimiter": ",",
+                    "encoding": "UTF-8",
+                    "fields": {
+                        "Total": 1,
+                        "Male": 2,
+                        "Female": 17
+                    },
+                    "sequence": 2,
+                    "starting_position": 87
+                }
+            },
+            "layers": [
+                {
+                    "name" : "WACensusLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "WA_All"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
+                        {"ProcessorScreenWriter": null},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
+                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
+                        {"ProcessorSortRecords": {"sort_key": "Total"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex_sorted.csv",
+                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
+                    ]
+                }
+            ]
         }
     ]
 }

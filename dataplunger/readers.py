@@ -26,7 +26,8 @@ class ReaderBaseClass(object):
 
     @abc.abstractmethod
     def __del__(self, exc_type=None, exc_val=None, ext_tb=None):
-        """Cleanup code performed when the instance is garbage collected."""
+        """Cleanup code performed when the instance is garbage collected.
+        Note: will be called twice if a context manager is used."""
         pass
 
     @abc.abstractmethod
@@ -89,8 +90,9 @@ class ReaderCSV(ReaderBaseClass):
             yield row
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
-        """Close the file handler."""
-        self._file_handler.close()
+        """Close the file handler. Note: Will be Called Twice if a Context Manager is used."""
+        if self._file_handler:
+            self._file_handler.close()
         if exc_type is not None:
             # Exception occurred
             return False  # Will raise the exception
@@ -137,10 +139,14 @@ class ReaderCensus(ReaderBaseClass):
         }
     """
 
-    def __init__(self, conn_info, **kwargs):
+    def __init__(self, encoding, fields, path, sequence, starting_position, delimiter=",", **kwargs):
         """
-        :param conn_info: contains path and sequence attributes (see above).
         :param delimiter: extracted from conn_info, defaults to ','.
+        :param encoding: file type encoding.
+        :param fields: dict of field names and line number indexes.
+        :param path: location of directory of census data.
+        :param sequence: sequence number for table of interest.
+        :param starting_position: starting position for table of interest.
         :param _estimate_reader: csv.reader instance parsing estimate tables.
         :param _estimate_handler: file handler for estimate file.
         :param _estimate_path: path to estimate file, generated based on user provided path and sequence value.
@@ -150,14 +156,26 @@ class ReaderCensus(ReaderBaseClass):
             for a given row, and values representing the first six fields
             of that row.
         """
-        self.conn_info = conn_info
-        # If no delimiter given in config, default to ','
-        self.delimiter = conn_info.get('delimiter', ',')
+        self.delimiter = delimiter
+        self.encoding = encoding
+        self.fields = fields
+        self.path = path
+        self.sequence = sequence
+        self.starting_position = starting_position
         self._estimate_reader = None
         self._estimate_handler = None
         self._estimate_path = None
         self._geography_path = None
         self._geography_records = {}
+
+        # Call internal setup function.
+        self._setup()
+
+    def _setup(self):
+        self._get_paths()
+        self._build_logrecno_dict()
+        self._build_estimate_reader()
+        return True
 
     def _get_paths(self):
         """
@@ -165,18 +183,18 @@ class ReaderCensus(ReaderBaseClass):
         Geography files begin a 'g' and have a CSV extension.
         Estimate files are based on the sequence number.
         """
-        dir_contents = os.listdir(self.conn_info['path'])
-        sequence_num = int(self.conn_info["sequence"])
+        dir_contents = os.listdir(self.path)
+        sequence_num = int(self.sequence)
         for f in dir_contents:
             # Get geography path. Slice doesn't need to be trapped for index error due to string < 3 char.
             if f[0] == 'g' and f[len(f)-3:] == 'csv':
-                self._geography_path = os.path.join(self.conn_info['path'], f)
+                self._geography_path = os.path.join(self.path, f)
             # Set estimate path. Pass over when string is too short (index error) or
             # when characters f[8:12] are not coercible to integers (Value Error).
             if f[0] == 'e':
                 try:
                     if int(f[8:12]) == sequence_num:
-                        self._estimate_path = os.path.join(self.conn_info['path'], f)
+                        self._estimate_path = os.path.join(self.path, f)
                 except (ValueError, IndexError):
                     pass
 
@@ -184,25 +202,25 @@ class ReaderCensus(ReaderBaseClass):
         if not self._geography_path:
             raise IOError("Expected geography file not found. Starts with 'g' and csv extent")
         if not self._estimate_path:
-            raise IOError("Expected estimate file not found. Sequence given: %s." % self.conn_info["sequence"])
+            raise IOError("Expected estimate file not found. Sequence given: %s." % self.sequence)
 
     def _build_logrecno_dict(self):
         """
         Create a dictionary of LOGRECNO values with associated attributes.
         Will be used as a lookup during iteration of estimate table.
         """
-        geography_file_handle = open(self._geography_path, 'rt')
-        geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
-        geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
+        with open(self._geography_path, 'rt') as geography_file_handle:
+            geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
+            geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
-        for record in geography_reader:
-            self._geography_records[record['LOGRECNO']] = {
-                'COMPONENT': record['COMPONENT'],
-                'FILEID': record['FILEID'],
-                'LOGRECNO': record['LOGRECNO'],
-                'STUSAB': record['STUSAB'],
-                'SUMLEVEL': record['SUMLEVEL']
-            }
+            for record in geography_reader:
+                self._geography_records[record['LOGRECNO']] = {
+                    'COMPONENT': record['COMPONENT'],
+                    'FILEID': record['FILEID'],
+                    'LOGRECNO': record['LOGRECNO'],
+                    'STUSAB': record['STUSAB'],
+                    'SUMLEVEL': record['SUMLEVEL']
+                }
 
     def _build_estimate_reader(self):
         """
@@ -215,34 +233,35 @@ class ReaderCensus(ReaderBaseClass):
 
         # Reformat the user-provided field indexes with values reflecting starting_position
         # Decrement by two to account for both the user-provided starting position and the field values
-        start_index = int(self.conn_info['starting_position']) - 2
-        for k, v in self.conn_info['fields'].iteritems():
-            self.conn_info['fields'][k] = start_index + int(v)
+        start_index = int(self.starting_position) - 2
+        for k, v in self.fields.iteritems():
+            self.fields[k] = start_index + int(v)
 
-    def __enter__(self):
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """
-        Call internal setup functions.
+        Close estimate file handle.
         """
-        self._get_paths()
-        self._build_logrecno_dict()
-        self._build_estimate_reader()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # http://www.itmaybeahack.com/book/python-2.6/html/p03/p03c07_contexts.html
-        # Close the file handler.
-        self._estimate_handler.close()
+        if self._estimate_handler:
+            self._estimate_handler.close()
         if exc_type is not None:
             # Exception occurred
             return False  # Will raise the exception
         return True  # Everything's okay
+
+    def __enter__(self):
+        """Return Self When Called As Context Manager"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Execute __del__() when called using a context manager."""
+        return self.__del__(exc_type, exc_val, exc_tb)
 
     def __iter__(self):
         """
         Generator returning a dict of field name: field value pairs for each record.
         Combines estimate row with corresponding geography row based on common LOGRECNO value.
         """
-        fields = self.conn_info['fields']
+        fields = self.fields
         for row in self._estimate_reader:
             logrecno = row[5]
             estimate_vals = {k: row[v] for k, v in fields.items()}

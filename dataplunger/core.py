@@ -141,7 +141,7 @@ class LayerConstructor(object):
         self.processing_steps = processing_steps
         self.readers = readers
 
-    def _get_processor_instance(self, name, base_class):
+    def _get_processor_class(self, name, base_class):
         """
         Given a string, test if a Processor class exists by that name.
         """
@@ -162,10 +162,15 @@ class LayerConstructor(object):
         for processor_dict in processors:
             for processor_name, processor_args in processor_dict.iteritems():
                 # Add readers to processor_args dict
-                processor_args['readers'] = self.readers
+                # Conditional fails if value of None is used in JSON config for a processor.
+                if processor_args:
+                    processor_args['readers'] = self.readers
+                else:
+                    # Need an empty dict to pass as **kwargs
+                    processor_args = {}
                 # Create an actual instance of the processor, passing in its kwargs and references to all readers.
-                processor_instance = self._get_processor_instance(processor_name, BaseClass)
-                decorated_processor = processor_instance(decorated_processor, **processor_args)
+                processor_class = self._get_processor_class(processor_name, BaseClass)
+                decorated_processor = processor_class(decorated_processor, **processor_args)
         # Start Execution of Processing Pipe
         # Can I pass this thing something it already knows?
         # I guess we expect that we always start with ProcessorGetData, should probably raise an error.

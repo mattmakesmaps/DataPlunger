@@ -29,5 +29,8 @@ if __name__ == '__main__':
     # print "Total Time: %s" % total_time
     # sex_by_age = Controller(collectionConfig, "Sex By Age")
     # sex_by_age.createRecordConstructors()
-    multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
+
+    # New Stuff
+    #multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
+    multireader = Controller(collectionConfig, "WACensusConfig")
     multireader.process_layers()
