@@ -21,8 +21,6 @@ if __name__ == '__main__':
     ## Build a controller from the given configuration
     # epaController = Controller(collectionConfig, "EPA FRS")
     # epaController.createRecordConstructors()
-    # layer0_time = datetime.now()-start_time
-    # print "Layer Zero Time: %s" % layer0_time
     # epaController1 = Controller(collectionConfig, "EPA FRS1")
     # epaController1.createRecordConstructors()
     # total_time = datetime.now()-start_time
@@ -31,6 +29,9 @@ if __name__ == '__main__':
     # sex_by_age.createRecordConstructors()
 
     # New Stuff
-    #multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
-    multireader = Controller(collectionConfig, "WACensusConfig")
+    multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
+    # multireader = Controller(collectionConfig, "WACensusConfig")
+    # multireader = Controller(collectionConfig, "FreebaseConfig")
     multireader.process_layers()
+    layer0_time = datetime.now()-start_time
+    print "Layer Zero Time: %s" % layer0_time

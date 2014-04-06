@@ -20,7 +20,6 @@ A LayerConstructor is responsible for executing processing steps for that layer 
 from the configuration file, generated some type of computed output.
 """
 __author__ = 'mkenny'
-from .readers import *
 from .processors import *
 from simplejson import loads as json_loads
 
