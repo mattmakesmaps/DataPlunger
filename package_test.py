@@ -11,27 +11,9 @@ if __name__ == '__main__':
     collectionConfig = Configuration()
     collectionConfig.parse_config(config_path)
 
-    # # Examine Contents
-    # print "Layers:"
-    # pprint(csvConfig.layers)
-    # print "Connection Info"
-    # pprint(csvConfig.conn_info)
-    # print "========================"
-
-    ## Build a controller from the given configuration
-    # epaController = Controller(collectionConfig, "EPA FRS")
-    # epaController.createRecordConstructors()
-    # epaController1 = Controller(collectionConfig, "EPA FRS1")
-    # epaController1.createRecordConstructors()
-    # total_time = datetime.now()-start_time
-    # print "Total Time: %s" % total_time
-    # sex_by_age = Controller(collectionConfig, "Sex By Age")
-    # sex_by_age.createRecordConstructors()
-
-    # New Stuff
-    multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
+    # multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
     # multireader = Controller(collectionConfig, "WACensusConfig")
-    # multireader = Controller(collectionConfig, "FreebaseConfig")
+    multireader = Controller(collectionConfig, "FreebaseConfig")
     multireader.process_layers()
     layer0_time = datetime.now()-start_time
     print "Layer Zero Time: %s" % layer0_time

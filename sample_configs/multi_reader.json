@@ -22,10 +22,10 @@
                     "name" : "PeopleAndGradesLayer",
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "People"}},
-                        {"ProcessorCombineData": {"reader": "Grades", "keys": ["name"]}},
-                        {"ProcessorSortRecords": {"sort_key": "subject"}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "Grades", "keys": ["name"]}},
+                        {"ProcessorSortRecords": {"sort_key": "name"}},
                         {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/peopleandgrades_out.csv",
-                            "fields": ["subject","name","grade","gender","age"]}}
+                            "fields": ["name","subject","grade","gender","age"]}}
                     ]
                 }
             ]
@@ -58,9 +58,27 @@
         {
             "name": "FreebaseConfig",
             "readers": {
-                "FreebaseDeletions": {
+                "FBDel_20": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_20.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_10": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_10_Trunc": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10_t.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_5Rec": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5rec.csv",
                     "delimeter": ",",
                     "encoding": "UTF-8"
                 }
@@ -69,12 +87,11 @@
                 {
                     "name" : "Freebase_Sorted",
                     "processing_steps": [
-                        {"ProcessorGetData": {"reader": "FreebaseDeletions"}},
-                        {"ProcessorTruncateFields": {
-                            "fields": ["creation_timestamp","creator","deletion_timestamp","deletor","subject","predicate"]}},
-                        {"ProcessorChangeCase": {"case": "upper"}},
-                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/freebase_case.csv",
-                            "fields": ["creation_timestamp","creator","deletion_timestamp","deletor","subject","predicate"]}}
+                        {"ProcessorGetData": {"reader": "FBDel_10"}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "FBDel_5Rec", "keys": ["creation_timestamp", "creator"]}},
+                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/freebase_10_combined.csv",
+                            "fields": ["creation_timestamp","creator","deletion_timestamp","deletor","subject","predicate",
+                            "deletion_timestamp2","deletor2","subject2","predicate2"]}}
                     ]
                 }
             ]
