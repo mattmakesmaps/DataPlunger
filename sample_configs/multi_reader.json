@@ -76,6 +76,18 @@
                     "delimeter": ",",
                     "encoding": "UTF-8"
                 },
+                "FBDel_5": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_5_Trunc": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5_t.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
                 "FBDel_5Rec": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5rec.csv",
@@ -87,9 +99,9 @@
                 {
                     "name" : "Freebase_Sorted",
                     "processing_steps": [
-                        {"ProcessorGetData": {"reader": "FBDel_10"}},
-                        {"ProcessorCombineData_ValueHash": {"reader": "FBDel_5Rec", "keys": ["creation_timestamp", "creator"]}},
-                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/freebase_10_combined.csv",
+                        {"ProcessorGetData": {"reader": "FBDel_5"}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "FBDel_5_Trunc", "keys": ["creation_timestamp", "creator"]}},
+                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/freebase_5_combined.csv",
                             "fields": ["creation_timestamp","creator","deletion_timestamp","deletor","subject","predicate",
                             "deletion_timestamp2","deletor2","subject2","predicate2"]}}
                     ]

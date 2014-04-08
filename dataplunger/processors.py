@@ -145,7 +145,7 @@ class ProcessorDevNull(ProcessorBaseClass):
         This is required if last process returns an itertools class, as opposed to a list.
         """
         print "in ProcessorDevNull._process()"
-        # for record in records_iterable
+        # for record in records_iterable:
         #     pass
         # Consume recipe from itertools manpage.
         deque(records_iterable, maxlen=0)

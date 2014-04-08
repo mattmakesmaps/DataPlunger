@@ -11,9 +11,9 @@ if __name__ == '__main__':
     collectionConfig = Configuration()
     collectionConfig.parse_config(config_path)
 
-    # multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
+    multireader = Controller(collectionConfig, "PeopleAndGradesConfig")
     # multireader = Controller(collectionConfig, "WACensusConfig")
-    multireader = Controller(collectionConfig, "FreebaseConfig")
+    # multireader = Controller(collectionConfig, "FreebaseConfig")
     multireader.process_layers()
     layer0_time = datetime.now()-start_time
     print "Layer Zero Time: %s" % layer0_time
