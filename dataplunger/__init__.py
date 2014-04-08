@@ -1,2 +1,2 @@
 __author__ = 'mkenny'
-from .core import Configuration, Controller, RecordConstructor
+from .core import Configuration, Controller, LayerConstructor
