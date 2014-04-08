@@ -17,7 +17,7 @@ class TestReaderCensus_Success(object):
         """
         Create connection info
         """
-        self.conn_info = {'starting_position': 87,
+        self.kwargs = {'starting_position': 87,
                           'sequence': 2,
                           'fields': {'Total': 1, 'Female': 17, 'Male': 2},
                           'encoding': 'UTF-8',
@@ -40,7 +40,7 @@ class TestReaderCensus_Success(object):
                     'LOGRECNO': '0004357',
                     'Male': '12',
                     'FILEID': 'ACSSF'}
-        with ReaderCensus(self.conn_info) as t_reader:
+        with ReaderCensus(**self.kwargs) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break
@@ -55,7 +55,7 @@ class TestReaderCensus_BadEstGeogFiles(object):
         """
         Create connection info
         """
-        self.conn_info = {'starting_position': 87,
+        self.kwargs = {'starting_position': 87,
                           'sequence': 2,
                           'fields': {'Total': 1, 'Female': 17, 'Male': 2},
                           'encoding': 'UTF-8',
@@ -76,12 +76,12 @@ class TestReaderCensus_BadEstGeogFiles(object):
         Create temporary directory and populate with files containing
         expected geography and estimate names.
         """
-        self.conn_info['path'] = tempfile.mkdtemp()
+        self.kwargs['path'] = tempfile.mkdtemp()
         # Create mocks for geography and estimate files
-        self.geog_file_mock = open(os.path.join(self.conn_info['path'], 'g20125wa.csv'), 'w')
-        self.estimate_file_mock = open(os.path.join(self.conn_info['path'], 'e20125wa0002000.txt'), 'w')
-        self.estimate_index_error_mock = open(os.path.join(self.conn_info['path'], 'eshort.txt'), 'w')
-        self.estimate_value_error_mock = open(os.path.join(self.conn_info['path'], 'election_2012_kc.csv'), 'w')
+        self.geog_file_mock = open(os.path.join(self.kwargs['path'], 'g20125wa.csv'), 'w')
+        self.estimate_file_mock = open(os.path.join(self.kwargs['path'], 'e20125wa0002000.txt'), 'w')
+        self.estimate_index_error_mock = open(os.path.join(self.kwargs['path'], 'eshort.txt'), 'w')
+        self.estimate_value_error_mock = open(os.path.join(self.kwargs['path'], 'election_2012_kc.csv'), 'w')
 
     @raises(IOError)
     def test_nogeographyfile(self):
@@ -94,7 +94,7 @@ class TestReaderCensus_BadEstGeogFiles(object):
             self._close_remove_file(file)
 
         # Execute ReaderCensus.__enter__() method.
-        with ReaderCensus(self.conn_info) as t_reader:
+        with ReaderCensus(**self.kwargs) as t_reader:
             pass
 
     @raises(IOError)
@@ -108,7 +108,7 @@ class TestReaderCensus_BadEstGeogFiles(object):
             self._close_remove_file(file)
 
         # Execute ReaderCensus.__enter__() method.
-        with ReaderCensus(self.conn_info) as t_reader:
+        with ReaderCensus(**self.kwargs) as t_reader:
             pass
 
     @raises(IOError)
@@ -123,7 +123,7 @@ class TestReaderCensus_BadEstGeogFiles(object):
             self._close_remove_file(file)
 
         # Execute ReaderCensus.__enter__() method.
-        with ReaderCensus(self.conn_info) as t_reader:
+        with ReaderCensus(**self.kwargs) as t_reader:
             pass
 
     @raises(IOError)
@@ -138,7 +138,7 @@ class TestReaderCensus_BadEstGeogFiles(object):
             self._close_remove_file(file)
 
         # Execute ReaderCensus.__enter__() method.
-        with ReaderCensus(self.conn_info) as t_reader:
+        with ReaderCensus(**self.kwargs) as t_reader:
             pass
 
     def teardown(self):
@@ -151,8 +151,8 @@ class TestReaderCensus_BadEstGeogFiles(object):
                      self.estimate_value_error_mock]:
             self._close_remove_file(file)
 
-        if os.path.isdir(self.conn_info['path']):
-            os.rmdir(self.conn_info['path'])
+        if os.path.isdir(self.kwargs['path']):
+            os.rmdir(self.kwargs['path'])
 
 
 class TestReaderCSV(object):
@@ -160,15 +160,10 @@ class TestReaderCSV(object):
     Test class for the csv reader.
     """
     def __init__(self):
-        """
-        Create connection info
-        """
-        self.conn_info = {
-            "type": "ReaderCSV",
-            "path": os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv"),
-            "delimeter": ",",
-            "encoding": "UTF-8"
-        }
+        """Create connection info"""
+        self.path = os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv")
+        self.delimiter = ","
+        self.encoding = "UTF-8"
 
     def test_readercsv(self):
         """
@@ -184,7 +179,7 @@ class TestReaderCSV(object):
                     'Party': 'NP',
                     'Precinct': 'KELLY',
                     'Congressional District': '8'}
-        with ReaderCSV(self.conn_info) as t_reader:
+        with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break

@@ -86,7 +86,7 @@ class TestProcessorSortRecords(object):
 
     def test_sortrecords(self):
         """
-        Sort based on name field. Should return records in the order of:
+        Sort based on name field. Should return a list of records in the order of:
         'Bob', 'Luke', 'Matt'
         """
         expected_list = [
@@ -96,6 +96,77 @@ class TestProcessorSortRecords(object):
         ]
         sort_processor = ProcessorSortRecords(self.devnull, sort_key='name')
         assert sort_processor.process(self.records) == expected_list
+
+class TestProcessorGetData(TestBase):
+    """
+    Test ProcessorGetData.
+    kwarg 'fields', a list of field names, is used to truncate an input record.
+    """
+    def test_get(self):
+        pass
+
+class TestProcessorCombineData_ValueHash(TestBase):
+    """
+    Test ProcessorCombineData_ValueHash.
+    Requires two readers as input.
+    """
+    def __init__(self):
+        """
+        Create required configuration parameters.
+        """
+        self.join_keys = ['name']
+        self.combine_reader_name = 'Test_Grades'
+        self.readers = {
+            'Test_Grades': {
+                'path': os.path.join(os.path.dirname(__file__), 'test_data/grades.csv'),
+                'type': 'ReaderCSV',
+                'delimeter': ',',
+                'encoding': 'UTF-8'
+            },
+            'Test_People': {
+                'path': os.path.join(os.path.dirname(__file__), 'test_data/people.csv'),
+                'type': 'ReaderCSV',
+                'delimeter': ',',
+                'encoding': 'UTF-8'
+            }
+        }
+
+    def test_processorcombinedata_valuehash(self):
+        """
+        Test ProcessorCombineData_ValueHash Happy Path (Left Join)
+        """
+        # Build an existing reader to pass into the ProcessorCombineData_ValueHash instance.
+        existing_reader_vals = [
+            {'gender': 'male', 'age': '27', 'name': 'Matt'},
+            {'gender': 'female', 'age': '27', 'name': 'Riley'},
+            {'gender': 'male', 'age': '29', 'name': 'Steve'},
+            {'gender': 'male', 'age': '40', 'name': 'Scott'}
+        ]
+
+        expected = [
+            {'grade': 'A', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'History'},
+            {'grade': 'B', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'Drama'},
+            {'grade': 'C', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'English'},
+            {'grade': 'A', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'History'},
+            {'grade': 'B', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'Drama'},
+            {'grade': 'C', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'Economics'},
+            {'grade': '', 'gender': 'male', 'age': '29', 'name': 'Steve', 'subject': ''},
+            {'grade': 'A', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'History'},
+            {'grade': 'B', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'Algebra'},
+            {'grade': 'C', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'English'}
+        ]
+
+        test_combine_inst_kwargs = {
+           'processor': None,
+           'reader': self.combine_reader_name,
+           'keys': self.join_keys,
+           'readers': self.readers
+        }
+        # Build inst using kwargs
+        p = ProcessorCombineData_ValueHash(**test_combine_inst_kwargs)
+        iter = p.process(existing_reader_vals)
+        output = [r for r in iter]
+        assert output == expected
 
 class TestProcessorMatchValue(TestBase):
     """
@@ -111,7 +182,7 @@ class TestProcessorMatchValue(TestBase):
         """
         Assert record processing continues.
         """
-        p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='keep')
+        p = ProcessorMatchValue(None, matches={'name': 'Matt'}, action='keep')
         iter = p.process(self.records)
         expected = self.records[0]
         for record in iter:
@@ -121,7 +192,7 @@ class TestProcessorMatchValue(TestBase):
         """
         Assert record was removed from processing.
         """
-        p = ProcessorMatchValue(self.devnull, matches={'name': 'Matt'}, action='discard')
+        p = ProcessorMatchValue(None, matches={'name': 'Matt'}, action='discard')
         iter = p.process(self.records)
         for record in iter:
             assert record is None
@@ -130,7 +201,7 @@ class TestProcessorMatchValue(TestBase):
         """
         Assert record was removed from processing.
         """
-        p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='keep')
+        p = ProcessorMatchValue(None, matches={'name': 'Greg'}, action='keep')
         iter = p.process(self.records)
         for record in iter:
             assert record is None
@@ -139,7 +210,7 @@ class TestProcessorMatchValue(TestBase):
         """
         Assert record processing continues.
         """
-        p = ProcessorMatchValue(self.devnull, matches={'name': 'Greg'}, action='discard')
+        p = ProcessorMatchValue(None, matches={'name': 'Greg'}, action='discard')
         iter = p.process(self.records)
         expected = self.records[0]
         for record in iter:
@@ -159,7 +230,7 @@ class TestProcessorChangeCase(TestBase):
         """
         Assert values are converted to upper-case.
         """
-        p = ProcessorChangeCase(self.devnull, case='Upper')
+        p = ProcessorChangeCase(None, case='Upper')
         expected = {'name': 'MATT', 'age': '27', 'gender': 'MALE'}
         iter = p.process(self.records)
         for record in iter:
@@ -170,7 +241,7 @@ class TestProcessorChangeCase(TestBase):
         """
         Assert values are converted to lower-case.
         """
-        p = ProcessorChangeCase(self.devnull, case='Lower')
+        p = ProcessorChangeCase(None, case='Lower')
         expected = {'name': 'matt', 'age': '27', 'gender': 'male'}
         iter = p.process(self.records)
         for record in iter:
@@ -181,7 +252,7 @@ class TestProcessorChangeCase(TestBase):
         """
         A bad case should raise a ValueError.
         """
-        p = ProcessorChangeCase(self.devnull, case='Blerch')
+        p = ProcessorChangeCase(None, case='Blerch')
         iter = p.process(self.records)
         for record in iter:
             pass
@@ -195,7 +266,7 @@ class TestProcessorTruncateFields(TestBase):
         """
         Assert record is truncated to name and age fields only.
         """
-        p = ProcessorTruncateFields(self.devnull, fields=['name', 'age'])
+        p = ProcessorTruncateFields(None, fields=['name', 'age'])
         expected = {'name': 'Matt', 'age': '27'}
         iter = p.process(self.records)
         for record in iter:

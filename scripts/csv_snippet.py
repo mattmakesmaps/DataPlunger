@@ -20,13 +20,16 @@ if __name__ == '__main__':
         {'id':2,'name':'Scott','gender':'male','city':'Bellingham','nuller':'a','nuller2':''}
     ]
 
-    devNull = processors.ProcessorDevNull()
-    out_path = os.path.join(os.path.dirname(__file__), "csv_snippet_out.csv")
-    c_writer = processors.ProcessorCSVWriter(devNull, out_path, ['id','name','gender','city','nuller','nuller2'])
-    c_writer.process(data)
+    # devNull = processors.ProcessorDevNull()
+    # out_path = os.path.join(os.path.dirname(__file__), "csv_snippet_out.csv")
+    # c_writer = processors.ProcessorCSVWriter(devNull, out_path, ['id','name','gender','city','nuller','nuller2'])
+    # c_writer.process(data)
 
-    # with readers.ReaderCSV(conn_info) as t_reader:
-    #     devNull = processors.ProcessorDevNull()
-    #     out_path = os.path.join(os.path.dirname(__file__), "csv_snippet_out.csv")
-    #     c_writer = processors.ProcessorCSVWriter(devNull, out_path, ['id','name','gender','city','nuller','nuller2'])
-    #     c_writer.process(t_reader)
+    with readers.ReaderCSV(conn_info) as t_reader:
+        iter_obj = t_reader.__iter__()
+        for item in iter_obj:
+            print item
+        # devNull = processors.ProcessorDevNull()
+        # out_path = os.path.join(os.path.dirname(__file__), "csv_snippet_out.csv")
+        # c_writer = processors.ProcessorCSVWriter(devNull, out_path, ['id','name','gender','city','nuller','nuller2'])
+        # c_writer.process(t_reader)

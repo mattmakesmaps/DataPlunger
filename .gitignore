@@ -1,8 +1,11 @@
 *.idea
 *.py[cod]
 *.DS_STORE
-*.csv
 *.profile
+/profiles
+/sample_output
+/sample_data
+freebase*
 dumpprof.py
 
 # C extensions

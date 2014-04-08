@@ -1,0 +1,149 @@
+{
+    "type": "ConfigCollection",
+    "configs": [
+        {
+            "name": "PeopleAndGradesConfig",
+            "readers": {
+                "Grades": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "People": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "PeopleAndGradesLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "People"}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "Grades", "keys": ["name"]}},
+                        {"ProcessorSortRecords": {"sort_key": "name"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/peopleandgrades_out.csv",
+                            "fields": ["name","subject","grade","gender","age"]}}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "EPAFRSConfig",
+            "readers": {
+                "NationalSingleFile": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/NATIONAL_SINGLE.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "EPAFRS_SORTED",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "NationalSingleFile"}},
+                        {"ProcessorTruncateFields": {
+                            "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]}},
+                        {"ProcessorChangeCase": {"case": "upper"}},
+                        {"ProcessorSortRecords": {"sort_key": "CITY_NAME"}},
+                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_SORTED.csv",
+                            "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]}}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "FreebaseConfig",
+            "readers": {
+                "FBDel_20": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_20.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_10": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_10_Trunc": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10_t.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_5": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_5_Trunc": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5_t.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                },
+                "FBDel_5Rec": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5rec.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "Freebase_Sorted",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "FBDel_5"}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "FBDel_5_Trunc", "keys": ["creation_timestamp", "creator"]}},
+                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/freebase_5_combined.csv",
+                            "fields": ["creation_timestamp","creator","deletion_timestamp","deletor","subject","predicate",
+                            "deletion_timestamp2","deletor2","subject2","predicate2"]}}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "WACensusConfig",
+            "readers": {
+                "WA_All": {
+                    "type": "ReaderCensus",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "delimiter": ",",
+                    "encoding": "UTF-8",
+                    "fields": {
+                        "Total": 1,
+                        "Male": 2,
+                        "Female": 17
+                    },
+                    "sequence": 2,
+                    "starting_position": 87
+                }
+            },
+            "layers": [
+                {
+                    "name" : "WACensusLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "WA_All"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
+                        {"ProcessorScreenWriter": null},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
+                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
+                        {"ProcessorSortRecords": {"sort_key": "Total"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex_sorted.csv",
+                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -12,6 +12,8 @@ import abc
 import csv
 import itertools
 import os
+import readers
+from collections import deque
 
 
 class ProcessorBaseClass(object):
@@ -73,7 +75,11 @@ class ProcessorBaseClass(object):
         """
         mod_records_iterable = self._process(records_iterable)
         self._log(mod_records_iterable)
-        self.processor.process(mod_records_iterable)
+        # Execute the process method only if processor has it.
+        # Useful in case of ProcessorCombineData, where we create
+        # an instance of ProcessorGetData w/o requiring a child to decorate.
+        if hasattr(self.processor, "process"):
+            self.processor.process(mod_records_iterable)
         return mod_records_iterable
 
 
@@ -138,8 +144,11 @@ class ProcessorDevNull(ProcessorBaseClass):
         Iterate through records to ensure that last decorated process is executed.
         This is required if last process returns an itertools class, as opposed to a list.
         """
-        for record in records_iterable:
-            pass
+        print "in ProcessorDevNull._process()"
+        # for record in records_iterable:
+        #     pass
+        # Consume recipe from itertools manpage.
+        deque(records_iterable, maxlen=0)
         # If given a list, will return contents.
         # If given an iterator, will return a spent iterator.
         return records_iterable
@@ -187,6 +196,248 @@ class ProcessorChangeCase(ProcessorBaseClass):
         change_case_iterator = itertools.imap(self._change_case, records_iterable)
         return change_case_iterator
 
+
+class ProcessorGetData(ProcessorBaseClass):
+    """
+    Responsible for retrieving a generator from a given reader.
+
+    Required Config Parameters:
+
+    :param str reader: name of a given reader.
+
+    Example configuration file entry::
+
+        {"ProcessorGetData": {"reader": "Grades"}},
+    """
+    def __init__(self, processor, reader, readers, **kwargs):
+        self.processor = processor
+        self.reader_name = reader
+        self.readers = readers
+
+    def _get_reader_class(self):
+        """
+        Based on a Config Object's conn_info type attribute,
+        generate an appropriate reader.
+        """
+        # Check if the configuration object contains a Reader type
+        # we actually support. If so, build a reader.
+        selected_reader = self.readers[self.reader_name]
+        for reader_class in readers.ReaderBaseClass.__subclasses__():
+            if selected_reader['type'] == reader_class.__name__:
+                return reader_class
+        raise TypeError("ERROR: %s is not a subclass of ReaderBaseClass" % reader_class)
+
+    def _process(self, reader_name):
+        """Return the generator for a given reader."""
+        print "in ProcessorGetData._process() %s" % self.reader_name
+        reader_class = self._get_reader_class()
+        reader_kwargs = self.readers[reader_name]
+        reader_instance = reader_class(**reader_kwargs)
+        return reader_instance.__iter__()
+
+
+class ProcessorCombineData_legacy(ProcessorBaseClass):
+    """
+    Joins records from an existing Reader+Processors to a new
+    Reader. Will currently perform a LEFT JOIN only.
+
+    Required Config Parameters:
+
+    :param str reader: name of a given reader.
+    :param list keys: list of field names to perform join on.
+
+    Example configuration file entry::
+
+        {"ProcessorCombineData": {"reader": "People", "keys": ["name"]}},
+    """
+    def __init__(self, processor, reader, keys, readers, **kwargs):
+        self.processor = processor
+        self.join_keys = keys
+        self.new_reader_iter = ProcessorGetData(None, reader, readers).process(reader)
+
+
+    def _merge_record(self, dict_record):
+        """return a list of records sharing the same value for keys
+        listed in self.keys"""
+        key_count = len(self.join_keys)
+        matching_record_found = False
+        merged_records = []
+
+        # Loop through combine set, looking for matching key:values.
+        for record in self.new_record_iterable:
+            # Get list of matching keys, check if len matches expected key count
+            matching_keys = [k for k in self.join_keys if dict_record[k] == record[k]]
+            if len(matching_keys) == key_count:
+                matching_record_found = True
+                merged_record = dict(dict_record.items() + record.items())
+                merged_records.append(merged_record)
+
+        # No matches, add the original record with empty values for expected keys.
+        if not matching_record_found:
+            # Create empty values for all keys except those responsible for joining
+            # As they'll have populated values already.
+            empty_keys = {k:'' for k in self.new_record_iterable_fields if k not in self.join_keys}
+            merged_record = dict(dict_record.items() + empty_keys.items())
+            merged_records.append(merged_record)
+
+        return merged_records
+
+
+    def _process(self, existing_record_iterable):
+        """Return a generator that yields a the merged records
+        from two readers"""
+        # Create a list of items from new iterator
+        self.new_record_iterable = [r for r in self.new_reader_iter]
+        self.new_record_iterable_fields = self.new_record_iterable[0].keys()
+        # Create a list of lists containing merged records
+        merge_iterator = itertools.imap(self._merge_record, existing_record_iterable)
+        # Flatten the list of lists.
+        flatten_iterator = itertools.chain.from_iterable(merge_iterator)
+        return flatten_iterator
+
+class ProcessorCombineData_ValueHash(ProcessorBaseClass):
+    """
+    Joins records from an existing Reader+Processors to a new Reader.
+    If a match isn't found, will default to passing over record.
+    Performs a LEFT JOIN, dropping those records from the new iterable that
+    do not match the existing iterable.
+
+    Create a lookup dictionary from new iterable using the following schema:
+    {
+      (key1valA, key2valB) : [index1, index2, index3],
+      (key1valA, key2valC) : [index1, index2, index3]
+    }
+    Generate tuple of vals for each record in existing iterable and compare.
+
+    With the exception of join fields, fields names should be unique
+    across both datasets.
+
+    Required Config Parameters:
+
+    :param str reader: name of a given reader.
+    :param list keys: list of field names to perform join on.
+
+    Example configuration file entry::
+
+        {"ProcessorCombineData": {"reader": "People", "keys": ["name"]}},
+    """
+    def __init__(self, processor, reader, keys, readers, **kwargs):
+        self.processor = processor
+        self.join_keys = keys
+        self.new_reader_iterable = ProcessorGetData(None, reader, readers).process(reader)
+
+    def _filter_keys(self, in_record):
+        """Return True if records have matching self.join_keys values."""
+        key_count = len(self.join_keys)
+        matching_keys = [k for k in self.join_keys if in_record[0][k] == in_record[1][k]]
+        if len(matching_keys) == key_count:
+            return True
+        else:
+            return False
+
+    def _merge_records(self, in_existing_record):
+        merged_records = []
+
+        # Create new val tuple for dict lookup.
+        val_tuple = ()
+        for key in self.join_keys:
+            val_tuple += (in_existing_record[key],)
+
+        if val_tuple in self.new_reader_valuehash:
+            indexes_to_join = self.new_reader_valuehash[val_tuple]
+            for index in indexes_to_join:
+                merged_record = dict(in_existing_record.items() + self.new_reader_records[index].items())
+                merged_records.append(merged_record)
+        else:
+            # match not found, skip over record.
+            empty_keys = {k:'' for k in self.new_reader_fields if k not in self.join_keys}
+            merged_record = dict(in_existing_record.items() + empty_keys.items())
+            merged_records.append(merged_record)
+
+        return merged_records
+
+
+    def _create_value_list(self):
+        """
+        Populate self.new_reader_valuehash with keys representing values
+        """
+        self.new_reader_valuehash = {}
+        self.new_reader_records = []
+
+        new_reader_index = 0
+        for record in self.new_reader_iterable:
+            val_tuple = ()
+            for key in self.join_keys:
+                val_tuple += (record[key],)
+
+            # key-pair exists, add index to it.
+            if val_tuple in self.new_reader_valuehash:
+                self.new_reader_valuehash[val_tuple].append(new_reader_index)
+            else:
+                self.new_reader_valuehash[val_tuple] = [new_reader_index]
+            # increment index, add record to record list.
+            self.new_reader_records.append(record)
+            new_reader_index += 1
+
+    def _process(self, existing_record_iterable):
+        """Return an iterator that yields merged records from two readers"""
+        print "in ProcessorCombineData._process()"
+        # build value hash dict.
+        self._create_value_list()
+        self.new_reader_fields = self.new_reader_records[0].keys()
+        merge_iterator = itertools.imap(self._merge_records, existing_record_iterable)
+        flatten_iterator = itertools.chain.from_iterable(merge_iterator)
+        return flatten_iterator
+
+class ProcessorCombineData(ProcessorBaseClass):
+    """
+    Joins records from an existing Reader+Processors to a new
+    Reader. Will currently perform an INNER JOIN only.
+
+    With the exception of join fields, fields names should be unique
+    across both datasets.
+
+    Required Config Parameters:
+
+    :param str reader: name of a given reader.
+    :param list keys: list of field names to perform join on.
+
+    Example configuration file entry::
+
+        {"ProcessorCombineData": {"reader": "People", "keys": ["name"]}},
+    """
+    def __init__(self, processor, reader, keys, readers, **kwargs):
+        self.processor = processor
+        self.join_keys = keys
+        self.new_reader_iterable = ProcessorGetData(None, reader, readers).process(reader)
+
+    def _filter_keys(self, in_record):
+        """Return True if records have matching self.join_keys values."""
+        key_count = len(self.join_keys)
+        matching_keys = [k for k in self.join_keys if in_record[0][k] == in_record[1][k]]
+        if len(matching_keys) == key_count:
+            return True
+        else:
+            return False
+
+    def _merge_records(self, in_record):
+        """Return a single dictionary based on the contents of two matching records"""
+        merged_record = dict(in_record[0].items() + in_record[1].items())
+        return merged_record
+
+    def _process(self, existing_record_iterable):
+        """Return an iterator that yields merged records from two readers"""
+        print "in ProcessorCombineData._process()"
+        # Create Cross Join Iterator
+        cross_product_iter = itertools.product(existing_record_iterable, self.new_reader_iterable)
+        print "cross_product_iter created"
+        # Filter based on matching keys
+        filter_keys_iter = itertools.ifilter(self._filter_keys, cross_product_iter)
+        print "filter_keys_iter created"
+        # Create a list of lists containing merged records
+        merge_iterator = itertools.imap(self._merge_records, filter_keys_iter)
+        print "merge_iterator created"
+        return merge_iterator
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """

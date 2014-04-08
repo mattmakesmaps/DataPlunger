@@ -150,7 +150,7 @@ class NoProcessorException(Exception):
 class Controller(object):
     """
     Given a configuration object, manage the creation of
-    RecordConstructor instances, one for each layer.
+    LayerConstructor instances, one for each layer.
 
     NOTE: This now assumes that the same processes will be applied
     to all layers in a configuration file.
@@ -183,8 +183,8 @@ class Controller(object):
     def createRecordConstructors(self):
         """
         Create a Reader class instance.
-        Create a RecordConstructor for each layer.
-        Initiate processing calling the RecordConstructor's serialize() method.
+        Create a LayerConstructor for each layer.
+        Initiate processing calling the LayerConstructor's serialize() method.
         """
         # Get required reader class and create an instance.
         self._get_reader()
@@ -234,8 +234,8 @@ class CSVReader(object):
 
 class RecordConstructor(object):
     """
-    A RecordConstructor is composed of a reader and n-number of processors.
-    The RecordConstructor is responsible for actually iterating through a datasource,
+    A LayerConstructor is composed of a reader and n-number of processors.
+    The LayerConstructor is responsible for actually iterating through a datasource,
     provided by self.reader, and processing it using self.processors.
 
     self.reader - the Reader class responsible for connecting to a data source.
