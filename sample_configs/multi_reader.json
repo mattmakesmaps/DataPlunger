@@ -2,6 +2,26 @@
     "type": "ConfigCollection",
     "configs": [
         {
+            "name": "SHPConfig",
+            "readers": {
+                "NaturalEarthLakes": {
+                    "type": "ReaderSHP",
+                    "path": "/Users/matt/Projects/dataplunger/dataplunger/tests/test_data/50m_lakes_utf8.shp"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "LakesLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "NaturalEarthLakes"}},
+                        {"ProcessorSortRecords": {"sort_key": "scalerank"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/50m_lakes_sorted.csv",
+                            "fields": ["fiona_id", "fiona_type", "admin", "featurecla", "name", "name_alt", "note", "scalerank"]}}
+                    ]
+                }
+            ]
+        },
+        {
             "name": "PeopleAndGradesConfig",
             "readers": {
                 "Grades": {

@@ -12,6 +12,7 @@ __author__ = 'mkenny'
 import abc
 import csv
 import os
+import fiona
 
 
 class ReaderBaseClass(object):
@@ -45,6 +46,69 @@ class ReaderBaseClass(object):
         """Return a generator object yielding individual records."""
         pass
 
+class ReaderSHP(ReaderBaseClass):
+    """
+    Reader class implementation for SHP files using Fiona.
+    Returns a flattened Fiona record. See: http://toblerity.org/fiona/manual.html#records
+    Fiona generated dictionary keys id and type are transformed into key names,
+    fiona_id and fiona_type.
+
+    Required Config Parameters:
+
+    :param path: Attribute containing the actual file path.
+
+    Example configuration file entry::
+
+            "NaturalEarthLakes": {
+                "type": "ReaderSHP",
+                "path": "/Users/matt/Projects/dataplunger/tests/test_data/50m_lakes_utf8.shp"
+            }
+    """
+
+    def __init__(self, path, **kwargs):
+        """
+        :param path: Attribute containing the actual file path.
+        """
+        self.path = path
+        self._shp_reader = fiona.open(path, 'r')
+
+    def _encoder(self, value):
+        """
+        Return a python STR if given unicode.
+        """
+        if hasattr(value, 'encode'):
+            return value.encode('utf8')
+        return value
+
+    def __iter__(self):
+        """
+        Generator returning a dict of field name: field value pairs for each record.
+        """
+        for row in self._shp_reader:
+            # Flatten the Fiona returned record.
+            # Convert from UTF8 to string. TODO: Ponder this.
+            flat_dict = {k: self._encoder(v) for k, v in row['properties'].iteritems()}
+            flat_dict ['geometry'] = row['geometry']
+            flat_dict ['fiona_id'] = row['id']
+            flat_dict ['fiona_type'] = row['type']
+            yield flat_dict
+
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
+        """Close the file handler. Note: Will be Called Twice if a Context Manager is used."""
+        if self._shp_reader:
+            self._shp_reader.close()
+        if exc_type is not None:
+            # Exception occurred
+            return False  # Will raise the exception
+        return True  # Everything's okay
+
+    def __enter__(self):
+        """Return Self When Called As Context Manager"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Execute __del__() when called using a context manager."""
+        return self.__del__(exc_type, exc_val, exc_tb)
 
 class ReaderCSV(ReaderBaseClass):
     """
