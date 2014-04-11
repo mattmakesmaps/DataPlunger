@@ -4,8 +4,7 @@ python:
 
 # Add Ubuntu GIS repository
 before_install:
-  - "sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable"
-  - "sudo apt-get update"
+  - "sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable && sudo apt-get update"
   - "sudo apt-get install libgdal-dev gdal-bin"
 
 # command to install dependencies
