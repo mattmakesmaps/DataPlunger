@@ -3,9 +3,9 @@ python:
   - "2.7"
 
 # Add Ubuntu GIS repository
+# echo required to simulate enter e.g. as newline.
 before_install:
-  - "sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable"
-  - "echo Yes"
+  - "echo | sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable"
   - "sudo apt-get update"
   - "sudo apt-get install libgdal-dev gdal-bin"
 
