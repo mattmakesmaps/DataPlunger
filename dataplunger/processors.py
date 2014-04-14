@@ -302,11 +302,13 @@ class ProcessorCombineData_ValueHash(ProcessorBaseClass):
     Performs a LEFT JOIN, dropping those records from the new iterable that
     do not match the existing iterable.
 
-    Create a lookup dictionary from new iterable using the following schema:
-    {
-      (key1valA, key2valB) : [index1, index2, index3],
-      (key1valA, key2valC) : [index1, index2, index3]
-    }
+    Create a lookup dictionary from new iterable using the following schema::
+
+        {
+          (key1valA, key2valB) : [index1, index2, index3],
+          (key1valA, key2valC) : [index1, index2, index3]
+        }
+
     Generate tuple of vals for each record in existing iterable and compare.
 
     With the exception of join fields, fields names should be unique

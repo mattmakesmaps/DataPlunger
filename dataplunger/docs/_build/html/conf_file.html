@@ -23,7 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="DataPlunger 0.1 documentation" href="index.html" /> 
+    <link rel="top" title="DataPlunger 0.1 documentation" href="index.html" />
+    <link rel="next" title="dataplunger package" href="dataplunger.html" />
+    <link rel="prev" title="DataPlunger" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,6 +37,12 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="dataplunger.html" title="dataplunger package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="DataPlunger"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -54,36 +62,33 @@
     <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;ConfigCollection&quot;</span><span class="p">,</span>
     <span class="s">&quot;configs&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Sex By Age&quot;</span><span class="p">,</span>
-            <span class="s">&quot;conn_info&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;ReaderCensus&quot;</span><span class="p">,</span>
-                <span class="s">&quot;path&quot;</span><span class="p">:</span> <span class="s">&quot;/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only&quot;</span><span class="p">,</span>
-                <span class="s">&quot;delimiter&quot;</span><span class="p">:</span> <span class="s">&quot;,&quot;</span><span class="p">,</span>
-                <span class="s">&quot;encoding&quot;</span><span class="p">:</span> <span class="s">&quot;UTF-8&quot;</span><span class="p">,</span>
-                <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s">&quot;Total&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                    <span class="s">&quot;Male&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-                    <span class="s">&quot;Female&quot;</span><span class="p">:</span> <span class="mi">17</span>
+            <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;PeopleAndGradesConfig&quot;</span><span class="p">,</span>
+            <span class="s">&quot;readers&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;Grades&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;ReaderCSV&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;path&quot;</span><span class="p">:</span> <span class="s">&quot;/Users/matt/Projects/dataplunger/sample_data/grades.csv&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;delimeter&quot;</span><span class="p">:</span> <span class="s">&quot;,&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;encoding&quot;</span><span class="p">:</span> <span class="s">&quot;UTF-8&quot;</span>
                 <span class="p">},</span>
-                <span class="s">&quot;sequence&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s">&quot;starting_position&quot;</span><span class="p">:</span> <span class="mi">87</span>
+                <span class="s">&quot;People&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;ReaderCSV&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;path&quot;</span><span class="p">:</span> <span class="s">&quot;/Users/matt/Projects/dataplunger/sample_data/people.csv&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;delimeter&quot;</span><span class="p">:</span> <span class="s">&quot;,&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;encoding&quot;</span><span class="p">:</span> <span class="s">&quot;UTF-8&quot;</span>
+                <span class="p">}</span>
             <span class="p">},</span>
-            <span class="s">&quot;layers&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&quot;Sex_By_Age&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s">&quot;record_processing_steps&quot;</span><span class="p">:</span> <span class="p">[</span>
-                        <span class="p">{</span><span class="s">&quot;ProcessorMatchValue&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s">&quot;matches&quot;</span><span class="p">:{</span><span class="s">&quot;SUMLEVEL&quot;</span><span class="p">:</span><span class="mi">140</span><span class="p">},</span>
-                            <span class="s">&quot;action&quot;</span><span class="p">:</span><span class="s">&quot;Keep&quot;</span>
-                        <span class="p">}},</span>
-                        <span class="p">{</span><span class="s">&quot;ProcessorTruncateFields&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Total&quot;</span><span class="p">,</span> <span class="s">&quot;Male&quot;</span><span class="p">,</span> <span class="s">&quot;Female&quot;</span><span class="p">,</span> <span class="s">&quot;SUMLEVEL&quot;</span><span class="p">,</span> <span class="s">&quot;LOGRECNO&quot;</span><span class="p">]}},</span>
-                        <span class="p">{</span><span class="s">&quot;ProcessorScreenWriter&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">}</span>
-                    <span class="p">],</span>
-                    <span class="s">&quot;aggregate_processing_steps&quot;</span><span class="p">:</span> <span class="p">[</span>
-                        <span class="p">{</span><span class="s">&quot;AggregateProcessorCSVWriter&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;path&quot;</span><span class="p">:</span><span class="s">&quot;/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv&quot;</span><span class="p">,</span>
-                            <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Total&quot;</span><span class="p">,</span> <span class="s">&quot;Male&quot;</span><span class="p">,</span> <span class="s">&quot;Female&quot;</span><span class="p">,</span> <span class="s">&quot;SUMLEVEL&quot;</span><span class="p">,</span> <span class="s">&quot;LOGRECNO&quot;</span><span class="p">]}}</span>
+            <span class="s">&quot;layers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s">&quot;name&quot;</span> <span class="p">:</span> <span class="s">&quot;PeopleAndGradesLayer&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;processing_steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s">&quot;ProcessorGetData&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="s">&quot;People&quot;</span><span class="p">}},</span>
+                        <span class="p">{</span><span class="s">&quot;ProcessorCombineData_ValueHash&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="s">&quot;Grades&quot;</span><span class="p">,</span> <span class="s">&quot;keys&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]}},</span>
+                        <span class="p">{</span><span class="s">&quot;ProcessorSortRecords&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;sort_key&quot;</span><span class="p">:</span> <span class="s">&quot;name&quot;</span><span class="p">}},</span>
+                        <span class="p">{</span><span class="s">&quot;ProcessorCSVWriter&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;path&quot;</span><span class="p">:</span><span class="s">&quot;/Users/matt/Projects/dataplunger/sample_output/peopleandgrades_out.csv&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="s">&quot;subject&quot;</span><span class="p">,</span><span class="s">&quot;grade&quot;</span><span class="p">,</span><span class="s">&quot;gender&quot;</span><span class="p">,</span><span class="s">&quot;age&quot;</span><span class="p">]}}</span>
                     <span class="p">]</span>
                 <span class="p">}</span>
-            <span class="p">}</span>
+            <span class="p">]</span>
         <span class="p">}</span>
     <span class="p">]</span>
 <span class="p">}</span>
@@ -100,23 +105,32 @@ this parameter would not be necessary.</em></p>
 </div>
 <div class="section" id="config-object">
 <h3>Config Object<a class="headerlink" href="#config-object" title="Permalink to this headline">¶</a></h3>
-<p><tt class="docutils literal"><span class="pre">name</span></tt> - String. The name of the configuration.</p>
-<p><tt class="docutils literal"><span class="pre">conn_info</span></tt> - Object. Contains user-provided parameters for the specific Reader instance.
-At minimum, a value of <tt class="docutils literal"><span class="pre">type</span></tt> is required to be populated with the name of the desired reader class.
-See Reader class specific documentation for a list of available Reader implementations and their required parameters.</p>
-<p><tt class="docutils literal"><span class="pre">layers</span></tt> - Object. Attribute names represent names of individual output layers to be produced from the given reader.</p>
+<p><tt class="docutils literal"><span class="pre">name</span></tt> - String. The name of the configuration. See <tt class="docutils literal"><span class="pre">PeopleAndGradesConfig</span></tt> in example.</p>
+<p><tt class="docutils literal"><span class="pre">readers</span></tt> - Object. Keys represent names of specific reader instances, values are objects containing configuration
+information for that specific reader instance. See <tt class="docutils literal"><span class="pre">readers</span></tt> in example.</p>
+<p><tt class="docutils literal"><span class="pre">layers</span></tt> - Array. Members are objects that represent an individual layer. A layer object contains a <tt class="docutils literal"><span class="pre">name</span></tt>
+parameter, as well as a <tt class="docutils literal"><span class="pre">processing_steps</span></tt> array. See <tt class="docutils literal"><span class="pre">layers</span></tt> in example above.</p>
+</div>
+<div class="section" id="readers">
+<h3>Readers<a class="headerlink" href="#readers" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">readers</span></tt> object is composed of objects whose name represents an individual reader, and whose value is an
+object containing configuration information. The example above contains two separate named readers, <tt class="docutils literal"><span class="pre">Grades</span></tt> and
+<tt class="docutils literal"><span class="pre">People</span></tt>.</p>
+<p>Each reader requires at minimum a populated <tt class="docutils literal"><span class="pre">type</span></tt> attribute. This attribute refers to the name of a Reader class
+found in <tt class="docutils literal"><span class="pre">readers.py</span></tt>. These are all subclasses of ReaderBaseClass. In the example above, both readers
+<tt class="docutils literal"><span class="pre">Grades</span></tt> and <tt class="docutils literal"><span class="pre">People</span></tt> have a type value of <tt class="docutils literal"><span class="pre">ReaderCSV</span></tt>, but point to different data sources (as seen in
+the <tt class="docutils literal"><span class="pre">path</span></tt> attribute). See doc strings within readers.py for additional reader specific configuration parameters.</p>
 </div>
 <div class="section" id="layers">
 <h3>Layers<a class="headerlink" href="#layers" title="Permalink to this headline">¶</a></h3>
-<p><tt class="docutils literal"><span class="pre">layers</span></tt> are the end result of a series of user-defined processing steps performed against records output by
-an instance of a Reader class. <tt class="docutils literal"><span class="pre">layers</span></tt> objects are comprised of two attributes: <tt class="docutils literal"><span class="pre">record_processing_steps</span></tt>
-and <tt class="docutils literal"><span class="pre">aggregate</span> <span class="pre">processing_steps</span></tt>.</p>
-<p><tt class="docutils literal"><span class="pre">record_processing_steps</span></tt> - An array containing references to objects that represent instances subclassed from ProcessorBaseClass.
-These processing steps are implemented on a per-record level. Each record output from a given Reader object is run through each
-Processor in the array, in the order defined by the array.</p>
-<p><tt class="docutils literal"><span class="pre">aggregate_processing_steps</span></tt> - An array containing references to objects that represent instances subclassed
-from AggregateProcessorBaseClass. After all records output from a Reader object have been processed on an individual,
-per-record level, the Aggregate Processors listed in this array will be executed against the entire set of records.</p>
+<p><tt class="docutils literal"><span class="pre">layers</span></tt> map a series of user-defined processing steps to be performed against records output by one or more
+instances of a Reader class. The <tt class="docutils literal"><span class="pre">layers</span></tt> array in the example above contains a single layer element. Individual
+layers within the <tt class="docutils literal"><span class="pre">layers</span></tt> array are processed in the order in which they are defined. In the example, the layer
+element has a <tt class="docutils literal"><span class="pre">name</span></tt> of <tt class="docutils literal"><span class="pre">PeopleAndGradesLayer</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">processing_steps</span></tt> - An array containing references to objects that represent instances sub-classed from
+ProcessorBaseClass. These processing steps are implemented on a per-record level. Each record output from a
+given Reader object is run through each Processor in the array, in the order defined by the array.
+See <tt class="docutils literal"><span class="pre">processors.py</span></tt> for available processors and required configuration parameters.</p>
 </div>
 </div>
 </div>
@@ -134,6 +148,7 @@ per-record level, the Aggregate Processors listed in this array will be executed
 <li><a class="reference internal" href="#parameters">Parameters</a><ul>
 <li><a class="reference internal" href="#config-collection">Config Collection</a></li>
 <li><a class="reference internal" href="#config-object">Config Object</a></li>
+<li><a class="reference internal" href="#readers">Readers</a></li>
 <li><a class="reference internal" href="#layers">Layers</a></li>
 </ul>
 </li>
@@ -141,6 +156,12 @@ per-record level, the Aggregate Processors listed in this array will be executed
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">DataPlunger</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dataplunger.html"
+                        title="next chapter">dataplunger package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/conf_file.txt"
@@ -172,6 +193,12 @@ per-record level, the Aggregate Processors listed in this array will be executed
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="dataplunger.html" title="dataplunger package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="DataPlunger"
+             >previous</a> |</li>
         <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>

@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Readers &mdash; DataPlunger 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="DataPlunger 0.1 documentation" href="index.html" />
+    <link rel="up" title="dataplunger package" href="dataplunger.html" />
+    <link rel="prev" title="Processors" href="processors.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="processors.html" title="Processors"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li>
+          <li><a href="dataplunger.html" accesskey="U">dataplunger package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-dataplunger.readers">
+<span id="readers"></span><h1>Readers<a class="headerlink" href="#module-dataplunger.readers" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-readers.py"></span><p>Readers are responsible for creating a connection to a backing datasource,
+and returning an iterable that yields a single record of data from that datasource.</p>
+<dl class="class">
+<dt id="dataplunger.readers.ReaderBaseClass">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderBaseClass</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderBaseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstract base class for a Reader interface.</p>
+<dl class="method">
+<dt id="dataplunger.readers.ReaderBaseClass.__enter__">
+<tt class="descname">__enter__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderBaseClass.__enter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass.__enter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup code called when instantiated via context manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderBaseClass.__exit__">
+<tt class="descname">__exit__</tt><big>(</big><em>exc_type</em>, <em>exc_val</em>, <em>ext_tb</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderBaseClass.__exit__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass.__exit__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup code called when instantiated via context manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderBaseClass.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderBaseClass.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderBaseClass.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign parameters extracted from a configuration file
+to parameters on the instance.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.readers.ReaderCSV">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderCSV</tt><big>(</big><em>path</em>, <em>encoding</em>, <em>delimiter='</em>, <em>'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCSV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader class implementation for CSV files.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delimiter</strong> &#8211; Character representing delimiter. Defaults to &#8216;,&#8217;</li>
+<li><strong>path</strong> &#8211; Attribute containing the actual file path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Non-Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>encoding</strong> &#8211; The encoding of the file.</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre>&quot;Grades&quot;: {
+    &quot;type&quot;: &quot;ReaderCSV&quot;,
+    &quot;path&quot;: &quot;/Users/matt/Projects/dataplunger/sample_data/grades.csv&quot;,
+    &quot;delimiter&quot;: &quot;,&quot;,
+    &quot;encoding&quot;: &quot;UTF-8&quot;
+},
+</pre></div>
+</div>
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCSV.__enter__">
+<tt class="descname">__enter__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCSV.__enter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCSV.__enter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Self When Called As Context Manager</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCSV.__exit__">
+<tt class="descname">__exit__</tt><big>(</big><em>exc_type</em>, <em>exc_val</em>, <em>exc_tb</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCSV.__exit__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCSV.__exit__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute __del__() when called using a context manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCSV.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>path</em>, <em>encoding</em>, <em>delimiter='</em>, <em>'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCSV.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCSV.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn_info</strong> &#8211; the connection information (pathway) for a given file.</li>
+<li><strong>delimiter</strong> &#8211; extracted from conn_info, defaults to &#8216;,&#8217;</li>
+<li><strong>_file_handler</strong> &#8211; set in __enter__(), a read only pointer to the CSV.</li>
+<li><strong>_dict_reader</strong> &#8211; an instance of csv.dict_reader()</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.readers.ReaderCensus">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderCensus</tt><big>(</big><em>encoding</em>, <em>fields</em>, <em>path</em>, <em>sequence</em>, <em>starting_position</em>, <em>delimiter='</em>, <em>'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader class implementation for Census ACS Summary Files.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn_info</strong> &#8211; contains path and sequence attributes (see below).</li>
+<li><strong>conn_info.path</strong> &#8211; contains a pathway to an ACS formatted directory of estimate and geography tables.</li>
+<li><strong>conn_info.sequence</strong> &#8211; Sequence No. From, &#8216;Sequence_Number_and_Table_Number_Lookup.xls&#8217;</li>
+<li><strong>conn_info.starting_position</strong> &#8211; Starting Position for table of int. From, &#8216;Sequence_Number_and_Table_Number_Lookup.xls&#8217;</li>
+<li><strong>conn_info.fields</strong> &#8211; an array of field names with line numbers. From, &#8216;Sequence_Number_and_Table_Number_Lookup.xls&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+&quot;name&quot;: &quot;Sex By Age&quot;,
+&quot;conn_info&quot;: {
+    &quot;type&quot;: &quot;ReaderCensus&quot;,
+    &quot;path&quot;: &quot;/path/to/folder/of/EstimatesAndGeographyTables&quot;,
+    &quot;delimiter&quot;: &quot;,&quot;,
+    &quot;encoding&quot;: &quot;UTF-8&quot;,
+    &quot;fields&quot;: {
+        &quot;Total&quot;: 1,
+        &quot;Male&quot;: 2,
+        &quot;Female&quot;: 17
+    },
+    &quot;sequence&quot;: 2,
+    &quot;starting_position&quot;: 87
+}
+</pre></div>
+</div>
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus.__enter__">
+<tt class="descname">__enter__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus.__enter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus.__enter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Self When Called As Context Manager</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus.__exit__">
+<tt class="descname">__exit__</tt><big>(</big><em>exc_type</em>, <em>exc_val</em>, <em>exc_tb</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus.__exit__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus.__exit__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute __del__() when called using a context manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>encoding</em>, <em>fields</em>, <em>path</em>, <em>sequence</em>, <em>starting_position</em>, <em>delimiter='</em>, <em>'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delimiter</strong> &#8211; extracted from conn_info, defaults to &#8216;,&#8217;.</li>
+<li><strong>encoding</strong> &#8211; file type encoding.</li>
+<li><strong>fields</strong> &#8211; dict of field names and line number indexes.</li>
+<li><strong>path</strong> &#8211; location of directory of census data.</li>
+<li><strong>sequence</strong> &#8211; sequence number for table of interest.</li>
+<li><strong>starting_position</strong> &#8211; starting position for table of interest.</li>
+<li><strong>_estimate_reader</strong> &#8211; csv.reader instance parsing estimate tables.</li>
+<li><strong>_estimate_handler</strong> &#8211; file handler for estimate file.</li>
+<li><strong>_estimate_path</strong> &#8211; path to estimate file, generated based on user provided path and sequence value.</li>
+<li><strong>_geography_path</strong> &#8211; path to geography file, generated based on user provided path.</li>
+<li><strong>_geography_records</strong> &#8211; populated by parsing a geography file.
+a dictionary populated with keys representing LOGRECNO values
+for a given row, and values representing the first six fields
+of that row.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus._build_estimate_reader">
+<tt class="descname">_build_estimate_reader</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus._build_estimate_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus._build_estimate_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a CSV reader using the estimate file.
+Reformat starting_position and individual field indexes
+for use in list lookup.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus._build_logrecno_dict">
+<tt class="descname">_build_logrecno_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus._build_logrecno_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus._build_logrecno_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dictionary of LOGRECNO values with associated attributes.
+Will be used as a lookup during iteration of estimate table.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderCensus._get_paths">
+<tt class="descname">_get_paths</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderCensus._get_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderCensus._get_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build paths for the geography and estimate files.
+Geography files begin a &#8216;g&#8217; and have a CSV extension.
+Estimate files are based on the sequence number.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dataplunger.readers.ReaderSHP">
+<em class="property">class </em><tt class="descclassname">dataplunger.readers.</tt><tt class="descname">ReaderSHP</tt><big>(</big><em>path</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderSHP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderSHP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader class implementation for SHP files using Fiona.
+Returns a flattened Fiona record. See: <a class="reference external" href="http://toblerity.org/fiona/manual.html#records">http://toblerity.org/fiona/manual.html#records</a>
+Fiona generated dictionary keys id and type are transformed into key names,
+fiona_id and fiona_type.</p>
+<p>Required Config Parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; Attribute containing the actual file path.</td>
+</tr>
+</tbody>
+</table>
+<p>Example configuration file entry:</p>
+<div class="highlight-python"><div class="highlight"><pre>&quot;NaturalEarthLakes&quot;: {
+    &quot;type&quot;: &quot;ReaderSHP&quot;,
+    &quot;path&quot;: &quot;/Users/matt/Projects/dataplunger/tests/test_data/50m_lakes_utf8.shp&quot;
+}
+</pre></div>
+</div>
+<dl class="method">
+<dt id="dataplunger.readers.ReaderSHP.__enter__">
+<tt class="descname">__enter__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderSHP.__enter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderSHP.__enter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Self When Called As Context Manager</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderSHP.__exit__">
+<tt class="descname">__exit__</tt><big>(</big><em>exc_type</em>, <em>exc_val</em>, <em>exc_tb</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderSHP.__exit__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderSHP.__exit__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute __del__() when called using a context manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderSHP.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>path</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderSHP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderSHP.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; Attribute containing the actual file path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataplunger.readers.ReaderSHP._encoder">
+<tt class="descname">_encoder</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/dataplunger/readers.html#ReaderSHP._encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataplunger.readers.ReaderSHP._encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a python STR if given unicode.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="processors.html"
+                        title="previous chapter">Processors</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/readers.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="processors.html" title="Processors"
+             >previous</a> |</li>
+        <li><a href="index.html">DataPlunger 0.1 documentation</a> &raquo;</li>
+          <li><a href="dataplunger.html" >dataplunger package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Kenny.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

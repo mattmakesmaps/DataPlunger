@@ -12,21 +12,20 @@ A workflow is defined via a JSON configuration file containing the following inf
 
 * Connection information to source data for processing.
 * Processing steps to be applied to individual records extracted from source.
-* Processing steps to be applied to aggregate records from the source.
 
 Source code for this project can be found at: `<https://github.com/mattmakesmaps/DataPlunger>`_
+
+Documentation for the DataPlunger Package.
 
 .. toctree::
    :maxdepth: 2
 
    conf_file
 
-Documentation for the DataPlunger Package.
-
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   dataplunger Python package <dataplunger>
+   DataPlunger Package Layout <dataplunger>
 
 
 Indices and tables

@@ -50,71 +50,447 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: processors.py</span>
 <span class="sd">   :platform: Unix</span>
-<span class="sd">   :synopsis: Processors perform changes on an individual record.</span>
+<span class="sd">   :synopsis: Processors perform changes on an entire set of records.</span>
 
 <span class="sd">.. moduleauthor:: Matt</span>
 
-<span class="sd">Processors perform changes on an individual record.</span>
+<span class="sd">Processors perform actions on a collection records.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;mkenny&#39;</span>
 <span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">readers</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 
 
-<div class="viewcode-block" id="ProcessorBaseClass"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass">[docs]</a><span class="k">class</span> <span class="nc">ProcessorBaseClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorBaseClass"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorBaseClass">[docs]</a><span class="k">class</span> <span class="nc">ProcessorBaseClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract Base Class implementing an interface for Processsors.</span>
 
 <span class="sd">    Methods subclasses must override:</span>
 
-<span class="sd">    - __init__(): takes an input processor to decorate, and any kwargs</span>
-<span class="sd">    - _process(): takes a single parsed record as a dictionary of field names and field values.</span>
-<span class="sd">      Method calls the &#39;process()&#39; method of a decorated processor. Method returns the</span>
-<span class="sd">      modified version of the record.</span>
+<span class="sd">    - __init__(): takes an input processor to decorate, and any kwargs.</span>
+<span class="sd">    - _process(): takes an iterable object of records and performs processing actions on them.</span>
 
-<span class="sd">    Methods subclasses can inherit (not override):</span>
+<span class="sd">    Methods subclasses can inherit (not required to override):</span>
 
-<span class="sd">    - process() - Responsible for calling _process() followed by _log().</span>
-<span class="sd">    - _log() - Responsible for executing logging if overridden. Takes modified record as input.</span>
+<span class="sd">    - process(): responsible for calling _process(), _log(),</span>
+<span class="sd">      then a decorated class&#39; process() method.</span>
+<span class="sd">    - _log(): Responsible for executing logging if overridden. Takes</span>
+<span class="sd">      a list of records as input.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="ProcessorBaseClass.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorBaseClass.__init__"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorBaseClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param processor: A decorated processor object to be executed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
 </div>
-<div class="viewcode-block" id="ProcessorBaseClass._log"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modLine</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorBaseClass._log"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorBaseClass._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod_records_iterable</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Responsible for executing logging if overridden.</span>
+<span class="sd">        Override to perform logging. Executed in process(),</span>
+<span class="sd">        after protected method, _process() returns modified records iterable.</span>
 
-<span class="sd">        :param modLine: A record returned by a call to _process().</span>
+<span class="sd">        :param mod_records_iterable: A list of records to log an action against.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#print &#39;DEFAULT log entry for class %s for record %s&#39; % (self.__repr__(), inLine)</span>
         <span class="k">pass</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="ProcessorBaseClass._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorBaseClass._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorBaseClass._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform an action against a list of records.</span>
+<span class="sd">        Returns an iterable object containing records, after having performed</span>
+<span class="sd">        some processing actions on them.</span>
 
-<span class="sd">        :param inLine: A dictionary representing an individual record.</span>
+<span class="sd">        By convention, an iterable will be one of:</span>
+
+<span class="sd">        - An instance of an iterator within the itertools standard lib.</span>
+<span class="sd">        - A list.</span>
+
+<span class="sd">        :param records_iterable: An iterable object of records to perform an action against.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
+        <span class="n">mod_records_iterable</span> <span class="o">=</span> <span class="n">records_iterable</span>
+        <span class="k">return</span> <span class="n">mod_records_iterable</span>
 </div>
-<div class="viewcode-block" id="ProcessorBaseClass.process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorBaseClass.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorBaseClass.process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorBaseClass.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call _log() followed by process()</span>
+<span class="sd">        Call internal _process() method, then pass result to _log(),</span>
+<span class="sd">        ending with a call to the decorated class&#39; public process() method.</span>
 
-<span class="sd">        :param inLine: A dictionary representing an individual record.</span>
+<span class="sd">        :param records_iterable: An iterable object of records to perform an action against.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">modLine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">modLine</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">modLine</span>  <span class="c"># return processed line, useful for testing.</span>
+        <span class="n">mod_records_iterable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">records_iterable</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">mod_records_iterable</span><span class="p">)</span>
+        <span class="c"># Execute the process method only if processor has it.</span>
+        <span class="c"># Useful in case of ProcessorCombineData, where we create</span>
+        <span class="c"># an instance of ProcessorGetData w/o requiring a child to decorate.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="p">,</span> <span class="s">&quot;process&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">mod_records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mod_records_iterable</span>
 
 </div></div>
-<div class="viewcode-block" id="ProcessorMatchValue"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorMatchValue">[docs]</a><span class="k">class</span> <span class="nc">ProcessorMatchValue</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorCSVWriter"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCSVWriter">[docs]</a><span class="k">class</span> <span class="nc">ProcessorCSVWriter</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write records to an output CSV file.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str path: Absolute path for output CSV file.</span>
+<span class="sd">    :param list fields: A list of field names to output.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorCSVWriter&quot;: {</span>
+<span class="sd">            &quot;path&quot;:&quot;/path/to/out_data.csv&quot;,</span>
+<span class="sd">            &quot;fields&quot;: [&quot;Age&quot;, &quot;Gender&quot;, &quot;Name&quot;]</span>
+<span class="sd">        }}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorCSVWriter.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCSVWriter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">extrasaction</span><span class="o">=</span><span class="s">&#39;ignore&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProcessorCSVWriter._log"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCSVWriter._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod_records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alert that CSV output is beginning.&quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Starting AggregateProcessorCSVWriter&quot;</span>
+</div>
+<div class="viewcode-block" id="ProcessorCSVWriter._write_row"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCSVWriter._write_row">[docs]</a>    <span class="k">def</span> <span class="nf">_write_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">row</span>
+</div>
+<div class="viewcode-block" id="ProcessorCSVWriter._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCSVWriter._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write inRecords out to a given CSV file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="n">write_record_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_write_row</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">write_record_iterator</span>
+</div>
+<div class="viewcode-block" id="ProcessorCSVWriter.__exit__"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCSVWriter.__exit__">[docs]</a>    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close File Handle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="ProcessorDevNull"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorDevNull">[docs]</a><span class="k">class</span> <span class="nc">ProcessorDevNull</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ProcessorDevNull serves as the last processor in the chain. It ends the</span>
+<span class="sd">    processing chain by iterating through an iterable, ensuring that the last</span>
+<span class="sd">    decorated iterable is executed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorDevNull.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorDevNull.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="ProcessorDevNull._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorDevNull._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate through records to ensure that last decorated process is executed.</span>
+<span class="sd">        This is required if last process returns an itertools class, as opposed to a list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;in ProcessorDevNull._process()&quot;</span>
+        <span class="c"># for record in records_iterable:</span>
+        <span class="c">#     pass</span>
+        <span class="c"># Consume recipe from itertools manpage.</span>
+        <span class="n">deque</span><span class="p">(</span><span class="n">records_iterable</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c"># If given a list, will return contents.</span>
+        <span class="c"># If given an iterator, will return a spent iterator.</span>
+        <span class="k">return</span> <span class="n">records_iterable</span>
+</div>
+<div class="viewcode-block" id="ProcessorDevNull.process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorDevNull.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override to omit call to any additional processors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mod_records_iterable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mod_records_iterable</span>
+
+</div></div>
+<div class="viewcode-block" id="ProcessorChangeCase"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorChangeCase">[docs]</a><span class="k">class</span> <span class="nc">ProcessorChangeCase</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Responsible for changing case of values.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str case: Either &quot;upper&quot; or &quot;lower&quot;.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorChangeCase&quot;: {&quot;case&quot;: &quot;upper&quot;}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorChangeCase.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">=</span> <span class="n">case</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ProcessorChangeCase._change_case"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorChangeCase._change_case">[docs]</a>    <span class="k">def</span> <span class="nf">_change_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform dictionary comprehension to change case based on user input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s">&#39;upper&#39;</span><span class="p">:</span>
+            <span class="c">#inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}</span>
+            <span class="n">dict_record</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s">&#39;lower&#39;</span><span class="p">:</span>
+            <span class="c">#inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}</span>
+            <span class="n">dict_record</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Case Not Supported&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dict_record</span>
+</div>
+<div class="viewcode-block" id="ProcessorChangeCase._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorChangeCase._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator of records mapped to _change_case&quot;&quot;&quot;</span>
+        <span class="n">change_case_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_change_case</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">change_case_iterator</span>
+
+</div></div>
+<div class="viewcode-block" id="ProcessorGetData"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorGetData">[docs]</a><span class="k">class</span> <span class="nc">ProcessorGetData</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Responsible for retrieving a generator from a given reader.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str reader: name of a given reader.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorGetData&quot;: {&quot;reader&quot;: &quot;Grades&quot;}},</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorGetData.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorGetData.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">readers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readers</span> <span class="o">=</span> <span class="n">readers</span>
+</div>
+<div class="viewcode-block" id="ProcessorGetData._get_reader_class"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorGetData._get_reader_class">[docs]</a>    <span class="k">def</span> <span class="nf">_get_reader_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Based on a Config Object&#39;s conn_info type attribute,</span>
+<span class="sd">        generate an appropriate reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Check if the configuration object contains a Reader type</span>
+        <span class="c"># we actually support. If so, build a reader.</span>
+        <span class="n">selected_reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">reader_class</span> <span class="ow">in</span> <span class="n">readers</span><span class="o">.</span><span class="n">ReaderBaseClass</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">selected_reader</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">reader_class</span><span class="o">.</span><span class="n">__name__</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">reader_class</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s"> is not a subclass of ReaderBaseClass&quot;</span> <span class="o">%</span> <span class="n">reader_class</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProcessorGetData._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorGetData._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the generator for a given reader.&quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;in ProcessorGetData._process() </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span>
+        <span class="n">reader_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_reader_class</span><span class="p">()</span>
+        <span class="n">reader_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">reader_name</span><span class="p">]</span>
+        <span class="n">reader_instance</span> <span class="o">=</span> <span class="n">reader_class</span><span class="p">(</span><span class="o">**</span><span class="n">reader_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reader_instance</span><span class="o">.</span><span class="n">__iter__</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="ProcessorCombineData_legacy"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_legacy">[docs]</a><span class="k">class</span> <span class="nc">ProcessorCombineData_legacy</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Joins records from an existing Reader+Processors to a new</span>
+<span class="sd">    Reader. Will currently perform a LEFT JOIN only.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str reader: name of a given reader.</span>
+<span class="sd">    :param list keys: list of field names to perform join on.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorCombineData&quot;: {&quot;reader&quot;: &quot;People&quot;, &quot;keys&quot;: [&quot;name&quot;]}},</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorCombineData_legacy.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCombineData_legacy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">readers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="o">=</span> <span class="n">keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iter</span> <span class="o">=</span> <span class="n">ProcessorGetData</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">readers</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_legacy._merge_record"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_legacy._merge_record">[docs]</a>    <span class="k">def</span> <span class="nf">_merge_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return a list of records sharing the same value for keys</span>
+<span class="sd">        listed in self.keys&quot;&quot;&quot;</span>
+        <span class="n">key_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">)</span>
+        <span class="n">matching_record_found</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">merged_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># Loop through combine set, looking for matching key:values.</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_record_iterable</span><span class="p">:</span>
+            <span class="c"># Get list of matching keys, check if len matches expected key count</span>
+            <span class="n">matching_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="k">if</span> <span class="n">dict_record</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">record</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_keys</span><span class="p">)</span> <span class="o">==</span> <span class="n">key_count</span><span class="p">:</span>
+                <span class="n">matching_record_found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">merged_record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dict_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">record</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                <span class="n">merged_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_record</span><span class="p">)</span>
+
+        <span class="c"># No matches, add the original record with empty values for expected keys.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matching_record_found</span><span class="p">:</span>
+            <span class="c"># Create empty values for all keys except those responsible for joining</span>
+            <span class="c"># As they&#39;ll have populated values already.</span>
+            <span class="n">empty_keys</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="s">&#39;&#39;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_record_iterable_fields</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">}</span>
+            <span class="n">merged_record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dict_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">empty_keys</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="n">merged_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_record</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merged_records</span>
+
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_legacy._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_legacy._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_record_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a generator that yields a the merged records</span>
+<span class="sd">        from two readers&quot;&quot;&quot;</span>
+        <span class="c"># Create a list of items from new iterator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_record_iterable</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iter</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_record_iterable_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_record_iterable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="c"># Create a list of lists containing merged records</span>
+        <span class="n">merge_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_record</span><span class="p">,</span> <span class="n">existing_record_iterable</span><span class="p">)</span>
+        <span class="c"># Flatten the list of lists.</span>
+        <span class="n">flatten_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">merge_iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flatten_iterator</span>
+</div></div>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_ValueHash">[docs]</a><span class="k">class</span> <span class="nc">ProcessorCombineData_ValueHash</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Joins records from an existing Reader+Processors to a new Reader.</span>
+<span class="sd">    If a match isn&#39;t found, will default to passing over record.</span>
+<span class="sd">    Performs a LEFT JOIN, dropping those records from the new iterable that</span>
+<span class="sd">    do not match the existing iterable.</span>
+
+<span class="sd">    Create a lookup dictionary from new iterable using the following schema::</span>
+
+<span class="sd">        {</span>
+<span class="sd">          (key1valA, key2valB) : [index1, index2, index3],</span>
+<span class="sd">          (key1valA, key2valC) : [index1, index2, index3]</span>
+<span class="sd">        }</span>
+
+<span class="sd">    Generate tuple of vals for each record in existing iterable and compare.</span>
+
+<span class="sd">    With the exception of join fields, fields names should be unique</span>
+<span class="sd">    across both datasets.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str reader: name of a given reader.</span>
+<span class="sd">    :param list keys: list of field names to perform join on.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorCombineData&quot;: {&quot;reader&quot;: &quot;People&quot;, &quot;keys&quot;: [&quot;name&quot;]}},</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCombineData_ValueHash.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">readers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="o">=</span> <span class="n">keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iterable</span> <span class="o">=</span> <span class="n">ProcessorGetData</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">readers</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash._filter_keys"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_ValueHash._filter_keys">[docs]</a>    <span class="k">def</span> <span class="nf">_filter_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if records have matching self.join_keys values.&quot;&quot;&quot;</span>
+        <span class="n">key_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">)</span>
+        <span class="n">matching_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="k">if</span> <span class="n">in_record</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">in_record</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">k</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_keys</span><span class="p">)</span> <span class="o">==</span> <span class="n">key_count</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash._merge_records"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCombineData_ValueHash._merge_records">[docs]</a>    <span class="k">def</span> <span class="nf">_merge_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_existing_record</span><span class="p">):</span>
+        <span class="n">merged_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># Create new val tuple for dict lookup.</span>
+        <span class="n">val_tuple</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">:</span>
+            <span class="n">val_tuple</span> <span class="o">+=</span> <span class="p">(</span><span class="n">in_existing_record</span><span class="p">[</span><span class="n">key</span><span class="p">],)</span>
+
+        <span class="k">if</span> <span class="n">val_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span><span class="p">:</span>
+            <span class="n">indexes_to_join</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span><span class="p">[</span><span class="n">val_tuple</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indexes_to_join</span><span class="p">:</span>
+                <span class="n">merged_record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">in_existing_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_records</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                <span class="n">merged_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_record</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># match not found, skip over record.</span>
+            <span class="n">empty_keys</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="s">&#39;&#39;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_fields</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">}</span>
+            <span class="n">merged_record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">in_existing_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">empty_keys</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="n">merged_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_record</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merged_records</span>
+
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash._create_value_list"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_ValueHash._create_value_list">[docs]</a>    <span class="k">def</span> <span class="nf">_create_value_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Populate self.new_reader_valuehash with keys representing values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">new_reader_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iterable</span><span class="p">:</span>
+            <span class="n">val_tuple</span> <span class="o">=</span> <span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">:</span>
+                <span class="n">val_tuple</span> <span class="o">+=</span> <span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="n">key</span><span class="p">],)</span>
+
+            <span class="c"># key-pair exists, add index to it.</span>
+            <span class="k">if</span> <span class="n">val_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span><span class="p">[</span><span class="n">val_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_reader_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_valuehash</span><span class="p">[</span><span class="n">val_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_reader_index</span><span class="p">]</span>
+            <span class="c"># increment index, add record to record list.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="n">new_reader_index</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData_ValueHash._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData_ValueHash._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_record_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator that yields merged records from two readers&quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;in ProcessorCombineData._process()&quot;</span>
+        <span class="c"># build value hash dict.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_value_list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">merge_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_records</span><span class="p">,</span> <span class="n">existing_record_iterable</span><span class="p">)</span>
+        <span class="n">flatten_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">merge_iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flatten_iterator</span>
+</div></div>
+<div class="viewcode-block" id="ProcessorCombineData"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData">[docs]</a><span class="k">class</span> <span class="nc">ProcessorCombineData</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Joins records from an existing Reader+Processors to a new</span>
+<span class="sd">    Reader. Will currently perform an INNER JOIN only.</span>
+
+<span class="sd">    With the exception of join fields, fields names should be unique</span>
+<span class="sd">    across both datasets.</span>
+
+<span class="sd">    Required Config Parameters:</span>
+
+<span class="sd">    :param str reader: name of a given reader.</span>
+<span class="sd">    :param list keys: list of field names to perform join on.</span>
+
+<span class="sd">    Example configuration file entry::</span>
+
+<span class="sd">        {&quot;ProcessorCombineData&quot;: {&quot;reader&quot;: &quot;People&quot;, &quot;keys&quot;: [&quot;name&quot;]}},</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ProcessorCombineData.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorCombineData.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">readers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="o">=</span> <span class="n">keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iterable</span> <span class="o">=</span> <span class="n">ProcessorGetData</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">readers</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData._filter_keys"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData._filter_keys">[docs]</a>    <span class="k">def</span> <span class="nf">_filter_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if records have matching self.join_keys values.&quot;&quot;&quot;</span>
+        <span class="n">key_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span><span class="p">)</span>
+        <span class="n">matching_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_keys</span> <span class="k">if</span> <span class="n">in_record</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">in_record</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">k</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_keys</span><span class="p">)</span> <span class="o">==</span> <span class="n">key_count</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData._merge_records"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData._merge_records">[docs]</a>    <span class="k">def</span> <span class="nf">_merge_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a single dictionary based on the contents of two matching records&quot;&quot;&quot;</span>
+        <span class="n">merged_record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">in_record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">in_record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">merged_record</span>
+</div>
+<div class="viewcode-block" id="ProcessorCombineData._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorCombineData._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_record_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator that yields merged records from two readers&quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;in ProcessorCombineData._process()&quot;</span>
+        <span class="c"># Create Cross Join Iterator</span>
+        <span class="n">cross_product_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">existing_record_iterable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_reader_iterable</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;cross_product_iter created&quot;</span>
+        <span class="c"># Filter based on matching keys</span>
+        <span class="n">filter_keys_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">ifilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_keys</span><span class="p">,</span> <span class="n">cross_product_iter</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;filter_keys_iter created&quot;</span>
+        <span class="c"># Create a list of lists containing merged records</span>
+        <span class="n">merge_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_records</span><span class="p">,</span> <span class="n">filter_keys_iter</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;merge_iterator created&quot;</span>
+        <span class="k">return</span> <span class="n">merge_iterator</span>
+</div></div>
+<div class="viewcode-block" id="ProcessorMatchValue"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorMatchValue">[docs]</a><span class="k">class</span> <span class="nc">ProcessorMatchValue</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Keep or discard a record that matches a user-defined field-value pair.</span>
 <span class="sd">    A match will be subjected to the action specified in the &quot;action&quot; param.</span>
@@ -138,52 +514,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="ProcessorMatchValue._take_action"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorMatchValue._take_action">[docs]</a>    <span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">,</span> <span class="n">match_found</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorMatchValue._match_value"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorMatchValue._match_value">[docs]</a>    <span class="k">def</span> <span class="nf">_match_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_record</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If record meets criteria for inclusion, keep it processing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">&#39;keep&#39;</span> <span class="ow">and</span>  <span class="n">match_found</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">&#39;discard&#39;</span> <span class="ow">and</span> <span class="n">match_found</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="ProcessorMatchValue._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorMatchValue._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Iterate through our user-provided list of matches.</span>
+<span class="sd">        Returns True or False. Iterate through our user-provided list of matches.</span>
 <span class="sd">        If we find a match, take action specified by user.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">match_found</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">for</span> <span class="n">match_key</span><span class="p">,</span> <span class="n">match_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">match_value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">inLine</span><span class="p">[</span><span class="n">match_key</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">match_value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">in_record</span><span class="p">[</span><span class="n">match_key</span><span class="p">]):</span>
                 <span class="n">match_found</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_take_action</span><span class="p">(</span><span class="n">inLine</span><span class="p">,</span> <span class="n">match_found</span><span class="p">):</span>
-            <span class="c"># Return inLine only if we have continued processing.</span>
-            <span class="c"># Used to validate function in test_processors.py</span>
-            <span class="k">return</span> <span class="n">inLine</span>
 
-</div></div>
-<div class="viewcode-block" id="ProcessorDevNull"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorDevNull">[docs]</a><span class="k">class</span> <span class="nc">ProcessorDevNull</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ProcessorDevNull serves as the last processor in the chain for a specific</span>
-<span class="sd">    record. It ends the processing chain by appending the final record value</span>
-<span class="sd">    back to the RecordConstructor&#39;s records list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ProcessorDevNull.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorDevNull.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RecordConstructor</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span> <span class="o">=</span> <span class="n">RecordConstructor</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">&#39;keep&#39;</span> <span class="ow">and</span> <span class="n">match_found</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">&#39;discard&#39;</span> <span class="ow">and</span> <span class="n">match_found</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 </div>
-<div class="viewcode-block" id="ProcessorDevNull._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorDevNull._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add record to the associated record_constructor&#39;s record list.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">record_constructor</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
+<div class="viewcode-block" id="ProcessorMatchValue._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorMatchValue._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator mapped to _match_value() as a filter.&quot;&quot;&quot;</span>
+        <span class="n">matched_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">ifilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_match_value</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">matched_iterator</span>
 
 </div></div>
-<div class="viewcode-block" id="ProcessorScreenWriter"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorScreenWriter">[docs]</a><span class="k">class</span> <span class="nc">ProcessorScreenWriter</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorScreenWriter"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorScreenWriter">[docs]</a><span class="k">class</span> <span class="nc">ProcessorScreenWriter</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Processor class that simply prints a record&#39;s key, values.</span>
 
@@ -196,63 +550,48 @@
 <div class="viewcode-block" id="ProcessorScreenWriter.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorScreenWriter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
 </div>
-<div class="viewcode-block" id="ProcessorScreenWriter._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorScreenWriter._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Print record to screen.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">print</span> <span class="n">inLine</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">inLine</span>
+<div class="viewcode-block" id="ProcessorScreenWriter._print_line"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorScreenWriter._print_line">[docs]</a>    <span class="k">def</span> <span class="nf">_print_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print a record to screen.&quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="n">dict_record</span>
+        <span class="k">return</span> <span class="n">dict_record</span>
+</div>
+<div class="viewcode-block" id="ProcessorScreenWriter._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorScreenWriter._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator mapped to _print_line().&quot;&quot;&quot;</span>
+        <span class="n">screen_writer_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_print_line</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">screen_writer_iterator</span>
 
 </div></div>
-<div class="viewcode-block" id="ProcessorChangeCase"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase">[docs]</a><span class="k">class</span> <span class="nc">ProcessorChangeCase</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorSortRecords"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorSortRecords">[docs]</a><span class="k">class</span> <span class="nc">ProcessorSortRecords</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Responsible for changing case of values.</span>
+<span class="sd">    Perform ascending sort for a collection of records by a given key.</span>
 
 <span class="sd">    Required Config Parameters:</span>
 
-<span class="sd">    :param str case: Either &quot;Upper&quot; or &quot;Lower&quot;.</span>
+<span class="sd">    :param str sort_key: Field name (dict key) to sort by.</span>
 
 <span class="sd">    Example configuration file entry::</span>
 
-<span class="sd">        {&quot;ProcessorChangeCase&quot;: {&quot;case&quot;: &quot;upper&quot;}}</span>
+<span class="sd">        &quot;ProcessorSortRecords&quot;: {</span>
+<span class="sd">            &quot;sort_key&quot;: &quot;CITY_NAME&quot;</span>
+<span class="sd">        }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># NOTE: Passing a default value for self.case allows us</span>
-    <span class="c"># To not require it as an attribute for every layer.</span>
-<div class="viewcode-block" id="ProcessorChangeCase.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorSortRecords.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorSortRecords.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">sort_key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">=</span> <span class="n">case</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_key</span> <span class="o">=</span> <span class="n">sort_key</span>
 </div>
-<div class="viewcode-block" id="ProcessorChangeCase._log"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase._log">[docs]</a>    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modLine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This is an example of an overriden _log method</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#print &quot;OVERRIDDEN log for ProcessorChangeCase. Selected case: %s&quot; % self.case</span>
-        <span class="c">#print &quot;Finished Line is %s&quot; % modLine</span>
-        <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="ProcessorChangeCase._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorChangeCase._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform dictionary comprehension to change case based on user input.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># NOTE: Need to check for None type first.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;upper&#39;</span><span class="p">:</span>
-            <span class="n">inLine</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inLine</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;lower&#39;</span><span class="p">:</span>
-            <span class="n">inLine</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inLine</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inLine</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Case Not Supported&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">inLine</span>
+<div class="viewcode-block" id="ProcessorSortRecords._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorSortRecords._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of sorted records using the builtin sorted() method.&quot;&quot;&quot;</span>
+        <span class="n">sorted_records_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">records_iterable</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sort_key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">sorted_records_list</span>
+
 </div></div>
-<div class="viewcode-block" id="ProcessorTruncateFields"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorTruncateFields">[docs]</a><span class="k">class</span> <span class="nc">ProcessorTruncateFields</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorTruncateFields"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorTruncateFields">[docs]</a><span class="k">class</span> <span class="nc">ProcessorTruncateFields</span><span class="p">(</span><span class="n">ProcessorBaseClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A decorator class which implements a Processor class&#39; public</span>
 <span class="sd">    interface, the process() method. Designed to truncate a record</span>
 <span class="sd">    to a specific set of fields.</span>
+
+<span class="sd">    Required Config Parameters:</span>
 
 <span class="sd">    :param list fields: field names to keep.</span>
 
@@ -264,15 +603,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ProcessorTruncateFields.__init__"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorTruncateFields.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ProcessorTruncateFields._process"><a class="viewcode-back" href="../../dataplunger.html#dataplunger.processors.ProcessorTruncateFields._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inLine</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessorTruncateFields._truncate_line"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorTruncateFields._truncate_line">[docs]</a>    <span class="k">def</span> <span class="nf">_truncate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_record</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform dict comprehension to create a dictionary subset to out_fields only.</span>
+<span class="sd">        Preform dict comprehension to create a dictionary subset to out_fields only.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">truncated_line</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inLine</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_fields</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">truncated_line</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">truncated_line</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span> <span class="n">dict_record</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_fields</span><span class="p">}</span>
+</div>
+<div class="viewcode-block" id="ProcessorTruncateFields._process"><a class="viewcode-back" href="../../processors.html#dataplunger.processors.ProcessorTruncateFields._process">[docs]</a>    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator mapped to _truncate_line().&quot;&quot;&quot;</span>
+        <span class="n">truncate_iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_truncate_line</span><span class="p">,</span> <span class="n">records_iterable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">truncate_iterator</span></div></div>
 </pre></div>
 
           </div>

@@ -1,38 +1,10 @@
-dataplunger package
+DataPlunger Package
 ===================
 
-``aggregate_processors``
-------------------------
+.. toctree::
+  :maxdepth: 2
 
-.. automodule:: dataplunger.aggregate_processors
-    :members:
-    :undoc-members:
-    :private-members: _process
-    :special-members: __init__, __enter__, __exit__
+    ``core`` <core>
+    ``readers`` <readers>
+    ``processors`` <processors>
 
-``core``
---------
-
-.. automodule:: dataplunger.core
-    :members:
-    :undoc-members:
-    :private-members: _process
-    :special-members: __init__, __enter__, __exit__, __iter__
-
-``processors``
---------------
-
-.. automodule:: dataplunger.processors
-    :members:
-    :undoc-members:
-    :private-members: _process
-    :special-members: __init__, __enter__, __exit__
-
-``readers``
------------
-
-.. automodule:: dataplunger.readers
-    :members:
-    :undoc-members:
-    :private-members: _process
-    :special-members: __init__, __enter__, __exit__
