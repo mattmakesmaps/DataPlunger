@@ -4,7 +4,7 @@ DataPlunger Package
 .. toctree::
   :maxdepth: 2
 
-    ``core`` <core>
-    ``readers`` <readers>
-    ``processors`` <processors>
+    core <core>
+    readers <readers>
+    processors <processors>
 
