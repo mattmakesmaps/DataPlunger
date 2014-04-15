@@ -15,17 +15,24 @@ A workflow is defined via a JSON configuration file containing the following inf
 
 Source code for this project can be found at: `<https://github.com/mattmakesmaps/DataPlunger>`_
 
-Documentation for the DataPlunger Package.
+Documentation
+-------------
+
+Processing pipelines are described using a JSON configuration file.
 
 .. toctree::
    :maxdepth: 2
 
    conf_file
 
+The code is broken down into the following modules.
+
 .. toctree::
    :maxdepth: 2
 
-   DataPlunger Package Layout <dataplunger>
+   core
+   readers
+   processors
 
 
 Indices and tables

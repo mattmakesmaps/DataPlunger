@@ -8,6 +8,11 @@
 freebase*
 dumpprof.py
 
+# Sphinx Stuff
+_build
+_templates
+_static
+
 # C extensions
 *.so
 
