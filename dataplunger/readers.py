@@ -13,6 +13,7 @@ import abc
 import csv
 import os
 import fiona
+import psycopg2
 
 
 class ReaderBaseClass(object):
@@ -31,12 +32,10 @@ class ReaderBaseClass(object):
         Note: will be called twice if a context manager is used."""
         pass
 
-    @abc.abstractmethod
     def __enter__(self):
         """Setup code called when instantiated via context manager."""
         return self
 
-    @abc.abstractmethod
     def __exit__(self, exc_type, exc_val, ext_tb):
         """Cleanup code called when instantiated via context manager."""
         return self.__del__(exc_type, exc_val, ext_tb)
@@ -45,6 +44,7 @@ class ReaderBaseClass(object):
     def __iter__(self):
         """Return a generator object yielding individual records."""
         pass
+
 
 class ReaderSHP(ReaderBaseClass):
     """
@@ -102,13 +102,6 @@ class ReaderSHP(ReaderBaseClass):
             return False  # Will raise the exception
         return True  # Everything's okay
 
-    def __enter__(self):
-        """Return Self When Called As Context Manager"""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Execute __del__() when called using a context manager."""
-        return self.__del__(exc_type, exc_val, exc_tb)
 
 class ReaderCSV(ReaderBaseClass):
     """
@@ -169,7 +162,6 @@ class ReaderCSV(ReaderBaseClass):
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Execute __del__() when called using a context manager."""
         return self.__del__(exc_type, exc_val, exc_tb)
-
 
 
 class ReaderCensus(ReaderBaseClass):
@@ -312,14 +304,6 @@ class ReaderCensus(ReaderBaseClass):
             return False  # Will raise the exception
         return True  # Everything's okay
 
-    def __enter__(self):
-        """Return Self When Called As Context Manager"""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Execute __del__() when called using a context manager."""
-        return self.__del__(exc_type, exc_val, exc_tb)
-
     def __iter__(self):
         """
         Generator returning a dict of field name: field value pairs for each record.
@@ -336,3 +320,70 @@ class ReaderCensus(ReaderBaseClass):
                 yield dict(estimate_vals.items() + geography_vals.items())
             else:
                 raise KeyError("LOGRECNO: %s not found in geography table." % str(logrecno))
+
+
+class ReaderPostgres(ReaderBaseClass):
+    """
+    Reader class implementation executing a single query via psycopg2.
+    Specifically, the __iter__() method will yield a single dictionary
+    output from an instance of the psycopg2.extras.RealDictCursor class.
+
+    Required Config Parameters:
+
+    :param query: Attribute containing either a file path to a sql statement,
+    ending in '.sql'; or a sql statement as a string.
+    :param database: name of the database to connect to.
+
+    Non-Required Config Parameters:
+
+    :param user: db user to connect as, defaults to postgres.
+    :param password: password for db user, defaults to postgres.
+    :param host: host name, defaults to localhost.
+    :param port: port number, defaults to 5432.
+
+    Example configuration file entry::
+
+            "GeocodingCities": {
+                "type": "ReaderPostgres",
+                "query": "/Users/matt/Projects/dataplunger/sample_data/sample_query.sql,
+                "database": "dbname",
+                "user": "postgres",
+                "password": "postgres",
+                "host": "localhost",
+                "port": 5432
+            },
+    """
+
+    def __init__(self, query, database, user='postgres', password='postgres',
+                 host='localhost', port=5432, **kwargs):
+        self.conn_params = {
+            'database': database,
+            'user': user,
+            'password': password,
+            'host': host,
+            'port': port}
+        self.query = query
+        self._conn_handler = self._open_connection(self.conn_params)
+        self._dict_cursor = self._execute_query(self, self._conn_handler)
+
+    def _open_connection(self, conn_params):
+        """Return an open psycopg2 connection"""
+        conn = psycopg2.connect(**conn_params)
+        return conn
+
+    def _execute_query(self, cursor):
+        self._conn_handler.cursor(cursor_factor=psycopg2.extras.RealDictCursor)
+
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
+        """Close the db connection. Note: Will be Called Twice if a Context Manager is used."""
+        if self._conn_handler:
+            self._conn_handler.close()
+        if exc_type is not None:
+            # Exception occurred
+            return False  # Will raise the exception
+        return True  # Everything's okay
+
+    def __iter__(self):
+        """Yield a single record back to the caller."""
+        for row in self._dict_cursor:
+            yield row

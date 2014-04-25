@@ -1,2 +1,3 @@
 simplejson
 Fiona
+psycopg2

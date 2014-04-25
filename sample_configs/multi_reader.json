@@ -2,6 +2,25 @@
     "type": "ConfigCollection",
     "configs": [
         {
+            "name": "PostgresConfig",
+            "readers": {
+                "osm_roads": {
+                    "type": "ReaderPostgres",
+                    "path": "/home/mkenny/Projects/DataPlunger/dataplunger/tests/test_data"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "RoadsLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "osm_roads"}},
+                        {"ProcessorCSVWriter": {"path":"home/mkenny/Projects/dataplunger/sample_output/primary_links.csv",
+                            "fields": ["osm_id","type"]}}
+                    ]
+                }
+            ]
+        },
+        {
             "name": "SHPConfig",
             "readers": {
                 "NaturalEarthLakes": {
