@@ -11,7 +11,8 @@ if __name__ == '__main__':
     collectionConfig = Configuration()
     collectionConfig.parse_config(config_path)
 
-    multireader = Controller(collectionConfig, "SHPConfig")
+    multireader = Controller(collectionConfig, "PostgresConfig")
+    # multireader = Controller(collectionConfig, "SHPConfig")
     # multireader = Controller(collectionConfig, "WACensusConfig")
     # multireader = Controller(collectionConfig, "FreebaseConfig")
     multireader.process_layers()

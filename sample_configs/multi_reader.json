@@ -4,18 +4,19 @@
         {
             "name": "PostgresConfig",
             "readers": {
-                "osm_roads": {
+                "ZillowDB": {
                     "type": "ReaderPostgres",
-                    "path": "/home/mkenny/Projects/DataPlunger/dataplunger/tests/test_data"
+                    "query": "/Users/matt/Projects/dataplunger/dataplunger/tests/test_data/test_query.sql",
+                    "database": "topo_test"
                 }
             },
             "layers": [
                 {
-                    "name" : "RoadsLayer",
+                    "name" : "ZillowLayer",
                     "processing_steps": [
-                        {"ProcessorGetData": {"reader": "osm_roads"}},
-                        {"ProcessorCSVWriter": {"path":"home/mkenny/Projects/dataplunger/sample_output/primary_links.csv",
-                            "fields": ["osm_id","type"]}}
+                        {"ProcessorGetData": {"reader": "ZillowDB"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/zillow_hoods.csv",
+                            "fields": ["name","city","county","state"]}}
                     ]
                 }
             ]

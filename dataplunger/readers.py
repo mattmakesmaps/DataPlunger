@@ -14,6 +14,7 @@ import csv
 import os
 import fiona
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 
 class ReaderBaseClass(object):
@@ -336,8 +337,8 @@ class ReaderPostgres(ReaderBaseClass):
 
     Non-Required Config Parameters:
 
-    :param user: db user to connect as, defaults to postgres.
-    :param password: password for db user, defaults to postgres.
+    :param user: db user to connect as.
+    :param password: password for db user.
     :param host: host name, defaults to localhost.
     :param port: port number, defaults to 5432.
 
@@ -354,25 +355,50 @@ class ReaderPostgres(ReaderBaseClass):
             },
     """
 
-    def __init__(self, query, database, user='postgres', password='postgres',
-                 host='localhost', port=5432, **kwargs):
+    def __init__(self, query, database, user=None, password=None, host='localhost', port=5432, **kwargs):
         self.conn_params = {
             'database': database,
-            'user': user,
-            'password': password,
             'host': host,
             'port': port}
+        # Append user and password if provided
+        # Else i think this uses your system user. TODO: Check on that.
+        if user:
+            self.conn_params['user'] = user
+        if password:
+            self.conn_params['password'] = password
         self.query = query
         self._conn_handler = self._open_connection(self.conn_params)
-        self._dict_cursor = self._execute_query(self, self._conn_handler)
+        self._dict_cursor = self._execute_query(self._conn_handler, self.query)
 
     def _open_connection(self, conn_params):
         """Return an open psycopg2 connection"""
-        conn = psycopg2.connect(**conn_params)
+        conn = psycopg2.connect(cursor_factory=RealDictCursor, **conn_params)
         return conn
 
-    def _execute_query(self, cursor):
-        self._conn_handler.cursor(cursor_factor=psycopg2.extras.RealDictCursor)
+    def _validate_query(self, query):
+        """Return validated query.
+        Currently only tests if self.query param is a file or
+        defaults to believing it has a well-formed query inline.
+        TODO: Update to try and sanitize/validate the query somehow."""
+        try:
+            # Test if we have file.
+            if os.path.isfile(query):
+                with open(query, 'r') as query_file_handle:
+                    query_text = query_file_handle.read()
+            else:
+                query_text = query
+            return query_text
+        except Exception:
+            raise Exception
+
+    def _execute_query(self, db_conn, query):
+        """Return a cursor with result set from self.query"""
+        # Test if self.query is a file for inline query
+        validated_query = self._validate_query(query)
+        # Create cursor and execute query
+        cur = db_conn.cursor()
+        cur.execute(validated_query)
+        return cur
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """Close the db connection. Note: Will be Called Twice if a Context Manager is used."""
