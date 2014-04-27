@@ -443,20 +443,42 @@ class ProcessorCombineData_ValueHash(ProcessorBaseClass):
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """
-    Keep or discard a record that matches a user-defined field-value pair.
+    Keep or discard a record that matches a user-defined field-value pairs.
     A match will be subjected to the action specified in the "action" param.
 
     Required Config Parameters:
 
-    :param dict matches: Field names (keys) and field entries (values).
+    :param dict matches: Field names (keys) and field entries (values). Multiple values for
+    a single key should be written JSON array, which will be mapped to a python list.
     :param str action: Either "Keep" or "Discard". DEFAULTS to "Keep".
 
-    If multiple matches are provided, a hit of any match will trigger the action.
+    If multiple match values are provided for a single key, a match of any value will result
+    in a match for that record. An 'OR' clause behavior. E.g.::
+
+        "matches":{"name":['Brian','Rachel']},
+
+    Will return True if a record contains a name value of either 'Brian' OR 'Rachel'.
+
+    If multiple match keys are provided, a hit of any match key will trigger the action.
+    An 'OR' clause behavior. E.g::
+
+        "matches":{"name":['Brian','Rachel'],
+                   "hometown":"Seattle"}
+
+    Will return True if a record's "name" field contains values of "Brian" or "Rachel" OR
+    if the hometown field contains a value of "Seattle"
 
     Example configuration file entry::
 
+        // A single value for "SumLevel"
         {"ProcessorMatchValue": {
             "matches":{"SumLevel":140},
+            "action":"Keep"
+        }}
+
+        // Multiple values for "SumLevel"
+        {"ProcessorMatchValue": {
+            "matches":{"SumLevel":[140,150]},
             "action":"Keep"
         }}
     """
@@ -472,7 +494,11 @@ class ProcessorMatchValue(ProcessorBaseClass):
         """
         match_found = False
         for match_key, match_value in self.matches.iteritems():
-            if str(match_value) == str(in_record[match_key]):
+            # Convert to one element list if not list. e.g if given a string.
+            if not isinstance(match_value, list):
+                match_value = [match_value]
+            # Check if record contains one our match values.
+            if str(in_record[match_key]) in str(match_value):
                 match_found = True
 
         if self.action == 'keep' and match_found is True:

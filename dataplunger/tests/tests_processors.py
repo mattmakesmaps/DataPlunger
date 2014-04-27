@@ -188,6 +188,16 @@ class TestProcessorMatchValue(TestBase):
         for record in iter:
             assert record == expected
 
+    def test_multiple_positivematch_actionkeep(self):
+        """
+        Assert record processing continues.
+        """
+        p = ProcessorMatchValue(None, matches={'name': ['Matt', 'Greg', 5]}, action='keep')
+        iter = p.process(self.records)
+        expected = self.records[0]
+        for record in iter:
+            assert record == expected
+
     def test_positivematch_actiondiscard(self):
         """
         Assert record was removed from processing.
@@ -197,11 +207,29 @@ class TestProcessorMatchValue(TestBase):
         for record in iter:
             assert record is None
 
+    def test_multiple_positivematch_actiondiscard(self):
+        """
+        Assert record was removed from processing.
+        """
+        p = ProcessorMatchValue(None, matches={'name': ['Matt', 'Greg', 5]}, action='discard')
+        iter = p.process(self.records)
+        for record in iter:
+            assert record is None
+
     def test_negativematch_actionkeep(self):
         """
         Assert record was removed from processing.
         """
         p = ProcessorMatchValue(None, matches={'name': 'Greg'}, action='keep')
+        iter = p.process(self.records)
+        for record in iter:
+            assert record is None
+
+    def test_multiple_negativematch_actionkeep(self):
+        """
+        Assert record was removed from processing.
+        """
+        p = ProcessorMatchValue(None, matches={'name': ['Greg', 5, 'Jane']}, action='keep')
         iter = p.process(self.records)
         for record in iter:
             assert record is None
@@ -216,6 +244,15 @@ class TestProcessorMatchValue(TestBase):
         for record in iter:
             assert record == expected
 
+    def test_multiple_negativematch_actiondiscard(self):
+        """
+        Assert record processing continues.
+        """
+        p = ProcessorMatchValue(None, matches={'name': ['Greg', 5, 'Jane']}, action='discard')
+        iter = p.process(self.records)
+        expected = self.records[0]
+        for record in iter:
+            assert record == expected
 
 class TestProcessorChangeCase(TestBase):
     """
