@@ -7,6 +7,10 @@
 
 Readers are responsible for creating a connection to a backing datasource,
 and returning an iterable that yields a single record of data from that datasource.
+
+Readers should emit utf8 encoded Python strings. I.e. no Unicode type objects.
+
+Reader should emit geometry as (TODO Decide Standard Geom Formatting).
 """
 __author__ = 'mkenny'
 import abc
@@ -75,7 +79,7 @@ class ReaderSHP(ReaderBaseClass):
 
     def _encoder(self, value):
         """
-        Return a python STR if given unicode.
+        Return a utf8 encoded STR if given a Unicode object.
         """
         if hasattr(value, 'encode'):
             return value.encode('utf8')
@@ -87,7 +91,7 @@ class ReaderSHP(ReaderBaseClass):
         """
         for row in self._shp_reader:
             # Flatten the Fiona returned record.
-            # Convert from UTF8 to string. TODO: Ponder this.
+            # Convert from unicode to utf8 encoded str. TODO: Ponder this.
             flat_dict = {k: self._encoder(v) for k, v in row['properties'].iteritems()}
             flat_dict ['geometry'] = row['geometry']
             flat_dict ['fiona_id'] = row['id']
@@ -397,6 +401,8 @@ class ReaderPostgres(ReaderBaseClass):
         validated_query = self._validate_query(query)
         # Create cursor and execute query
         cur = db_conn.cursor()
+        # Declare Unicode
+        #psycopg2.extensions.register_type(psycopg2.extensions.UNICODE, cur)
         cur.execute(validated_query)
         return cur
 

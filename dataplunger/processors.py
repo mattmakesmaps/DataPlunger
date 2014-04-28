@@ -100,12 +100,13 @@ class ProcessorCSVWriter(ProcessorBaseClass):
         }}
 
     """
-    def __init__(self, processor, path, fields, **kwargs):
+    def __init__(self, processor, path, fields, delimiter=',', **kwargs):
         self.processor = processor
         self.path = path
         self.fields = fields
+        self.delimiter = delimiter
         self.file = open(self.path, 'w')
-        self.d_writer = csv.DictWriter(self.file, self.fields, extrasaction='ignore')
+        self.d_writer = csv.DictWriter(self.file, self.fields, delimiter=self.delimiter, extrasaction='ignore')
 
     def _log(self, mod_records_iterable):
         """Alert that CSV output is beginning."""
@@ -545,20 +546,28 @@ class ProcessorSortRecords(ProcessorBaseClass):
     Required Config Parameters:
 
     :param str sort_key: Field name (dict key) to sort by.
+    :param str key_type: Type to convert key to (defaults to string).
+    This is necessary since a reader, such as CSV, will yield all
+    records as strings by default.
 
     Example configuration file entry::
 
         "ProcessorSortRecords": {
-            "sort_key": "CITY_NAME"
+            "sort_key": "CITY_NAME",
+            "key_type": "int"
         }
     """
-    def __init__(self, processor, sort_key, **kwargs):
+    def __init__(self, processor, sort_key, key_type='string', **kwargs):
         self.processor = processor
         self.sort_key = sort_key
+        self.key_type = key_type
 
     def _process(self, records_iterable):
         """Return a list of sorted records using the builtin sorted() method."""
-        sorted_records_list = sorted(records_iterable, key=lambda k: k[self.sort_key])
+        if self.key_type == 'int':
+            sorted_records_list = sorted(records_iterable, key=lambda k: int(k[self.sort_key]))
+        else:
+            sorted_records_list = sorted(records_iterable, key=lambda k: k[self.sort_key])
         return sorted_records_list
 
 
