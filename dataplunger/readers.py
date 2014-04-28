@@ -401,8 +401,6 @@ class ReaderPostgres(ReaderBaseClass):
         validated_query = self._validate_query(query)
         # Create cursor and execute query
         cur = db_conn.cursor()
-        # Declare Unicode
-        #psycopg2.extensions.register_type(psycopg2.extensions.UNICODE, cur)
         cur.execute(validated_query)
         return cur
 
