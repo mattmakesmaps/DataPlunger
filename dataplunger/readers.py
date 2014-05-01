@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 .. module:: readers.py
    :platform: Unix
@@ -77,25 +79,17 @@ class ReaderSHP(ReaderBaseClass):
         self.path = path
         self._shp_reader = fiona.open(path, 'r')
 
-    def _encoder(self, value):
-        """
-        Return a utf8 encoded STR if given a Unicode object.
-        """
-        if hasattr(value, 'encode'):
-            return value.encode('utf8')
-        return value
-
     def __iter__(self):
         """
         Generator returning a dict of field name: field value pairs for each record.
         """
         for row in self._shp_reader:
             # Flatten the Fiona returned record.
-            # Convert from unicode to utf8 encoded str. TODO: Ponder this.
-            flat_dict = {k: self._encoder(v) for k, v in row['properties'].iteritems()}
-            flat_dict ['geometry'] = row['geometry']
-            flat_dict ['fiona_id'] = row['id']
-            flat_dict ['fiona_type'] = row['type']
+            # Convert from unicode to utf8 encoded str.
+            flat_dict = row['properties']
+            flat_dict['geometry'] = row['geometry']
+            flat_dict['fiona_id'] = row['id']
+            flat_dict['fiona_type'] = row['type']
             yield flat_dict
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
@@ -121,7 +115,6 @@ class ReaderCSV(ReaderBaseClass):
 
     :param field_types: a mapping of field names to output python data type.
     if not provided, defaults all output to strings.
-    :param encoding: The encoding of the file.
 
     Example configuration file entry::
 
@@ -130,13 +123,11 @@ class ReaderCSV(ReaderBaseClass):
                 "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
                 "delimiter": ",",
                 "field_types": {'name':'string', 'age':'int', 'gender':'string'}
-                "encoding": "UTF-8"
             },
     """
-    def __init__(self, path, encoding, delimiter=',', field_types=None, **kwargs):
+    def __init__(self, path, delimiter=',', field_types=None, **kwargs):
         """
         :param path: the pathway for a given file.
-        :param encoding: the encoding for a given file.
         :param delimiter:  defaults to ','
         :param field_types: a dict of field name, field type pairs.
         :param _file_handler:  set in __enter__(), a read only pointer to the CSV.
@@ -145,7 +136,6 @@ class ReaderCSV(ReaderBaseClass):
         # If no delimiter given in config, default to ','
         self.delimiter = delimiter
         self.path = path
-        self.encoding = encoding
         self.field_types = field_types
         self._file_handler = open(self.path, 'rt')
         self._dict_reader = csv.DictReader(self._file_handler, delimiter=self.delimiter)
@@ -158,8 +148,10 @@ class ReaderCSV(ReaderBaseClass):
         field_mapping = {
             'int': int,
             'integer': int,
-            'str': str,
-            'string': str
+            'str': unicode,
+            'string': unicode,
+            'unicode': unicode,
+            'text': unicode
         }
         for field_name, field_type in self.field_types.iteritems():
             row[field_name] = field_mapping[field_type](row[field_name])

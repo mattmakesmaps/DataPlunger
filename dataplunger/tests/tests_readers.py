@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 __author__ = 'matt'
 __date__ = '3/27/14'
 """
@@ -163,14 +166,13 @@ class TestReaderCSV(object):
         """Create connection info"""
         self.path = os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv")
         self.delimiter = ","
-        self.encoding = "UTF-8"
         self.field_types = {
             'SumOfCount': 'int',
             'Candidate': 'string',
             'Legislative District': 'integer',
             'County Council District': 'integer',
-            'Race': 'str',
-            'Party': 'str',
+            'Race': 'unicode',
+            'Party': 'text',
             'Precinct': 'string',
             'Congressional District': 'int'
         }
@@ -181,14 +183,14 @@ class TestReaderCSV(object):
         Integers should be cast to int, strings to str.
         """
         expected = {'SumOfCount': 212,
-                    'Candidate': 'APPROVED',
+                    'Candidate': u'APPROVED',
                     'Legislative District': 47,
                     'County Council District': 9,
-                    'Race': 'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
-                    'Party': 'NP',
-                    'Precinct': 'KELLY',
+                    'Race': u'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
+                    'Party': u'NP',
+                    'Precinct': u'KELLY',
                     'Congressional District': 8}
-        with ReaderCSV(self.path, self.encoding, self.delimiter, self.field_types) as t_reader:
+        with ReaderCSV(self.path, self.delimiter, self.field_types) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break
@@ -198,15 +200,15 @@ class TestReaderCSV(object):
         Test ReaderCSV behavior with no field mapping provided.
         All outputs should be strings.
         """
-        expected = {'SumOfCount': '212',
-                    'Candidate': 'APPROVED',
-                    'Legislative District': '47',
-                    'County Council District': '9',
-                    'Race': 'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
-                    'Party': 'NP',
-                    'Precinct': 'KELLY',
-                    'Congressional District': '8'}
-        with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
+        expected = {'SumOfCount': u'212',
+                    'Candidate': u'APPROVED',
+                    'Legislative District': u'47',
+                    'County Council District': u'9',
+                    'Race': u'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
+                    'Party': u'NP',
+                    'Precinct': u'KELLY',
+                    'Congressional District': u'8'}
+        with ReaderCSV(self.path, self.delimiter) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break
@@ -225,13 +227,16 @@ class TestReaderSHP(object):
         Given a connection to a CSV file.
         Open a connection via an instance of the ReaderSHP class
         One iteration should yield the expected record.
+
+        NOTE: Fiona type isn't parsed from the SHP DBF, as such, Fiona doesn't output
+          an Unicode object.
         """
         expected = {u'scalerank': 2,
                     u'admin': None,
-                    u'name': 'M\xc3\xa4laren',
+                    u'name': u'Mälaren',
                     u'note': None,
                     'geometry': {'type': 'Polygon', 'coordinates': [[(17.979785156250017, 59.329052734375), (17.87617187500001, 59.27080078125), (17.57050781250001, 59.267626953125), (17.474511718750023, 59.29150390625), (17.370703125000006, 59.294921875), (17.304589843750023, 59.27216796875), (17.175195312500023, 59.355810546875), (17.06562500000001, 59.3732421875), (16.913867187500017, 59.445849609375), (16.742285156250006, 59.430615234375), (16.610449218750006, 59.453515624999994), (16.144335937500017, 59.44775390625), (16.044238281250017, 59.478466796875), (16.251757812500017, 59.493212890625), (16.47265625, 59.519384765625), (16.573828125000006, 59.611669921875), (16.646875000000023, 59.55927734375), (16.752343750000023, 59.543310546875), (16.84101562500001, 59.5875), (16.9775390625, 59.550683593749994), (17.06269531250001, 59.569238281249994), (17.3720703125, 59.495751953124994), (17.390527343750023, 59.58447265625), (17.534472656250017, 59.539404296875), (17.687304687500017, 59.5416015625), (17.67158203125001, 59.594775390625), (17.760058593750017, 59.620507812499994), (17.785937500000017, 59.597998046875), (17.80859375, 59.55322265625), (17.772851562500023, 59.414111328125), (17.82929687500001, 59.37900390625), (17.964257812500023, 59.359375), (17.979785156250017, 59.329052734375)]]},
-                    u'featurecla': 'Lake',
+                    u'featurecla': u'Lake',
                     'fiona_id': '0',
                     'fiona_type': 'Feature',
                     u'name_alt': None}
