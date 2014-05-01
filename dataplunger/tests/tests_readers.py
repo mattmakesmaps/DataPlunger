@@ -189,7 +189,7 @@ class TestReaderCSV(object):
                     'Party': 'NP',
                     'Precinct': 'KELLY',
                     'Congressional District': 8}
-        with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
+        with ReaderCSV(self.path, self.encoding, self.delimiter, self.field_types) as t_reader:
             for record in t_reader:
                 assert record == expected
                 break
