@@ -164,6 +164,16 @@ class TestReaderCSV(object):
         self.path = os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv")
         self.delimiter = ","
         self.encoding = "UTF-8"
+        self.field_types = {
+            'SumOfCount': 'int',
+            'Candidate': 'string',
+            'Legislative District': 'integer',
+            'County Council District': 'integer',
+            'Race': 'str',
+            'Party': 'str',
+            'Precinct': 'string',
+            'Congressional District': 'int'
+        }
 
     def test_readercsv(self):
         """
@@ -171,14 +181,14 @@ class TestReaderCSV(object):
         Open a connection via an instance of the ReaderCSV class
         One iteration should yield the expected record.
         """
-        expected = {'SumOfCount': '212',
+        expected = {'SumOfCount': 212,
                     'Candidate': 'APPROVED',
-                    'Legislative District': '47',
-                    'County Council District': '9',
+                    'Legislative District': 47,
+                    'County Council District': 9,
                     'Race': 'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
                     'Party': 'NP',
                     'Precinct': 'KELLY',
-                    'Congressional District': '8'}
+                    'Congressional District': 8}
         with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
             for record in t_reader:
                 assert record == expected

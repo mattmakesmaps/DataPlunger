@@ -601,3 +601,4 @@ class ProcessorTruncateFields(ProcessorBaseClass):
         """Return an iterator mapped to _truncate_line()."""
         truncate_iterator = itertools.imap(self._truncate_line, records_iterable)
         return truncate_iterator
+

@@ -119,21 +119,26 @@ class ReaderCSV(ReaderBaseClass):
 
     Non-Required Config Parameters:
 
+    :param field_types: a mapping of field names to output python data type.
+    if not provided, defaults all output to strings.
     :param encoding: The encoding of the file.
 
     Example configuration file entry::
 
             "Grades": {
                 "type": "ReaderCSV",
-                "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
+                "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
                 "delimiter": ",",
+                "field_types": {'name':'string', 'age':'int', 'gender':'string'}
                 "encoding": "UTF-8"
             },
     """
-    def __init__(self, path, encoding, delimiter=',', **kwargs):
+    def __init__(self, path, encoding, delimiter=',', field_types=None, **kwargs):
         """
-        :param conn_info: the connection information (pathway) for a given file.
-        :param delimiter:  extracted from conn_info, defaults to ','
+        :param path: the pathway for a given file.
+        :param encoding: the encoding for a given file.
+        :param delimiter:  defaults to ','
+        :param field_types: a dict of field name, field type pairs.
         :param _file_handler:  set in __enter__(), a read only pointer to the CSV.
         :param _dict_reader:  an instance of csv.dict_reader()
         """
@@ -141,14 +146,33 @@ class ReaderCSV(ReaderBaseClass):
         self.delimiter = delimiter
         self.path = path
         self.encoding = encoding
+        self.field_types = field_types
         self._file_handler = open(self.path, 'rt')
         self._dict_reader = csv.DictReader(self._file_handler, delimiter=self.delimiter)
+
+    def _map_field_types(self, row):
+        """
+        Return a record updated to reflect data types listed in self.field_types.
+        TODO: Add more types.
+        """
+        field_mapping = {
+            'int': int,
+            'integer': int,
+            'str': str,
+            'string': str
+        }
+        for field_name, field_type in self.field_types.iteritems():
+            row[field_name] = field_mapping[field_type](row[field_name])
+        return row
 
     def __iter__(self):
         """
         Generator returning a dict of field name: field value pairs for each record.
         """
         for row in self._dict_reader:
+            # Cast fields to proper type, if given.
+            if self.field_types:
+                row = self._map_field_types(row)
             yield row
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
