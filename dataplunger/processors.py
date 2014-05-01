@@ -115,6 +115,10 @@ class ProcessorCSVWriter(ProcessorBaseClass):
         print "Starting AggregateProcessorCSVWriter"
 
     def _write_row(self, row):
+        # Convert Unicode values to 8-bit UTF8 encoded string.
+        for k, v in row.iteritems():
+            if isinstance(v, unicode):
+                row[k] = v.encode('utf8')
         self.d_writer.writerow(row)
         return row
 
@@ -183,13 +187,14 @@ class ProcessorChangeCase(ProcessorBaseClass):
     def _change_case(self, dict_record):
         """
         Perform dictionary comprehension to change case based on user input.
+        NOTE: We're checking based on basestring to accept potential Unicode or string objects.
         """
         if self.case == 'upper':
             #inLine = {key: value.upper() for key, value in inLine.iteritems() if isinstance(value, str)}
-            dict_record.update((k, v.upper()) for k, v in dict_record.items() if isinstance(v, str))
+            dict_record.update((k, v.upper()) for k, v in dict_record.items() if isinstance(v, basestring))
         elif self.case == 'lower':
             #inLine = {key: value.lower() for key, value in inLine.iteritems() if isinstance(value, str)}
-            dict_record.update((k, v.lower()) for k, v in dict_record.items() if isinstance(v, str))
+            dict_record.update((k, v.lower()) for k, v in dict_record.items() if isinstance(v, basestring))
         else:
             raise ValueError("Case Not Supported")
         return dict_record
