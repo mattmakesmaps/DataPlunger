@@ -195,7 +195,7 @@ class ReaderCensus(ReaderBaseClass):
     :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.
     :param conn_info.sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
     :param conn_info.starting_position: Starting Position for table of int. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
-    :param conn_info.fields: an array of field names with line numbers. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param conn_info.fields: an object of field names with line numbers. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
 
     Example configuration file entry::
 
@@ -205,7 +205,6 @@ class ReaderCensus(ReaderBaseClass):
             "type": "ReaderCensus",
             "path": "/path/to/folder/of/EstimatesAndGeographyTables",
             "delimiter": ",",
-            "encoding": "UTF-8",
             "fields": {
                 "Total": 1,
                 "Male": 2,
@@ -216,10 +215,9 @@ class ReaderCensus(ReaderBaseClass):
         }
     """
 
-    def __init__(self, encoding, fields, path, sequence, starting_position, delimiter=",", **kwargs):
+    def __init__(self, fields, path, sequence, starting_position, delimiter=",", **kwargs):
         """
         :param delimiter: extracted from conn_info, defaults to ','.
-        :param encoding: file type encoding.
         :param fields: dict of field names and line number indexes.
         :param path: location of directory of census data.
         :param sequence: sequence number for table of interest.
@@ -234,7 +232,6 @@ class ReaderCensus(ReaderBaseClass):
             of that row.
         """
         self.delimiter = delimiter
-        self.encoding = encoding
         self.fields = fields
         self.path = path
         self.sequence = sequence
@@ -329,11 +326,12 @@ class ReaderCensus(ReaderBaseClass):
         """
         Generator returning a dict of field name: field value pairs for each record.
         Combines estimate row with corresponding geography row based on common LOGRECNO value.
+        NOTE: We assume all estimate values to return INTs.
         """
         fields = self.fields
         for row in self._estimate_reader:
             logrecno = row[5]
-            estimate_vals = {k: row[v] for k, v in fields.items()}
+            estimate_vals = {k: int(row[v]) for k, v in fields.items()}
             # get the corresponding geographic record
             if logrecno in self._geography_records:
                 # yield a concatenated estimate and geography dictionary

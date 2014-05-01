@@ -23,7 +23,6 @@ class TestReaderCensus_Success(object):
         self.kwargs = {'starting_position': 87,
                           'sequence': 2,
                           'fields': {'Total': 1, 'Female': 17, 'Male': 2},
-                          'encoding': 'UTF-8',
                           'delimiter': ',',
                           'path': os.path.join(os.path.dirname(__file__),
                                                'test_data/Washington_All_Geographies_Tracts_Block_Groups_Only'),
@@ -35,13 +34,13 @@ class TestReaderCensus_Success(object):
         Open a connection via an instance of the ReaderCensus class
         One iteration should yield the expected record.
         """
-        expected = {'Total': '14',
+        expected = {'Total': 14,
                     'COMPONENT': '00',
                     'STUSAB': 'WA',
                     'SUMLEVEL': '140',
-                    'Female': '2',
+                    'Female': 2,
                     'LOGRECNO': '0004357',
-                    'Male': '12',
+                    'Male': 12,
                     'FILEID': 'ACSSF'}
         with ReaderCensus(**self.kwargs) as t_reader:
             for record in t_reader:
@@ -61,7 +60,6 @@ class TestReaderCensus_BadEstGeogFiles(object):
         self.kwargs = {'starting_position': 87,
                           'sequence': 2,
                           'fields': {'Total': 1, 'Female': 17, 'Male': 2},
-                          'encoding': 'UTF-8',
                           'delimiter': ',',
                           'type': 'ReaderCensus'}
 
