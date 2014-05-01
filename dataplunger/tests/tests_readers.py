@@ -175,11 +175,10 @@ class TestReaderCSV(object):
             'Congressional District': 'int'
         }
 
-    def test_readercsv(self):
+    def test_readercsv_with_mapping(self):
         """
-        Given a connection to a CSV file.
-        Open a connection via an instance of the ReaderCSV class
-        One iteration should yield the expected record.
+        Test ReaderCSV behavior with field mapping provided.
+        Integers should be cast to int, strings to str.
         """
         expected = {'SumOfCount': 212,
                     'Candidate': 'APPROVED',
@@ -194,6 +193,23 @@ class TestReaderCSV(object):
                 assert record == expected
                 break
 
+    def test_readercsv_no_mapping(self):
+        """
+        Test ReaderCSV behavior with no field mapping provided.
+        All outputs should be strings.
+        """
+        expected = {'SumOfCount': '212',
+                    'Candidate': 'APPROVED',
+                    'Legislative District': '47',
+                    'County Council District': '9',
+                    'Race': 'Amendment to the State Constitution Engrossed Substitute House Joint Resolution No. 4220',
+                    'Party': 'NP',
+                    'Precinct': 'KELLY',
+                    'Congressional District': '8'}
+        with ReaderCSV(self.path, self.encoding, self.delimiter) as t_reader:
+            for record in t_reader:
+                assert record == expected
+                break
 
 class TestReaderSHP(object):
     """
