@@ -15,7 +15,7 @@ class RecordConstructorMock(object):
 
 class TestBase(object):
     def __init__(self):
-        self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'}]
+        self.records = [{'name': u'Matt', 'age': 27, 'gender': u'male'}]
         self.devnull = ProcessorDevNull()
 
 class TestProcessorCSVWriter(TestBase):
@@ -63,7 +63,7 @@ class TestProcessorDevNull(object):
     a processing chain's execution.
     """
     def __init__(self):
-        self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'}]
+        self.records = [{'name': u'Matt', 'age': 27, 'gender': u'male'}]
 
     def test_devnull(self):
         """
@@ -81,22 +81,35 @@ class TestProcessorSortRecords(object):
     on strings is implemented.
     """
     def __init__(self):
-        self.records = [{'name': 'Matt', 'age': '27', 'gender': 'male'},
-                        {'name': 'Bob', 'age': '30', 'gender': 'male'},
-                        {'name': 'Luke', 'age': '31', 'gender': 'male'}]
+        self.records = [{'name': u'Bob', 'age': 30, 'gender': u'male'},
+                        {'name': u'Matt', 'age': 27, 'gender': u'male'},
+                        {'name': u'Luke', 'age': 31, 'gender': u'male'}]
         self.devnull = ProcessorDevNull()
 
-    def test_sortrecords(self):
+    def test_sort_by_unicode_string(self):
         """
         Sort based on name field. Should return a list of records in the order of:
         'Bob', 'Luke', 'Matt'
         """
         expected_list = [
-            {'name': 'Bob', 'age': '30', 'gender': 'male'},
-            {'name': 'Luke', 'age': '31', 'gender': 'male'},
-            {'name': 'Matt', 'age': '27', 'gender': 'male'}
+            {'name': u'Bob', 'age': 30, 'gender': u'male'},
+            {'name': u'Luke', 'age': 31, 'gender': u'male'},
+            {'name': u'Matt', 'age': 27, 'gender': u'male'}
         ]
         sort_processor = ProcessorSortRecords(self.devnull, sort_key='name')
+        assert sort_processor.process(self.records) == expected_list
+
+    def test_sort_by_int(self):
+        """
+        Sort based on age field. Should return a list of records in the order of:
+        'Matt', 'Bob', 'Luke'
+        """
+        expected_list = [
+            {'name': u'Matt', 'age': 27, 'gender': u'male'},
+            {'name': u'Bob', 'age': 30, 'gender': u'male'},
+            {'name': u'Luke', 'age': 31, 'gender': u'male'}
+        ]
+        sort_processor = ProcessorSortRecords(self.devnull, sort_key='age')
         assert sort_processor.process(self.records) == expected_list
 
 class TestProcessorGetData(TestBase):
@@ -123,13 +136,11 @@ class TestProcessorCombineData_ValueHash(TestBase):
                 'path': os.path.join(os.path.dirname(__file__), 'test_data/grades.csv'),
                 'type': 'ReaderCSV',
                 'delimeter': ',',
-                'encoding': 'UTF-8'
             },
             'Test_People': {
                 'path': os.path.join(os.path.dirname(__file__), 'test_data/people.csv'),
                 'type': 'ReaderCSV',
                 'delimeter': ',',
-                'encoding': 'UTF-8'
             }
         }
 
@@ -139,23 +150,23 @@ class TestProcessorCombineData_ValueHash(TestBase):
         """
         # Build an existing reader to pass into the ProcessorCombineData_ValueHash instance.
         existing_reader_vals = [
-            {'gender': 'male', 'age': '27', 'name': 'Matt'},
-            {'gender': 'female', 'age': '27', 'name': 'Riley'},
-            {'gender': 'male', 'age': '29', 'name': 'Steve'},
-            {'gender': 'male', 'age': '40', 'name': 'Scott'}
+            {'gender': u'male', 'age': 27, 'name': u'Matt'},
+            {'gender': u'female', 'age': 27, 'name': u'Riley'},
+            {'gender': u'male', 'age': 29, 'name': u'Steve'},
+            {'gender': u'male', 'age': 40, 'name': u'Scott'}
         ]
 
         expected = [
-            {'grade': 'A', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'History'},
-            {'grade': 'B', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'Drama'},
-            {'grade': 'C', 'gender': 'male', 'age': '27', 'name': 'Matt', 'subject': 'English'},
-            {'grade': 'A', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'History'},
-            {'grade': 'B', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'Drama'},
-            {'grade': 'C', 'gender': 'female', 'age': '27', 'name': 'Riley', 'subject': 'Economics'},
-            {'grade': '', 'gender': 'male', 'age': '29', 'name': 'Steve', 'subject': ''},
-            {'grade': 'A', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'History'},
-            {'grade': 'B', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'Algebra'},
-            {'grade': 'C', 'gender': 'male', 'age': '40', 'name': 'Scott', 'subject': 'English'}
+            {'grade': u'A', 'gender': u'male', 'age': 27, 'name': u'Matt', 'subject': u'History'},
+            {'grade': u'B', 'gender': u'male', 'age': 27, 'name': u'Matt', 'subject': u'Drama'},
+            {'grade': u'C', 'gender': u'male', 'age': 27, 'name': u'Matt', 'subject': u'English'},
+            {'grade': u'A', 'gender': u'female', 'age': 27, 'name': u'Riley', 'subject': u'History'},
+            {'grade': u'B', 'gender': u'female', 'age': 27, 'name': u'Riley', 'subject': u'Drama'},
+            {'grade': u'C', 'gender': u'female', 'age': 27, 'name': u'Riley', 'subject': u'Economics'},
+            {'grade': u'', 'gender': u'male', 'age': 29, 'name': u'Steve', 'subject': u''},
+            {'grade': u'A', 'gender': u'male', 'age': 40, 'name': u'Scott', 'subject': u'History'},
+            {'grade': u'B', 'gender': u'male', 'age': 40, 'name': u'Scott', 'subject': u'Algebra'},
+            {'grade': u'C', 'gender': u'male', 'age': 40, 'name': u'Scott', 'subject': u'English'}
         ]
 
         test_combine_inst_kwargs = {
@@ -270,7 +281,7 @@ class TestProcessorChangeCase(TestBase):
         Assert values are converted to upper-case.
         """
         p = ProcessorChangeCase(None, case='Upper')
-        expected = {'name': 'MATT', 'age': '27', 'gender': 'MALE'}
+        expected = {'name': u'MATT', 'age': 27, 'gender': u'MALE'}
         iter = p.process(self.records)
         for record in iter:
             assert record == expected
@@ -281,7 +292,7 @@ class TestProcessorChangeCase(TestBase):
         Assert values are converted to lower-case.
         """
         p = ProcessorChangeCase(None, case='Lower')
-        expected = {'name': 'matt', 'age': '27', 'gender': 'male'}
+        expected = {'name': u'matt', 'age': 27, 'gender': u'male'}
         iter = p.process(self.records)
         for record in iter:
             assert record == expected
@@ -306,7 +317,7 @@ class TestProcessorTruncateFields(TestBase):
         Assert record is truncated to name and age fields only.
         """
         p = ProcessorTruncateFields(None, fields=['name', 'age'])
-        expected = {'name': 'Matt', 'age': '27'}
+        expected = {'name': u'Matt', 'age': 27}
         iter = p.process(self.records)
         for record in iter:
             assert record == expected

@@ -163,7 +163,9 @@ class TestReaderCSV(object):
     Test class for the csv reader.
     """
     def __init__(self):
-        """Create connection info"""
+        """
+        Note the mixing of potential values for self.field_types.
+        """
         self.path = os.path.join(os.path.dirname(__file__), "test_data/election_2010_kc.csv")
         self.delimiter = ","
         self.field_types = {
