@@ -415,8 +415,9 @@ class ReaderPostgres(ReaderBaseClass):
         """Return a cursor with result set from self.query"""
         # Test if self.query is a file for inline query
         validated_query = self._validate_query(query)
-        # Create cursor and execute query
+        # Create cursor with Unicode support and Execute Query
         cur = db_conn.cursor()
+        psycopg2.extensions.register_type(psycopg2.extensions.UNICODE, cur)
         cur.execute(validated_query)
         return cur
 
