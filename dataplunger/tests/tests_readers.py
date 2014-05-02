@@ -14,7 +14,15 @@ import os
 
 class TestReaderCensus_Success(object):
     """
-    Test class for the census reader.
+    Test class for the Census Reader.
+
+    Test data come from the US Census. Relevant Links:
+
+    * `Lookup table`_ for Sequence Numbers, Line Numbers, Starting Positions.
+    * Test data for `Washington State`_.
+
+    .. _Lookup table: http://www2.census.gov/acs2012_5yr/summaryfile/Sequence_Number_and_Table_Number_Lookup.xls
+    .. _http://www2.census.gov/acs2012_5yr/summaryfile/2008-2012_ACSSF_By_State_All_Tables/Washington_All_Geographies_Tracts_Block_Groups_Only.zip
     """
     def __init__(self):
         """
