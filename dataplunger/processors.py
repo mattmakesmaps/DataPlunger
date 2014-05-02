@@ -85,6 +85,37 @@ class ProcessorBaseClass(object):
         return mod_records_iterable
 
 
+class ProcessorConcatenateFields(ProcessorBaseClass):
+    """
+    Concatenate a user-provided set of fields for a given row
+    using a call to the builtin reduce() method.
+
+    Required Config Parameters:
+
+    :param fields: Array of fields to be concatenated. Order is respected.
+    :param out_field: String representing new field name.
+    """
+
+    def __init__(self, processor, fields, out_field, **kwargs):
+        self.processor = processor
+        self.fields = fields
+        self.out_field = out_field
+
+    def _reducer(self, row):
+        """
+        Return a row with additional concatenated field.
+        Field is currently concatenated using Python reduce() builtin method.
+        """
+        vals_of_int = [row[field_name] for field_name in self.fields]
+        concat_value = reduce(lambda x, y: x+y, vals_of_int)
+        row[self.out_field] = concat_value
+        return row
+
+    def _process(self, records_iterable):
+        """Write inRecords out to a given CSV file"""
+        write_record_iterator = itertools.imap(self._reducer, records_iterable)
+        return write_record_iterator
+
 class ProcessorCSVWriter(ProcessorBaseClass):
     """
     Write records to an output CSV file.

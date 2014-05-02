@@ -112,6 +112,53 @@ class TestProcessorSortRecords(object):
         sort_processor = ProcessorSortRecords(self.devnull, sort_key='age')
         assert sort_processor.process(self.records) == expected_list
 
+
+class TestProcessorConcatenateFields(object):
+    """
+    Test ProcessorConcatenateFields.
+    """
+    def __init__(self):
+        self.records = [{'name': u'Bob', 'int1': 30, 'int2': 10, 'gender': u'male'},
+                        {'name': u'Matt', 'int1': 27, 'int2': 10, 'gender': u'male'},
+                        {'name': u'Luke', 'int1': 31, 'int2': 10, 'gender': u'male'}]
+        self.devnull = ProcessorDevNull()
+        self.out_field = 'concat'
+
+    def test_concatenate_text(self):
+        """
+        Create a new concatenated text field.
+        """
+        expected_list = [
+            {'name': u'Bob', 'int1': 30, 'int2': 10, 'gender': u'male', 'concat': 'Bobmale'},
+            {'name': u'Matt', 'int1': 27, 'int2': 10, 'gender': u'male', 'concat': 'Mattmale'},
+            {'name': u'Luke', 'int1': 31, 'int2': 10, 'gender': u'male', 'concat': 'Lukemale'}
+        ]
+
+        p = ProcessorConcatenateFields(None, ['name', 'gender'], self.out_field)
+        iter = p.process(self.records)
+        index = 0
+        for actual_record in iter:
+            assert actual_record == expected_list[index]
+            index += 1
+
+    def test_concatenate_int(self):
+        """
+        Create a new concatenated integer field.
+        """
+        expected_list = [
+            {'name': u'Bob', 'int1': 30, 'int2': 10, 'gender': u'male', 'concat': 40},
+            {'name': u'Matt', 'int1': 27, 'int2': 10, 'gender': u'male', 'concat': 37},
+            {'name': u'Luke', 'int1': 31, 'int2': 10, 'gender': u'male', 'concat': 41}
+        ]
+
+        p = ProcessorConcatenateFields(None, ['int1', 'int2'], self.out_field)
+        iter = p.process(self.records)
+        index = 0
+        for actual_record in iter:
+            assert actual_record == expected_list[index]
+            index += 1
+
+
 class TestProcessorGetData(TestBase):
     """
     Test ProcessorGetData.
