@@ -10,9 +10,17 @@
 Readers are responsible for creating a connection to a backing datasource,
 and returning an iterable that yields a single record of data from that datasource.
 
-Readers should emit utf8 encoded Python strings. I.e. no Unicode type objects.
+Readers emit a single record via the __iter__() method. A single record is represented by
+a dictionary. Each element's key name represents a field names, and each value represents
+the value for that key.
 
-Reader should emit geometry as (TODO Decide Standard Geom Formatting).
+For values, strings should be emitted as Unicode objects. Numerical values may be emitted
+using an appropriate Python data type.
+
+Currently, readers that support geometry emit geoms using the standard set by Fiona_.
+Geometries are represented as lists of two-element tuples, representing a single coordinate pair.
+
+.. _Fiona: http://toblerity.org/fiona/manual.html#record-geometry
 """
 __author__ = 'mkenny'
 import abc
