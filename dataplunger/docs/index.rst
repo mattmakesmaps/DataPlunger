@@ -1,42 +1,21 @@
-.. DataPlunger documentation master file, created by
-   sphinx-quickstart on Sun Mar  2 17:34:19 2014.
+.. . documentation master file, created by
+   sphinx-quickstart on Thu May  1 19:46:53 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-DataPlunger
-===========
+Welcome to the DataPlunger documentation
+========================================
 
-DataPlunger is a prototype toolchain to execute an ETL workflow.
-
-A workflow is defined via a JSON configuration file containing the following information:
-
-* Connection information to source data for processing.
-* Processing steps to be applied to individual records extracted from source.
-
-Source code for this project can be found at: `<https://github.com/mattmakesmaps/DataPlunger>`_
-
-Documentation
--------------
-
-Processing pipelines are described using a JSON configuration file.
+Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   conf_file
-
-The code is broken down into the following modules.
-
-.. toctree::
-   :maxdepth: 2
-
-   dataplunger.core
-   dataplunger.readers
-   dataplunger.processors
+   dataplunger
 
 
 Indices and tables
-------------------
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
