@@ -90,10 +90,23 @@ class ProcessorConcatenateFields(ProcessorBaseClass):
     Concatenate a user-provided set of fields for a given row
     using a call to the builtin reduce() method.
 
+    Specifically, the following expression is executed::
+
+        reduce(lambda x, y: x+y, vals_of_int)
+
+    Where :vals_of_int: represent values to be concatenated.
+
     Required Config Parameters:
 
-    :param fields: Array of fields to be concatenated. Order is respected.
+    :param fields: Array of fields names whose values will be concatenated.
     :param out_field: String representing new field name.
+
+    Example configuration file entry::
+
+        {"ProcessorConcatenateFields": {
+            "fields": ["Field1", "Field2", "Field3"]
+            "out_field": "Field4"
+        }}
     """
 
     def __init__(self, processor, fields, out_field, **kwargs):
