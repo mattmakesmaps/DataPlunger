@@ -90,14 +90,16 @@ class ReaderSHP(ReaderBaseClass):
     def __iter__(self):
         """
         Generator returning a dict of field name: field value pairs for each record.
+
+        Attributes extracted from the shapefile are returned by Fiona as unicode objects by default.
+        Fiona specific attributes, id and type, are manually converted to unicode.
         """
         for row in self._shp_reader:
             # Flatten the Fiona returned record.
-            # Convert from unicode to utf8 encoded str.
             flat_dict = row['properties']
             flat_dict['geometry'] = row['geometry']
-            flat_dict['fiona_id'] = row['id']
-            flat_dict['fiona_type'] = row['type']
+            flat_dict['fiona_id'] = unicode(row['id'])
+            flat_dict['fiona_type'] = unicode(row['type'])
             yield flat_dict
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
