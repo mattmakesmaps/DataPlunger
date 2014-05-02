@@ -114,7 +114,7 @@ class ReaderCSV(ReaderBaseClass):
     Non-Required Config Parameters:
 
     :param field_types: a mapping of field names to output python data type.
-    if not provided, defaults all output to strings.
+        if not provided, defaults all output to strings.
 
     Example configuration file entry::
 
@@ -194,8 +194,10 @@ class ReaderCensus(ReaderBaseClass):
     :param conn_info: contains path and sequence attributes (see below).
     :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.
     :param conn_info.sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
-    :param conn_info.starting_position: Starting Position for table of int. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
-    :param conn_info.fields: an object of field names with line numbers. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param conn_info.starting_position: Starting Position for table of int.
+        From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param conn_info.fields: an object of field names with line numbers.
+        From, 'Sequence_Number_and_Table_Number_Lookup.xls'
 
     Example configuration file entry::
 
@@ -350,7 +352,7 @@ class ReaderPostgres(ReaderBaseClass):
     Required Config Parameters:
 
     :param query: Attribute containing either a file path to a sql statement,
-    ending in '.sql'; or a sql statement as a string.
+        ending in '.sql'; or a sql statement as a string.
     :param database: name of the database to connect to.
 
     Non-Required Config Parameters:

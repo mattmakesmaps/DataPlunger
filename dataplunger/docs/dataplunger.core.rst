@@ -1,5 +1,6 @@
 Core
 ====
+.. py:currentmodule:: dataplunger.core
 
 .. automodule:: dataplunger.core
   :members:

@@ -1,5 +1,6 @@
 Processors
 ==========
+.. py:currentmodule:: dataplunger.processors
 
 .. automodule:: dataplunger.processors
   :members:

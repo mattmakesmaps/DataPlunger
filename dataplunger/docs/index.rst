@@ -30,9 +30,9 @@ The code is broken down into the following modules.
 .. toctree::
    :maxdepth: 2
 
-   core
-   readers
-   processors
+   dataplunger.core
+   dataplunger.readers
+   dataplunger.processors
 
 
 Indices and tables

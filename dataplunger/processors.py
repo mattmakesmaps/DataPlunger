@@ -501,7 +501,7 @@ class ProcessorMatchValue(ProcessorBaseClass):
     Required Config Parameters:
 
     :param dict matches: Field names (keys) and field entries (values). Multiple values for
-    a single key should be written JSON array, which will be mapped to a python list.
+        a single key should be written JSON array, which will be mapped to a python list.
     :param str action: Either "Keep" or "Discard". DEFAULTS to "Keep".
 
     If multiple match values are provided for a single key, a match of any value will result
@@ -598,8 +598,8 @@ class ProcessorSortRecords(ProcessorBaseClass):
 
     :param str sort_key: Field name (dict key) to sort by.
     :param str key_type: Type to convert key to (defaults to string).
-    This is necessary since a reader, such as CSV, will yield all
-    records as strings by default.
+        This is necessary since a reader, such as CSV, will yield all
+        records as strings by default.
 
     Example configuration file entry::
 
