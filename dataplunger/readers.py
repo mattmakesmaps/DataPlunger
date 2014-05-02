@@ -191,30 +191,31 @@ class ReaderCensus(ReaderBaseClass):
 
     Required Config Parameters:
 
-    :param conn_info: contains path and sequence attributes (see below).
-    :param conn_info.path: contains a pathway to an ACS formatted directory of estimate and geography tables.
-    :param conn_info.sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
-    :param conn_info.starting_position: Starting Position for table of int.
+    :param path: contains a pathway to an ACS formatted directory of estimate and geography tables.
+    :param fields: an object of field names with line numbers.
         From, 'Sequence_Number_and_Table_Number_Lookup.xls'
-    :param conn_info.fields: an object of field names with line numbers.
+    :param sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param starting_position: Starting Position for table of int.
         From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+
+    Non-Required Config Parameters:
+
+    :param delimiter: delimiter for CSV file, defaults to comma.
 
     Example configuration file entry::
 
-        {
-        "name": "Sex By Age",
-        "conn_info": {
-            "type": "ReaderCensus",
-            "path": "/path/to/folder/of/EstimatesAndGeographyTables",
-            "delimiter": ",",
-            "fields": {
-                "Total": 1,
-                "Male": 2,
-                "Female": 17
-            },
-            "sequence": 2,
-            "starting_position": 87
-        }
+            "WA_All": {
+                "type": "ReaderCensus",
+                "path": "path/to/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                "delimiter": ",",
+                "fields": {
+                    "Total": 1,
+                    "Male": 2,
+                    "Female": 17
+                },
+                "sequence": 2,
+                "starting_position": 87
+            }
     """
 
     def __init__(self, fields, path, sequence, starting_position, delimiter=",", **kwargs):
