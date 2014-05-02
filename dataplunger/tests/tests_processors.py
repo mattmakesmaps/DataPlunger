@@ -18,6 +18,7 @@ class TestBase(object):
         self.records = [{'name': u'Matt', 'age': 27, 'gender': u'male'}]
         self.devnull = ProcessorDevNull()
 
+
 class TestProcessorCSVWriter(TestBase):
     """
     CSV writer should output a set of input records as a CSV file.
@@ -121,7 +122,6 @@ class TestProcessorConcatenateFields(object):
         self.records = [{'name': u'Bob', 'int1': 30, 'int2': 10, 'gender': u'male'},
                         {'name': u'Matt', 'int1': 27, 'int2': 10, 'gender': u'male'},
                         {'name': u'Luke', 'int1': 31, 'int2': 10, 'gender': u'male'}]
-        self.devnull = ProcessorDevNull()
         self.out_field = 'concat'
 
     def test_concatenate_text(self):
@@ -166,6 +166,7 @@ class TestProcessorGetData(TestBase):
     """
     def test_get(self):
         pass
+
 
 class TestProcessorCombineData_ValueHash(TestBase):
     """
@@ -227,6 +228,7 @@ class TestProcessorCombineData_ValueHash(TestBase):
         iter = p.process(existing_reader_vals)
         output = [r for r in iter]
         assert output == expected
+
 
 class TestProcessorMatchValue(TestBase):
     """
@@ -314,6 +316,7 @@ class TestProcessorMatchValue(TestBase):
         for record in iter:
             assert record == expected
 
+
 class TestProcessorChangeCase(TestBase):
     """
     Test ProcessorChangeCase.
@@ -332,7 +335,6 @@ class TestProcessorChangeCase(TestBase):
         iter = p.process(self.records)
         for record in iter:
             assert record == expected
-
 
     def test_lower(self):
         """
@@ -354,10 +356,11 @@ class TestProcessorChangeCase(TestBase):
         for record in iter:
             pass
 
+
 class TestProcessorTruncateFields(TestBase):
     """
     Test ProcessorTruncateFields.
-    krwarg 'fields', a list of field names, is used to truncate an input record.
+    kwarg 'fields', a list of field names, is used to truncate an input record.
     """
     def test_truncate(self):
         """
