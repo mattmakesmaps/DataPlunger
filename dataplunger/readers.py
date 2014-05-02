@@ -159,7 +159,8 @@ class ReaderCSV(ReaderBaseClass):
             'str': unicode,
             'string': unicode,
             'unicode': unicode,
-            'text': unicode
+            'text': unicode,
+            'float': float
         }
         for field_name, field_type in self.field_types.iteritems():
             row[field_name] = field_mapping[field_type](row[field_name])
@@ -200,8 +201,9 @@ class ReaderCensus(ReaderBaseClass):
     Required Config Parameters:
 
     :param path: contains a pathway to an ACS formatted directory of estimate and geography tables.
-    :param fields: an object of field names with line numbers.
-        From, 'Sequence_Number_and_Table_Number_Lookup.xls'
+    :param fields: an object containing two-element object pairs for "line_number" and "type".
+        "line_number" is extracted from, 'Sequence_Number_and_Table_Number_Lookup.xls'.
+        "type" refers to a field type, e.g. int, string, float.
     :param sequence: Sequence No. From, 'Sequence_Number_and_Table_Number_Lookup.xls'
     :param starting_position: Starting Position for table of int.
         From, 'Sequence_Number_and_Table_Number_Lookup.xls'
@@ -217,9 +219,9 @@ class ReaderCensus(ReaderBaseClass):
                 "path": "path/to/Washington_All_Geographies_Tracts_Block_Groups_Only",
                 "delimiter": ",",
                 "fields": {
-                    "Total": 1,
-                    "Male": 2,
-                    "Female": 17
+                    'Total': {"line_number": 1, "type": "int"},
+                    'Female': {"line_number": 17, "type": "int"},
+                    'Male': {"line_number": 2, "type": "int"}
                 },
                 "sequence": 2,
                 "starting_position": 87
@@ -300,11 +302,11 @@ class ReaderCensus(ReaderBaseClass):
 
             for record in geography_reader:
                 self._geography_records[record['LOGRECNO']] = {
-                    'COMPONENT': record['COMPONENT'],
-                    'FILEID': record['FILEID'],
-                    'LOGRECNO': record['LOGRECNO'],
-                    'STUSAB': record['STUSAB'],
-                    'SUMLEVEL': record['SUMLEVEL']
+                    'COMPONENT': unicode(record['COMPONENT']),
+                    'FILEID': unicode(record['FILEID']),
+                    'LOGRECNO': unicode(record['LOGRECNO']),
+                    'STUSAB': unicode(record['STUSAB']),
+                    'SUMLEVEL': unicode(record['SUMLEVEL'])
                 }
 
     def _build_estimate_reader(self):
@@ -320,7 +322,25 @@ class ReaderCensus(ReaderBaseClass):
         # Decrement by two to account for both the user-provided starting position and the field values
         start_index = int(self.starting_position) - 2
         for k, v in self.fields.iteritems():
-            self.fields[k] = start_index + int(v)
+            self.fields[k]['line_number'] = start_index + int(v['line_number'])
+
+    def _field_mapper(self, value, field_type):
+        """
+        Given a dict representing a
+        Return an input string mapped to a user-provided field type,
+        as seen in the ReaderCensus.fields attribute of this class.
+        """
+        field_mapping = {
+            'int': int,
+            'integer': int,
+            'str': unicode,
+            'string': unicode,
+            'unicode': unicode,
+            'text': unicode,
+            'float': float
+        }
+        mod_value = field_mapping[field_type](value)
+        return mod_value
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """
@@ -342,7 +362,7 @@ class ReaderCensus(ReaderBaseClass):
         fields = self.fields
         for row in self._estimate_reader:
             logrecno = row[5]
-            estimate_vals = {k: int(row[v]) for k, v in fields.items()}
+            estimate_vals = {k: self._field_mapper(value=row[v['line_number']], field_type=v['type']) for k, v in fields.items()}
             # get the corresponding geographic record
             if logrecno in self._geography_records:
                 # yield a concatenated estimate and geography dictionary

@@ -30,29 +30,38 @@ class TestReaderCensus_Success(object):
         """
         self.kwargs = {'starting_position': 87,
                           'sequence': 2,
-                          'fields': {'Total': 1, 'Female': 17, 'Male': 2},
+                          'fields': {
+                              'Total': {"line_number": 1, "type": "int"},
+                              'Female': {"line_number": 17, "type": "str"},
+                              'Male': {"line_number": 2, "type": "float"}
+                          },
                           'delimiter': ',',
                           'path': os.path.join(os.path.dirname(__file__),
                                                'test_data/Washington_All_Geographies_Tracts_Block_Groups_Only'),
                           'type': 'ReaderCensus'}
 
-    def test_readercensus(self):
+    def test_readercensus_as_int(self):
         """
         Given a connection to a set of census files,
         Open a connection via an instance of the ReaderCensus class
         One iteration should yield the expected record.
         """
         expected = {'Total': 14,
-                    'COMPONENT': '00',
-                    'STUSAB': 'WA',
-                    'SUMLEVEL': '140',
-                    'Female': 2,
-                    'LOGRECNO': '0004357',
-                    'Male': 12,
-                    'FILEID': 'ACSSF'}
+                    'COMPONENT': u'00',
+                    'STUSAB': u'WA',
+                    'SUMLEVEL': u'140',
+                    'Female': u'2',
+                    'LOGRECNO': u'0004357',
+                    'Male': 12.0,
+                    'FILEID': u'ACSSF'}
         with ReaderCensus(**self.kwargs) as t_reader:
             for record in t_reader:
                 assert record == expected
+                # Type Check to confirm user provided field types
+                # are honored in output.
+                assert isinstance(record['Male'], float)
+                assert isinstance(record['Female'], unicode)
+                assert isinstance(record['Total'], int)
                 break
 
 
