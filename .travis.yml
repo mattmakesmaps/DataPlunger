@@ -1,6 +1,14 @@
 language: python
 python:
   - "2.7"
+
+# Add Ubuntu GIS repository
+# echo required to simulate enter e.g. as newline.
+before_install:
+  - "echo | sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable"
+  - "sudo apt-get update"
+  - "sudo apt-get install libgdal1h libgdal-dev gdal-bin"
+
 # command to install dependencies
 install:
   - "pip install -r requirements.txt --use-mirrors"

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 .. module:: core.py
    :platform: Unix
@@ -17,7 +19,7 @@ For each layer within the named configuration, the Controller creates an instanc
 LayerConstructor class.
 
 A LayerConstructor is responsible for executing processing steps for that layer parsed
-from the configuration file, generated some type of computed output.
+from the configuration file, generating some type of computed output.
 """
 __author__ = 'mkenny'
 from .processors import *
@@ -28,6 +30,8 @@ class Configuration(object):
     """
     This class is responsible the conversion of a JSON-formatted configuration
     file into a python object.
+
+    Public Attributes:
 
     :param str path: The full pathway to a JSON-formatted configuration file.
     :param dict configs: Configuration info populated by parsedConfig.
@@ -82,14 +86,6 @@ class Configuration(object):
         return self.configs
 
 
-class NoProcessorException(Exception):
-    """
-    An exception raised when no processors are passed to
-    the controller.
-    """
-    pass
-
-
 class Controller(object):
     """
     Given a configuration object and config name, manage the creation of
@@ -142,6 +138,7 @@ class LayerConstructor(object):
         for processor in base_class.__subclasses__():
             if name == processor.__name__:
                 return processor
+        # No processor returned, raise exception.
         raise TypeError("ERROR: %s processor does not exist" % name)
 
     def _build_decorated_classes(self, initial_processor, processors, BaseClass):
@@ -169,10 +166,13 @@ class LayerConstructor(object):
 
     def serialize(self):
         """
-        Using the reader classes' context manager, loop through
-        a reader's contents using the reader's __iter__() method.
-        Output is written (serialized) using the Processor class's
-        process() method.
+        Setup to begin processing pipeline.
+
+        - Reverses processing steps such that the last member of the ``self.processing_steps``
+          list becomes the innermost decorated member of the processing pipeline.
+        - Adds an instance of ``ProcessorDevNull()`` to the outermost (last) step of the chain,
+          this ensures that input iterable is iterated until exhaustion.
+        - Executes processing steps via ``self._build_decorated_classes()`` method.
         """
         self.processing_steps.reverse()
         initial_processor = ProcessorDevNull()

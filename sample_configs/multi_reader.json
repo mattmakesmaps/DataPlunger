@@ -2,6 +2,46 @@
     "type": "ConfigCollection",
     "configs": [
         {
+            "name": "PostgresConfig",
+            "readers": {
+                "ZillowDB": {
+                    "type": "ReaderPostgres",
+                    "query": "/Users/matt/Projects/dataplunger/dataplunger/tests/test_data/test_query.sql",
+                    "database": "topo_test"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "ZillowLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "ZillowDB"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/zillow_hoods.csv",
+                            "fields": ["name","city","county","state"]}}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "SHPConfig",
+            "readers": {
+                "NaturalEarthLakes": {
+                    "type": "ReaderSHP",
+                    "path": "/Users/matt/Projects/dataplunger/dataplunger/tests/test_data/50m_lakes_utf8.shp"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "LakesLayer",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "NaturalEarthLakes"}},
+                        {"ProcessorSortRecords": {"sort_key": "scalerank"}},
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/50m_lakes_sorted.csv",
+                            "fields": ["fiona_id", "fiona_type", "admin", "featurecla", "name", "name_alt", "note", "scalerank"]}}
+                    ]
+                }
+            ]
+        },
+        {
             "name": "PeopleAndGradesConfig",
             "readers": {
                 "Grades": {
@@ -115,7 +155,6 @@
                     "type": "ReaderCensus",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
                     "delimiter": ",",
-                    "encoding": "UTF-8",
                     "fields": {
                         "Total": 1,
                         "Male": 2,

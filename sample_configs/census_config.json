@@ -7,7 +7,6 @@
                 "type": "ReaderCensus",
                 "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
                 "delimiter": ",",
-                "encoding": "UTF-8",
                 "fields": {
                     "Total": 1,
                     "Male": 2,

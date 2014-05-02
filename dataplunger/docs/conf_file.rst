@@ -12,36 +12,33 @@ An example code block is as follows::
         "type": "ConfigCollection",
         "configs": [
             {
-                "name": "Sex By Age",
-                "conn_info": {
-                    "type": "ReaderCensus",
-                    "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
-                    "delimiter": ",",
-                    "encoding": "UTF-8",
-                    "fields": {
-                        "Total": 1,
-                        "Male": 2,
-                        "Female": 17
+                "name": "PeopleAndGradesConfig",
+                "readers": {
+                    "Grades": {
+                        "type": "ReaderCSV",
+                        "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
+                        "delimeter": ",",
+                        "encoding": "UTF-8"
                     },
-                    "sequence": 2,
-                    "starting_position": 87
+                    "People": {
+                        "type": "ReaderCSV",
+                        "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
+                        "delimeter": ",",
+                        "encoding": "UTF-8"
+                    }
                 },
-                "layers": {
-                    "Sex_By_Age": {
-                        "record_processing_steps": [
-                            {"ProcessorMatchValue": {
-                                "matches":{"SUMLEVEL":140},
-                                "action":"Keep"
-                            }},
-                            {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
-                            {"ProcessorScreenWriter": null}
-                        ],
-                        "aggregate_processing_steps": [
-                            {"AggregateProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
-                                "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
+                "layers": [
+                    {
+                        "name" : "PeopleAndGradesLayer",
+                        "processing_steps": [
+                            {"ProcessorGetData": {"reader": "People"}},
+                            {"ProcessorCombineData_ValueHash": {"reader": "Grades", "keys": ["name"]}},
+                            {"ProcessorSortRecords": {"sort_key": "name"}},
+                            {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/peopleandgrades_out.csv",
+                                "fields": ["name","subject","grade","gender","age"]}}
                         ]
                     }
-                }
+                ]
             }
         ]
     }
@@ -60,25 +57,35 @@ this parameter would not be necessary.*
 Config Object
 +++++++++++++
 
-``name`` - String. The name of the configuration.
+``name`` - String. The name of the configuration. See ``PeopleAndGradesConfig`` in example.
 
-``conn_info`` - Object. Contains user-provided parameters for the specific Reader instance.
-At minimum, a value of ``type`` is required to be populated with the name of the desired reader class.
-See Reader class specific documentation for a list of available Reader implementations and their required parameters.
+``readers`` - Object. Keys represent names of specific reader instances, values are objects containing configuration
+information for that specific reader instance. See ``readers`` in example.
 
-``layers`` - Object. Attribute names represent names of individual output layers to be produced from the given reader. 
+``layers`` - Array. Members are objects that represent an individual layer. A layer object contains a ``name``
+parameter, as well as a ``processing_steps`` array. See ``layers`` in example above.
+
+Readers
++++++++
+
+The ``readers`` object is composed of objects whose name represents an individual reader, and whose value is an
+object containing configuration information. The example above contains two separate named readers, ``Grades`` and
+``People``.
+
+Each reader requires at minimum a populated ``type`` attribute. This attribute refers to the name of a Reader class
+found in ``readers.py``. These are all subclasses of ReaderBaseClass. In the example above, both readers
+``Grades`` and ``People`` have a type value of ``ReaderCSV``, but point to different data sources (as seen in
+the ``path`` attribute). See doc strings within readers.py for additional reader specific configuration parameters.
 
 Layers
 ++++++
 
-``layers`` are the end result of a series of user-defined processing steps performed against records output by
-an instance of a Reader class. ``layers`` objects are comprised of two attributes: ``record_processing_steps``
-and ``aggregate processing_steps``.
+``layers`` map a series of user-defined processing steps to be performed against records output by one or more
+instances of a Reader class. The ``layers`` array in the example above contains a single layer element. Individual
+layers within the ``layers`` array are processed in the order in which they are defined. In the example, the layer
+element has a ``name`` of ``PeopleAndGradesLayer``.
 
-``record_processing_steps`` - An array containing references to objects that represent instances subclassed from ProcessorBaseClass.
-These processing steps are implemented on a per-record level. Each record output from a given Reader object is run through each
-Processor in the array, in the order defined by the array.
-
-``aggregate_processing_steps`` - An array containing references to objects that represent instances subclassed
-from AggregateProcessorBaseClass. After all records output from a Reader object have been processed on an individual,
-per-record level, the Aggregate Processors listed in this array will be executed against the entire set of records.
+``processing_steps`` - An array containing references to objects that represent instances sub-classed from
+ProcessorBaseClass. These processing steps are implemented on a per-record level. Each record output from a
+given Reader object is run through each Processor in the array, in the order defined by the array.
+See :doc:`dataplunger.processors.rst` for available processors and required configuration parameters.
