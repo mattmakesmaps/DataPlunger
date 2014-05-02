@@ -22,7 +22,7 @@ class TestReaderCensus_Success(object):
     * Test data for `Washington State`_.
 
     .. _Lookup table: http://www2.census.gov/acs2012_5yr/summaryfile/Sequence_Number_and_Table_Number_Lookup.xls
-    .. _http://www2.census.gov/acs2012_5yr/summaryfile/2008-2012_ACSSF_By_State_All_Tables/Washington_All_Geographies_Tracts_Block_Groups_Only.zip
+    .. _Washington State: http://www2.census.gov/acs2012_5yr/summaryfile/2008-2012_ACSSF_By_State_All_Tables/Washington_All_Geographies_Tracts_Block_Groups_Only.zip
     """
     def __init__(self):
         """

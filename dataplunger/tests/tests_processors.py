@@ -234,9 +234,12 @@ class TestProcessorMatchValue(TestBase):
     """
     Test different combinations of ProcessorMatchValue.
     ProcessorMatchValue.process() should continue processing if:
+
       - A positive match is found, and the action is 'keep'.
       - A positive match is not found, and the action is 'discard'
+
     Processing should not continue if:
+
       - A positive match is found, and the action is 'discard'.
       - A positive match is not found, and the action is 'keep'.
     """
