@@ -1,3 +1,4 @@
 simplejson
 Fiona
 psycopg2
+nose
