@@ -344,6 +344,23 @@ class ReaderCensus(ReaderBaseClass):
         mod_value = field_mapping[field_type](value)
         return mod_value
 
+    def _build_estimate_vals(self, row, fields):
+        """
+        Build estimate values.
+        """
+        estimate_vals = {}
+        for k, v in fields.iteritems():
+            index = v['line_number']
+            type = v['type']
+            try:
+                estimate_vals[k] = self._field_mapper(value=row[index], field_type=type)
+            except ValueError as e:
+                print('ERROR: Unexpected value in field {0}: {1}. COERCING TO STRING'.format(k, e))
+                estimate_vals[k] = str(row[index])
+        return estimate_vals
+
+        #raise ValueError('ERROR: Unexpected value in field {0}: {1}'.format(k, e))
+
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """
         Close estimate file handle.
@@ -361,10 +378,10 @@ class ReaderCensus(ReaderBaseClass):
         Combines estimate row with corresponding geography row based on common LOGRECNO value.
         NOTE: We assume all estimate values to return INTs.
         """
-        fields = self.fields
         for row in self._estimate_reader:
             logrecno = row[5]
-            estimate_vals = {k: self._field_mapper(value=row[v['line_number']], field_type=v['type']) for k, v in fields.items()}
+            estimate_vals = self._build_estimate_vals(row, self.fields)
+            # estimate_vals = {k: self._field_mapper(value=row[v['line_number']], field_type=v['type']) for k, v in fields.items()}
             # get the corresponding geographic record
             if logrecno in self._geography_records:
                 # yield a concatenated estimate and geography dictionary

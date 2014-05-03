@@ -46,15 +46,13 @@
             "readers": {
                 "Grades": {
                     "type": "ReaderCSV",
-                    "path": "/Users/matt/Projects/dataplunger/sample_data/grades.csv",
-                    "delimeter": ",",
-                    "encoding": "UTF-8"
+                    "path": "/home/mkenny/Projects/DataPlunger/dataplunger/sample_data/grades.csv",
+                    "delimeter": ","
                 },
                 "People": {
                     "type": "ReaderCSV",
-                    "path": "/Users/matt/Projects/dataplunger/sample_data/people.csv",
-                    "delimeter": ",",
-                    "encoding": "UTF-8"
+                    "path": "/home/mkenny/Projects/DataPlunger/dataplunger/sample_data/people.csv",
+                    "delimeter": ","
                 }
             },
             "layers": [
@@ -64,7 +62,7 @@
                         {"ProcessorGetData": {"reader": "People"}},
                         {"ProcessorCombineData_ValueHash": {"reader": "Grades", "keys": ["name"]}},
                         {"ProcessorSortRecords": {"sort_key": "name"}},
-                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/peopleandgrades_out.csv",
+                        {"ProcessorCSVWriter": {"path":"/home/mkenny/Projects/DataPlunger/dataplunger/sample_output/peopleandgrades_out.csv",
                             "fields": ["name","subject","grade","gender","age"]}}
                     ]
                 }
@@ -149,37 +147,114 @@
             ]
         },
         {
-            "name": "WACensusConfig",
+            "name": "WACensusConfigSolos",
             "readers": {
-                "WA_All": {
+                "B01002": {
                     "type": "ReaderCensus",
-                    "path": "/Users/matt/Projects/dataplunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
                     "delimiter": ",",
                     "fields": {
-                        "Total": 1,
-                        "Male": 2,
-                        "Female": 17
+                        "mage_c": {"line_number": 1, "type": "float"},
+                        "mage_mal_c": {"line_number": 2, "type": "float"},
+                        "mage_fem_c": {"line_number": 3, "type": "float"}
                     },
-                    "sequence": 2,
-                    "starting_position": 87
+                    "sequence": 3,
+                    "starting_position": 100
+                },
+                "B02001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "delimiter": ",",
+                    "fields": {
+                        "indian_c": {"line_number": 4, "type": "int"},
+                        "asian_c": {"line_number": 5, "type": "int"},
+                        "black_c": {"line_number": 3, "type": "int"},
+                        "pi_c": {"line_number": 6, "type": "int"},
+                        "white_c": {"line_number": 2, "type": "int"}
+                    },
+                    "sequence": 4,
+                    "starting_position": 7
                 }
             },
             "layers": [
                 {
-                    "name" : "WACensusLayer",
+                    "name" : "WAAge",
                     "processing_steps": [
-                        {"ProcessorGetData": {"reader": "WA_All"}},
+                        {"ProcessorGetData": {"reader": "B01002"}},
                         {"ProcessorMatchValue": {
                             "matches":{"SUMLEVEL":140},
                             "action":"Keep"
                         }},
-                        {"ProcessorTruncateFields": {"fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
-                        {"ProcessorScreenWriter": null},
-                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex.csv",
-                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}},
-                        {"ProcessorSortRecords": {"sort_key": "Total"}},
-                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/age_by_sex_sorted.csv",
-                            "fields": ["Total", "Male", "Female", "SUMLEVEL", "LOGRECNO"]}}
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/WAAge.csv",
+                            "fields": ["LOGRECNO", "SUMLEVEL", "mage_c", "mage_mal_c", "mage_fem_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "WARace",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B02001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/WARace.csv",
+                            "fields": ["LOGRECNO", "SUMLEVEL", "indian_c", "asian_c", "black_c", "pi_c", "white_c"]
+                        }}
+
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "WACensusConfigCombined",
+            "readers": {
+                "B01002": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "delimiter": ",",
+                    "fields": {
+                        "mage_c": {"line_number": 1, "type": "float"},
+                        "mage_mal_c": {"line_number": 2, "type": "float"},
+                        "mage_fem_c": {"line_number": 3, "type": "float"}
+                    },
+                    "sequence": 3,
+                    "starting_position": 100
+                },
+                "B02001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Tracts_Block_Groups_Only",
+                    "delimiter": ",",
+                    "fields": {
+                        "indian_c": {"line_number": 4, "type": "int"},
+                        "asian_c": {"line_number": 5, "type": "int"},
+                        "black_c": {"line_number": 3, "type": "int"},
+                        "pi_c": {"line_number": 6, "type": "int"},
+                        "white_c": {"line_number": 2, "type": "int"}
+                    },
+                    "sequence": 4,
+                    "starting_position": 7
+                }
+            },
+            "layers": [
+                {
+                    "name" : "WAAgeAndRace",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B01002"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B02001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":140},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/WAAgeAndRace.csv",
+                            "fields": ["LOGRECNO", "SUMLEVEL", "mage_c", "mage_mal_c",
+                                "mage_fem_c", "indian_c", "asian_c", "black_c", "pi_c", "white_c"]
+                        }}
                     ]
                 }
             ]
