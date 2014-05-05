@@ -40,7 +40,7 @@ class TestReaderCensus_Success(object):
                                                'test_data/Washington_All_Geographies_Tracts_Block_Groups_Only'),
                           'type': 'ReaderCensus'}
 
-    def test_readercensus_as_int(self):
+    def test_readercensus(self):
         """
         Given a connection to a set of census files,
         Open a connection via an instance of the ReaderCensus class
@@ -52,8 +52,11 @@ class TestReaderCensus_Success(object):
                     'SUMLEVEL': u'140',
                     'Female': u'2',
                     'LOGRECNO': u'0004357',
+                    'NAME': u'Census Tract 9501, Adams County, Washington',
                     'Male': 12.0,
-                    'FILEID': u'ACSSF'}
+                    'FILEID': u'ACSSF',
+                    'GEOID': u'14000US53001950100',
+                    'LOGRECNO': u'0004357'}
         with ReaderCensus(**self.kwargs) as t_reader:
             for record in t_reader:
                 assert record == expected
