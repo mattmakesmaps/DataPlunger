@@ -303,12 +303,17 @@ class ReaderCensus(ReaderBaseClass):
             geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
             for record in geography_reader:
+                # Just using index for GEOID and NAME column.
+                # Alternative would have to be to pass a 50+ length list
+                # of all field names to geography_reader constructor.
                 self._geography_records[record['LOGRECNO']] = {
                     'COMPONENT': unicode(record['COMPONENT']),
                     'FILEID': unicode(record['FILEID']),
                     'LOGRECNO': unicode(record['LOGRECNO']),
                     'STUSAB': unicode(record['STUSAB']),
-                    'SUMLEVEL': unicode(record['SUMLEVEL'])
+                    'SUMLEVEL': unicode(record['SUMLEVEL']),
+                    'GEOID': unicode(record[None][43]),
+                    'NAME': unicode(record[None][44])
                 }
 
     def _build_estimate_reader(self):
@@ -347,6 +352,11 @@ class ReaderCensus(ReaderBaseClass):
     def _build_estimate_vals(self, row, fields):
         """
         Build estimate values.
+        ValueError exceptions (e.g. Jam Values) are currently kept as strings.
+
+        This function replaces the following one-liner, adding an exception handler::
+
+           {k: self._field_mapper(value=row[v['line_number']], field_type=v['type']) for k, v in fields.items()}
         """
         estimate_vals = {}
         for k, v in fields.iteritems():
@@ -358,8 +368,6 @@ class ReaderCensus(ReaderBaseClass):
                 print('ERROR: Unexpected value in field {0}: {1}. COERCING TO STRING'.format(k, e))
                 estimate_vals[k] = str(row[index])
         return estimate_vals
-
-        #raise ValueError('ERROR: Unexpected value in field {0}: {1}'.format(k, e))
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
         """
@@ -381,7 +389,6 @@ class ReaderCensus(ReaderBaseClass):
         for row in self._estimate_reader:
             logrecno = row[5]
             estimate_vals = self._build_estimate_vals(row, self.fields)
-            # estimate_vals = {k: self._field_mapper(value=row[v['line_number']], field_type=v['type']) for k, v in fields.items()}
             # get the corresponding geographic record
             if logrecno in self._geography_records:
                 # yield a concatenated estimate and geography dictionary
