@@ -1,0 +1,425 @@
+{
+    "type": "ConfigCollection",
+    "configs": [
+        {
+            "name": "WACensusConfigSolos",
+            "readers": {
+                "B01001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "pop_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 1,
+                    "starting_position": 7
+                },
+                "B01002": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "mage_c": {"line_number": 1, "type": "float"},
+                        "mage_mal_c": {"line_number": 2, "type": "float"},
+                        "mage_fem_c": {"line_number": 3, "type": "float"}
+                    },
+                    "sequence": 3,
+                    "starting_position": 100
+                },
+                "B02001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "indian_c": {"line_number": 4, "type": "int"},
+                        "asian_c": {"line_number": 5, "type": "int"},
+                        "black_c": {"line_number": 3, "type": "int"},
+                        "pi_c": {"line_number": 6, "type": "int"},
+                        "white_c": {"line_number": 2, "type": "int"},
+                        "two_plus_c": {"line_number": 8, "type": "int"},
+                        "other_c": {"line_number": 7, "type": "int"}
+                    },
+                    "sequence": 4,
+                    "starting_position": 7
+                },
+                "B03001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "hispanic_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 5,
+                    "starting_position": 7
+                },
+                "B19301": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "pci_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 64,
+                    "starting_position": 172
+                },
+                "B19013": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_fhincc": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 58,
+                    "starting_position": 177
+                },
+                "B25001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "h_units_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 102,
+                    "starting_position": 7
+                },
+                "B25035": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_yrbltc": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 104,
+                    "starting_position": 17
+                },
+                "B25003": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "owner_c": {"line_number": 2, "type": "int"},
+                        "renter_c": {"line_number": 3, "type": "int"}
+                    },
+                    "sequence": 102,
+                    "starting_position": 11
+                },
+                "B25077": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_valuec": {"line_number": 1, "type": "float"}
+                    },
+                    "sequence": 106,
+                    "starting_position": 33
+                }
+            },
+            "layers": [
+                {
+                    "name" : "B01001",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B01001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B01001.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pop_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B01002",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B01002"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B01002.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "mage_c", "mage_mal_c", "mage_fem_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B02001",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B02001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B02001.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "indian_c", "asian_c", "black_c",
+                                "pi_c", "white_c", "two_plus_c", "other_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B03001",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B03001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B03001.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "hispanic_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B19301",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B19301"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B19301.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pci_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B19013",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B19013"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B19013.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "med_fhincc"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B25001",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B25001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B25001.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "h_units_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B25003",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B25003"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B25003.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "owner_c","renter_c"]
+                        }}
+
+                    ]
+                },
+                {
+                    "name" : "B25077",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B25077"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/B25077.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "med_valuec"]
+                        }}
+
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "WACensusConfigCombined",
+            "readers": {
+                "B01001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "pop_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 1,
+                    "starting_position": 7
+                },
+                "B01002": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "mage_c": {"line_number": 1, "type": "float"},
+                        "mage_mal_c": {"line_number": 2, "type": "float"},
+                        "mage_fem_c": {"line_number": 3, "type": "float"}
+                    },
+                    "sequence": 3,
+                    "starting_position": 100
+                },
+                "B02001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "indian_c": {"line_number": 4, "type": "int"},
+                        "asian_c": {"line_number": 5, "type": "int"},
+                        "black_c": {"line_number": 3, "type": "int"},
+                        "pi_c": {"line_number": 6, "type": "int"},
+                        "white_c": {"line_number": 2, "type": "int"},
+                        "two_plus_c": {"line_number": 8, "type": "int"},
+                        "other_c": {"line_number": 7, "type": "int"}
+                    },
+                    "sequence": 4,
+                    "starting_position": 7
+                },
+                "B03001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "hispanic_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 5,
+                    "starting_position": 7
+                },
+                "B19301": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "pci_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 64,
+                    "starting_position": 172
+                },
+                "B19013": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_fhincc": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 58,
+                    "starting_position": 177
+                },
+                "B25001": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "h_units_c": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 102,
+                    "starting_position": 7
+                },
+                "B25035": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_yrbltc": {"line_number": 1, "type": "int"}
+                    },
+                    "sequence": 104,
+                    "starting_position": 17
+                },
+                "B25003": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "owner_c": {"line_number": 2, "type": "int"},
+                        "renter_c": {"line_number": 3, "type": "int"}
+                    },
+                    "sequence": 102,
+                    "starting_position": 11
+                },
+                "B25077": {
+                    "type": "ReaderCensus",
+                    "path": "/home/mkenny/Projects/DataPlunger/sample_data/Washington_All_Geographies_Not_Tracts_Block_Groups",
+                    "delimiter": ",",
+                    "fields": {
+                        "med_valuec": {"line_number": 1, "type": "float"}
+                    },
+                    "sequence": 106,
+                    "starting_position": 33
+                }
+            },
+            "layers": [
+                {
+                    "name" : "WA_Combined",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "B01001"}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B01002", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B02001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B03001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B19301", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B19013", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25035", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25003", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25077", "keys": ["LOGRECNO"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"050"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/WACombined.csv",
+                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pop_c", "mage_c", "mage_mal_c",
+                                "mage_fem_c", "indian_c", "asian_c", "black_c","two_plus_c",
+                                "other_c", "pi_c", "white_c","hispanic_c","pci_c",
+                                "med_fhincc","h_units_c","med_yrbltc","owner_c","renter_c", "med_valuec"]
+                        }}
+                    ]
+                }
+            ]
+        }
+    ]
+}

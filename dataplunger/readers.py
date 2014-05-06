@@ -237,10 +237,10 @@ class ReaderCensus(ReaderBaseClass):
         :param path: location of directory of census data.
         :param sequence: sequence number for table of interest.
         :param starting_position: starting position for table of interest.
-        :param _estimate_reader: csv.reader instance parsing estimate tables.
-        :param _estimate_handler: file handler for estimate file.
-        :param _estimate_path: path to estimate file, generated based on user provided path and sequence value.
-        :param _geography_path: path to geography file, generated based on user provided path.
+        :param _estimate_reader: a list of csv.reader instances parsing estimate tables.
+        :param _estimate_path: a list of paths to estimate files, generated based on
+            user provided path and sequence value.
+        :param _geography_path: a list of paths to geography file, generated based on user provided path.
         :param _geography_records: populated by parsing a geography file.
             a dictionary populated with keys representing LOGRECNO values
             for a given row, and values representing the first six fields
@@ -251,10 +251,10 @@ class ReaderCensus(ReaderBaseClass):
         self.path = path
         self.sequence = sequence
         self.starting_position = starting_position
-        self._estimate_reader = None
-        self._estimate_handler = None
-        self._estimate_path = None
-        self._geography_path = None
+        self._estimate_handlers = []
+        self._estimate_reader = []
+        self._estimate_path = []
+        self._geography_path = []
         self._geography_records = {}
 
         # Call internal setup function.
@@ -277,13 +277,13 @@ class ReaderCensus(ReaderBaseClass):
         for f in dir_contents:
             # Get geography path. Slice doesn't need to be trapped for index error due to string < 3 char.
             if f[0] == 'g' and f[len(f)-3:] == 'csv':
-                self._geography_path = os.path.join(self.path, f)
+                self._geography_path.append(os.path.join(self.path, f))
             # Set estimate path. Pass over when string is too short (index error) or
             # when characters f[8:12] are not coercible to integers (Value Error).
             if f[0] == 'e':
                 try:
                     if int(f[8:12]) == sequence_num:
-                        self._estimate_path = os.path.join(self.path, f)
+                        self._estimate_path.append(os.path.join(self.path, f))
                 except (ValueError, IndexError):
                     pass
 
@@ -298,23 +298,25 @@ class ReaderCensus(ReaderBaseClass):
         Create a dictionary of LOGRECNO values with associated attributes.
         Will be used as a lookup during iteration of estimate table.
         """
-        with open(self._geography_path, 'rt') as geography_file_handle:
-            geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
-            geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
+        for f in self._geography_path:
+            with open(f, 'rt') as geography_file_handle:
+                geography_field_names = ['FILEID', 'STUSAB', 'SUMLEVEL', 'COMPONENT', 'LOGRECNO']
+                geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
-            for record in geography_reader:
-                # Just using index for GEOID and NAME column.
-                # Alternative would have to be to pass a 50+ length list
-                # of all field names to geography_reader constructor.
-                self._geography_records[record['LOGRECNO']] = {
-                    'COMPONENT': unicode(record['COMPONENT']),
-                    'FILEID': unicode(record['FILEID']),
-                    'LOGRECNO': unicode(record['LOGRECNO']),
-                    'STUSAB': unicode(record['STUSAB']),
-                    'SUMLEVEL': unicode(record['SUMLEVEL']),
-                    'GEOID': unicode(record[None][43]),
-                    'NAME': unicode(record[None][44])
-                }
+                for record in geography_reader:
+                    # Just using index for GEOID and NAME column.
+                    # Alternative would have to be to pass a 50+ length list
+                    # of all field names to geography_reader constructor.
+                    record_key = record['STUSAB'] + record['LOGRECNO']
+                    self._geography_records[record_key] = {
+                        'COMPONENT': unicode(record['COMPONENT'], 'latin-1'),
+                        'FILEID': unicode(record['FILEID'], 'latin-1'),
+                        'LOGRECNO': unicode(record['LOGRECNO'], 'latin-1'),
+                        'STUSAB': unicode(record['STUSAB'], 'latin-1'),
+                        'SUMLEVEL': unicode(record['SUMLEVEL'], 'latin-1'),
+                        'GEOID': unicode(record[None][43], 'latin-1'),
+                        'NAME': unicode(record[None][44], 'latin-1')
+                    }
 
     def _build_estimate_reader(self):
         """
@@ -322,14 +324,16 @@ class ReaderCensus(ReaderBaseClass):
         Reformat starting_position and individual field indexes
         for use in list lookup.
         """
-        self._estimate_handler = open(self._estimate_path, 'rt')
-        self._estimate_reader = csv.reader(self._estimate_handler, delimiter=self.delimiter)
-
         # Reformat the user-provided field indexes with values reflecting starting_position
         # Decrement by two to account for both the user-provided starting position and the field values
         start_index = int(self.starting_position) - 2
         for k, v in self.fields.iteritems():
             self.fields[k]['line_number'] = start_index + int(v['line_number'])
+
+        for f in self._estimate_path:
+            _estimate_handler = open(f, 'rt')
+            self._estimate_handlers.append(_estimate_handler)
+            self._estimate_reader.append(csv.reader(_estimate_handler, delimiter=self.delimiter))
 
     def _field_mapper(self, value, field_type):
         """
@@ -346,7 +350,10 @@ class ReaderCensus(ReaderBaseClass):
             'text': unicode,
             'float': float
         }
-        mod_value = field_mapping[field_type](value)
+        if field_mapping[field_type] == unicode:
+            mod_value = unicode(value, 'latin-1')
+        else:
+            mod_value = field_mapping[field_type](value)
         return mod_value
 
     def _build_estimate_vals(self, row, fields):
@@ -365,7 +372,7 @@ class ReaderCensus(ReaderBaseClass):
             try:
                 estimate_vals[k] = self._field_mapper(value=row[index], field_type=type)
             except ValueError as e:
-                print('ERROR: Unexpected value in field {0}: {1}. COERCING TO STRING'.format(k, e))
+                #print('ERROR: Unexpected value in field {0}: {1}. COERCING TO STRING'.format(k, e))
                 estimate_vals[k] = str(row[index])
         return estimate_vals
 
@@ -373,8 +380,11 @@ class ReaderCensus(ReaderBaseClass):
         """
         Close estimate file handle.
         """
-        if self._estimate_handler:
-            self._estimate_handler.close()
+        # if self._estimate_handler:
+        #     self._estimate_handler.close()
+        if self._estimate_handlers:
+            for f in self._estimate_handlers:
+                f.close()
         if exc_type is not None:
             # Exception occurred
             return False  # Will raise the exception
@@ -386,16 +396,20 @@ class ReaderCensus(ReaderBaseClass):
         Combines estimate row with corresponding geography row based on common LOGRECNO value.
         NOTE: We assume all estimate values to return INTs.
         """
-        for row in self._estimate_reader:
-            logrecno = row[5]
-            estimate_vals = self._build_estimate_vals(row, self.fields)
-            # get the corresponding geographic record
-            if logrecno in self._geography_records:
-                # yield a concatenated estimate and geography dictionary
-                geography_vals = self._geography_records[logrecno]
-                yield dict(estimate_vals.items() + geography_vals.items())
-            else:
-                raise KeyError("LOGRECNO: %s not found in geography table." % str(logrecno))
+        for reader in self._estimate_reader:
+            for row in reader:
+                # concat state abbreviation and logrecno to get unique key
+                stusab = row[2]
+                logrecno = row[5]
+                record_key = stusab.upper() + logrecno
+                estimate_vals = self._build_estimate_vals(row, self.fields)
+                # get the corresponding geographic record
+                if record_key in self._geography_records:
+                    # yield a concatenated estimate and geography dictionary
+                    geography_vals = self._geography_records[record_key]
+                    yield dict(estimate_vals.items() + geography_vals.items())
+                else:
+                    raise KeyError("LOGRECNO: %s not found in geography table." % str(record_key))
 
 
 class ReaderPostgres(ReaderBaseClass):

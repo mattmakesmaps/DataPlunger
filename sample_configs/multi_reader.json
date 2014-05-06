@@ -35,7 +35,7 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "NaturalEarthLakes"}},
                         {"ProcessorSortRecords": {"sort_key": "scalerank"}},
-                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/50m_lakes_sorted.csv",
+                        {"ProcessorCSVWriter": {"path":"/Users/matt/Projects/dataplunger/sample_output/51m_lakes_sorted.csv",
                             "fields": ["fiona_id", "fiona_type", "admin", "featurecla", "name", "name_alt", "note", "scalerank"]}}
                     ]
                 }
