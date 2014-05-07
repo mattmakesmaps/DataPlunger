@@ -314,6 +314,8 @@ class ReaderCensus(ReaderBaseClass):
                         'LOGRECNO': unicode(record['LOGRECNO'], 'latin-1'),
                         'STUSAB': unicode(record['STUSAB'], 'latin-1'),
                         'SUMLEVEL': unicode(record['SUMLEVEL'], 'latin-1'),
+                        'FIPS': unicode(''.join([record[None][4],record[None][5],record[None][8],
+                                                 record[None][9]]), 'latin-1'),
                         'GEOID': unicode(record[None][43], 'latin-1'),
                         'NAME': unicode(record[None][44], 'latin-1')
                     }

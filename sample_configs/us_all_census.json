@@ -6,17 +6,17 @@
             "readers": {
                 "B01001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "pop_c": {"line_number": 1, "type": "int"}
                     },
-                    "sequence": 1,
+                    "sequence": 2,
                     "starting_position": 7
                 },
                 "B01002": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "mage_c": {"line_number": 1, "type": "float"},
@@ -28,7 +28,7 @@
                 },
                 "B02001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "indian_c": {"line_number": 4, "type": "int"},
@@ -44,7 +44,7 @@
                 },
                 "B03001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "hispanic_c": {"line_number": 1, "type": "int"}
@@ -54,7 +54,7 @@
                 },
                 "B19301": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "pci_c": {"line_number": 1, "type": "int"}
@@ -64,7 +64,7 @@
                 },
                 "B19013": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "med_fhincc": {"line_number": 1, "type": "int"}
@@ -74,7 +74,7 @@
                 },
                 "B25001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "h_units_c": {"line_number": 1, "type": "int"}
@@ -84,7 +84,7 @@
                 },
                 "B25035": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "med_yrbltc": {"line_number": 1, "type": "int"}
@@ -94,7 +94,7 @@
                 },
                 "B25003": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "owner_c": {"line_number": 2, "type": "int"},
@@ -105,10 +105,10 @@
                 },
                 "B25077": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
-                        "med_valuec": {"line_number": 1, "type": "float"}
+                        "med_valuec": {"line_number": 1, "type": "int"}
                     },
                     "sequence": 106,
                     "starting_position": 33
@@ -120,11 +120,13 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B01001"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B01001.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pop_c"]
+                        {"ProcessorCSVWriter": {
+                            "delimiter": "|",
+                            "path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B01001.csv",
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "pop_c"]
                         }}
 
                     ]
@@ -134,11 +136,13 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B01002"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B01002.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "mage_c", "mage_mal_c", "mage_fem_c"]
+                        {"ProcessorCSVWriter": {
+                            "delimiter": "|",
+                            "path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B01002.csv",
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "mage_c", "mage_mal_c", "mage_fem_c"]
                         }}
 
                     ]
@@ -148,11 +152,13 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B02001"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B02001.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "indian_c", "asian_c", "black_c",
+                        {"ProcessorCSVWriter": {
+                            "delimiter": "|",
+                            "path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B02001.csv",
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "indian_c", "asian_c", "black_c",
                                 "pi_c", "white_c", "two_plus_c", "other_c"]
                         }}
 
@@ -163,11 +169,13 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B03001"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B03001.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "hispanic_c"]
+                        {"ProcessorCSVWriter": {
+                            "delimiter": "|",
+                            "path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B03001.csv",
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "hispanic_c"]
                         }}
 
                     ]
@@ -177,11 +185,11 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B19301"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
                         {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B19301.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pci_c"]
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "pci_c"]
                         }}
 
                     ]
@@ -191,11 +199,11 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B19013"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
                         {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B19013.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "med_fhincc"]
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "med_fhincc"]
                         }}
 
                     ]
@@ -205,11 +213,11 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B25001"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
                         {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B25001.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "h_units_c"]
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "h_units_c"]
                         }}
 
                     ]
@@ -219,11 +227,11 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B25003"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
                         {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B25003.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "owner_c","renter_c"]
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "owner_c","renter_c"]
                         }}
 
                     ]
@@ -233,11 +241,11 @@
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B25077"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
                         {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/B25077.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "med_valuec"]
+                            "fields": ["NAME", "GEOID", "FIPS", "LOGRECNO", "SUMLEVEL", "med_valuec"]
                         }}
 
                     ]
@@ -249,17 +257,17 @@
             "readers": {
                 "B01001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "pop_c": {"line_number": 1, "type": "int"}
                     },
-                    "sequence": 1,
+                    "sequence": 2,
                     "starting_position": 7
                 },
                 "B01002": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "mage_c": {"line_number": 1, "type": "float"},
@@ -271,7 +279,7 @@
                 },
                 "B02001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "indian_c": {"line_number": 4, "type": "int"},
@@ -287,7 +295,7 @@
                 },
                 "B03001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "hispanic_c": {"line_number": 1, "type": "int"}
@@ -297,7 +305,7 @@
                 },
                 "B19301": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "pci_c": {"line_number": 1, "type": "int"}
@@ -307,7 +315,7 @@
                 },
                 "B19013": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "med_fhincc": {"line_number": 1, "type": "int"}
@@ -317,7 +325,7 @@
                 },
                 "B25001": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "h_units_c": {"line_number": 1, "type": "int"}
@@ -327,7 +335,7 @@
                 },
                 "B25035": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "med_yrbltc": {"line_number": 1, "type": "int"}
@@ -337,7 +345,7 @@
                 },
                 "B25003": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
                         "owner_c": {"line_number": 2, "type": "int"},
@@ -348,10 +356,10 @@
                 },
                 "B25077": {
                     "type": "ReaderCensus",
-                    "path": "/mnt/datadrive/projects/census/tab4/sumfile/prod/2008thru2012/group2",
+                    "path": "/mnt/datadrive/projects/census/Tracts_Block_Groups_Only/sumfile/prod/2008thru2012/group2",
                     "delimiter": ",",
                     "fields": {
-                        "med_valuec": {"line_number": 1, "type": "float"}
+                        "med_valuec": {"line_number": 1, "type": "int"}
                     },
                     "sequence": 106,
                     "starting_position": 33
@@ -359,63 +367,105 @@
             },
             "layers": [
                 {
-                    "name" : "WA_Combined",
+                    "name" : "Combined",
                     "processing_steps": [
                         {"ProcessorGetData": {"reader": "B01001"}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B01002", "keys": ["LOGRECNO"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"STUSAB":"WA"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B02001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B01002", "keys": ["LOGRECNO", "STUSAB"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B03001", "keys": ["LOGRECNO"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"STUSAB":"WA"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B19301", "keys": ["LOGRECNO"]}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B02001", "keys": ["LOGRECNO", "STUSAB"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B19013", "keys": ["LOGRECNO"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"STUSAB":"WA"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B25001", "keys": ["LOGRECNO"]}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B03001", "keys": ["LOGRECNO", "STUSAB"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B25035", "keys": ["LOGRECNO"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"STUSAB":"WA"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B25003", "keys": ["LOGRECNO"]}},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B19301", "keys": ["LOGRECNO", "STUSAB"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"SUMLEVEL":"150"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCombineData_ValueHash": {"reader": "B25077", "keys": ["LOGRECNO"]}},
                         {"ProcessorMatchValue": {
-                            "matches":{"SUMLEVEL":"140"},
+                            "matches":{"STUSAB":"WA"},
                             "action":"Keep"
                         }},
-                        {"ProcessorCSVWriter": {"path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/USCombined.csv",
-                            "fields": ["NAME", "GEOID", "LOGRECNO", "SUMLEVEL", "pop_c", "mage_c", "mage_mal_c",
-                                "mage_fem_c", "indian_c", "asian_c", "black_c","two_plus_c",
-                                "other_c", "pi_c", "white_c","hispanic_c","pci_c",
-                                "med_fhincc","h_units_c","med_yrbltc","owner_c","renter_c", "med_valuec"]
+                        {"ProcessorCombineData_ValueHash": {"reader": "B19013", "keys": ["LOGRECNO", "STUSAB"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"150"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorMatchValue": {
+                            "matches":{"STUSAB":"WA"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25001", "keys": ["LOGRECNO", "STUSAB"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"150"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorMatchValue": {
+                            "matches":{"STUSAB":"WA"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25035", "keys": ["LOGRECNO", "STUSAB"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"150"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorMatchValue": {
+                            "matches":{"STUSAB":"WA"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25003", "keys": ["LOGRECNO", "STUSAB"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"150"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorMatchValue": {
+                            "matches":{"STUSAB":"WA"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCombineData_ValueHash": {"reader": "B25077", "keys": ["LOGRECNO", "STUSAB"]}},
+                        {"ProcessorMatchValue": {
+                            "matches":{"SUMLEVEL":"150"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorMatchValue": {
+                            "matches":{"STUSAB":"WA"},
+                            "action":"Keep"
+                        }},
+                        {"ProcessorCSVWriter": {
+                            "delimiter": "|",
+                            "path": "/home/mkenny/Projects/DataPlunger/sample_output/us_all/WA_BG_Combined.csv",
+                            "fields": ["LOGRECNO", "FIPS", "pop_c", "mage_c", "mage_mal_c",
+                                "mage_fem_c","white_c", "black_c", "indian_c", "asian_c", "pi_c",
+                                "other_c", "two_plus_c","hispanic_c", "med_fhincc", "pci_c", "h_units_c",
+                                "owner_c","renter_c", "med_yrbltc", "med_valuec"]
                         }}
                     ]
                 }
