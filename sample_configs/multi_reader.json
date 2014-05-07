@@ -2,6 +2,34 @@
     "type": "ConfigCollection",
     "configs": [
         {
+            "name": "HeapSortConfig",
+            "readers": {
+                "NationalSingleFile": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/NATIONAL_SINGLE.csv",
+                    "delimeter": ",",
+                    "encoding": "UTF-8"
+                }
+            },
+            "layers": [
+                {
+                    "name" : "EPAFRS_SORTED",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "NationalSingleFile"}},
+                        {"ProcessorTruncateFields": {
+                            "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]}},
+                        {"ProcessorHeapSort": {
+                            "temp_dir": "/Users/matt/Projects/dataplunger/temp",
+                            "sort_key": "CITY_NAME",
+                            "buffer_size": 100000
+                        }},
+                        {"ProcessorCSVWriter": {"path": "/Users/matt/Projects/dataplunger/sample_output/EPA_FRS_Heap_SORTED.csv",
+                            "fields": ["FRS_FACILITY_DETAIL_REPORT_URL", "REGISTRY_ID", "PRIMARY_NAME", "LOCATION_ADDRESS", "SUPPLEMENTAL_LOCATION", "CITY_NAME", "COUNTY_NAME", "FIPS_CODE", "STATE_CODE", "STATE_NAME", "COUNTRY_NAME", "POSTAL_CODE", "FEDERAL_FACILITY_CODE", "FEDERAL_AGENCY_NAME", "TRIBAL_LAND_CODE", "TRIBAL_LAND_NAME", "CONGRESSIONAL_DIST_NUM", "CENSUS_BLOCK_CODE", "HUC_CODE", "EPA_REGION_CODE", "SITE_TYPE_NAME", "LOCATION_DESCRIPTION", "CREATE_DATE", "UPDATE_DATE", "US_MEXICO_BORDER_IND", "PGM_SYS_ACRNMS", "INTEREST_TYPES", "NAICS_CODES", "NAICS_CODE_DESCRIPTIONS", "SIC_CODES", "SIC_CODE_DESCRIPTIONS", "LATITUDE83", "LONGITUDE83", "CONVEYOR", "COLLECT_DESC", "ACCURACY_VALUE", "REF_POINT_DESC", "HDATUM_DESC", "SOURCE_DESC"]}}
+                    ]
+                }
+            ]
+        },
+        {
             "name": "PostgresConfig",
             "readers": {
                 "ZillowDB": {

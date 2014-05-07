@@ -15,6 +15,8 @@ import csv
 import itertools
 import os
 import readers
+import heapq
+import cPickle
 from collections import deque
 
 
@@ -443,55 +445,83 @@ class ProcessorCombineData_ValueHash(ProcessorBaseClass):
         flatten_iterator = itertools.chain.from_iterable(merge_iterator)
         return flatten_iterator
 
-# class ProcessorCombineData(ProcessorBaseClass):
-#     """
-#     Joins records from an existing Reader+Processors to a new
-#     Reader. Will currently perform an INNER JOIN only.
-#
-#     With the exception of join fields, fields names should be unique
-#     across both datasets.
-#
-#     Required Config Parameters:
-#
-#     :param str reader: name of a given reader.
-#     :param list keys: list of field names to perform join on.
-#
-#     Example configuration file entry::
-#
-#         {"ProcessorCombineData": {"reader": "People", "keys": ["name"]}},
-#     """
-#     def __init__(self, processor, reader, keys, readers, **kwargs):
-#         self.processor = processor
-#         self.join_keys = keys
-#         self.new_reader_iterable = ProcessorGetData(None, reader, readers).process(reader)
-#
-#     def _filter_keys(self, in_record):
-#         """Return True if records have matching self.join_keys values."""
-#         key_count = len(self.join_keys)
-#         matching_keys = [k for k in self.join_keys if in_record[0][k] == in_record[1][k]]
-#         if len(matching_keys) == key_count:
-#             return True
-#         else:
-#             return False
-#
-#     def _merge_records(self, in_record):
-#         """Return a single dictionary based on the contents of two matching records"""
-#         merged_record = dict(in_record[0].items() + in_record[1].items())
-#         return merged_record
-#
-#     def _process(self, existing_record_iterable):
-#         """Return an iterator that yields merged records from two readers"""
-#         print "in ProcessorCombineData._process()"
-#         # Create Cross Join Iterator
-#         cross_product_iter = itertools.product(existing_record_iterable, self.new_reader_iterable)
-#         print "cross_product_iter created"
-#         # Filter based on matching keys
-#         filter_keys_iter = itertools.ifilter(self._filter_keys, cross_product_iter)
-#         print "filter_keys_iter created"
-#         # Create a list of lists containing merged records
-#         merge_iterator = itertools.imap(self._merge_records, filter_keys_iter)
-#         print "merge_iterator created"
-#         return merge_iterator
+
+class ProcessorHeapSort(ProcessorBaseClass):
+    """
+    Implements a heap sort using the Python module heapq.
+
+    Example configuration file entry::
+
+        {"ProcessorHeapSort": {
+            "sort_key": "field1",
+            "buffer_size": 1000000,
+            "temp_dir": "/Users/matt/Projects/dataplunger/temp",
+        }},
+    """
+    def __init__(self, processor, sort_key, temp_dir=None, buffer_size=1000000, **kwargs):
+        self.processor = processor
+        self.sort_key = sort_key
+        # TODO: create temp directory if not provided by user
+        self.temp_dir = temp_dir
+        self.buffer_size = buffer_size
+
+    def _create_pickled_file(self, enumerated_records, counter):
+        """
+        Return a handle to a file containing picked representations
+        of sorted/enumerated records.
+        """
+        # Open Handle
+        handle = open(os.path.join(self.temp_dir, str(counter)+'.temp'), 'w+b')
+        # dump a pickled representation of record.
+        for record in enumerated_records:
+            cPickle.dump(record, handle)
+        handle.flush()
+        handle.seek(0)
+        # return an iterator that unpickles a record
+        return itertools.imap(self._load_from_pickle, handle)
+
+    def _load_from_pickle(self, row):
+        """
+        Return a deserialized object from a pickled string.
+        """
+        try:
+            deserialized = cPickle.loads(row)
+            record = deserialized[1]
+            return record
+        except EOFError, e:
+            pass
+
+    def _make_temp_files(self, iterable):
+        """
+        Return a list of file handles each containing the number of
+        records specified by the self.buffer_size parameter.
+        """
+        temp_files = []
+        try:
+            counter = 1
+            while iterable:
+                # Create Sorted List of Records
+                records = [iterable.next() for i in range(self.buffer_size)]
+                sorted(records, key=lambda k: k[self.sort_key])
+                enum_sorted_records = [r for r in enumerate(records)]
+                # Write To File
+                handle = self._create_pickled_file(enum_sorted_records, counter)
+                # Append open handle to temp_files
+                temp_files.append(handle)
+                counter += 1
+        except StopIteration, e:
+            # iterable is exhausted.
+            pass
+        finally:
+            return temp_files
+
+    def _process(self, records_iterable):
+        # Create file handles
+        iterables = self._make_temp_files(records_iterable)
+        # Pass file handles to heapq merge
+        sorted_iterator = iter(heapq.merge(*iterables))
+        return sorted_iterator
+
 
 class ProcessorMatchValue(ProcessorBaseClass):
     """
@@ -592,6 +622,9 @@ class ProcessorScreenWriter(ProcessorBaseClass):
 
 class ProcessorSortRecords(ProcessorBaseClass):
     """
+    TODO: Checking key type is irrelevant now that we expect
+    a reader to emit a properly typed attribute.
+
     Perform ascending sort for a collection of records by a given key.
 
     Required Config Parameters:
