@@ -52,6 +52,7 @@ class TestReaderCensus_Success(object):
                     'SUMLEVEL': u'140',
                     'Female': u'2',
                     'LOGRECNO': u'0004357',
+                    'FIPS': u'53001950100',
                     'NAME': u'Census Tract 9501, Adams County, Washington',
                     'Male': 12.0,
                     'FILEID': u'ACSSF',
