@@ -290,65 +290,6 @@ class ProcessorGetData(ProcessorBaseClass):
         return reader_instance.__iter__()
 
 
-# class ProcessorCombineData_legacy(ProcessorBaseClass):
-#     """
-#     Joins records from an existing Reader+Processors to a new
-#     Reader. Will currently perform a LEFT JOIN only.
-#
-#     Required Config Parameters:
-#
-#     :param str reader: name of a given reader.
-#     :param list keys: list of field names to perform join on.
-#
-#     Example configuration file entry::
-#
-#         {"ProcessorCombineData": {"reader": "People", "keys": ["name"]}},
-#     """
-#     def __init__(self, processor, reader, keys, readers, **kwargs):
-#         self.processor = processor
-#         self.join_keys = keys
-#         self.new_reader_iter = ProcessorGetData(None, reader, readers).process(reader)
-#
-#
-#     def _merge_record(self, dict_record):
-#         """return a list of records sharing the same value for keys
-#         listed in self.keys"""
-#         key_count = len(self.join_keys)
-#         matching_record_found = False
-#         merged_records = []
-#
-#         # Loop through combine set, looking for matching key:values.
-#         for record in self.new_record_iterable:
-#             # Get list of matching keys, check if len matches expected key count
-#             matching_keys = [k for k in self.join_keys if dict_record[k] == record[k]]
-#             if len(matching_keys) == key_count:
-#                 matching_record_found = True
-#                 merged_record = dict(dict_record.items() + record.items())
-#                 merged_records.append(merged_record)
-#
-#         # No matches, add the original record with empty values for expected keys.
-#         if not matching_record_found:
-#             # Create empty values for all keys except those responsible for joining
-#             # As they'll have populated values already.
-#             empty_keys = {k:'' for k in self.new_record_iterable_fields if k not in self.join_keys}
-#             merged_record = dict(dict_record.items() + empty_keys.items())
-#             merged_records.append(merged_record)
-#
-#         return merged_records
-#
-#
-#     def _process(self, existing_record_iterable):
-#         """Return a generator that yields a the merged records
-#         from two readers"""
-#         # Create a list of items from new iterator
-#         self.new_record_iterable = [r for r in self.new_reader_iter]
-#         self.new_record_iterable_fields = self.new_record_iterable[0].keys()
-#         # Create a list of lists containing merged records
-#         merge_iterator = itertools.imap(self._merge_record, existing_record_iterable)
-#         # Flatten the list of lists.
-#         flatten_iterator = itertools.chain.from_iterable(merge_iterator)
-#         return flatten_iterator
-
 class ProcessorCombineData_ValueHash(ProcessorBaseClass):
     """
     Joins records from an existing Reader+Processors to a new Reader.
@@ -448,6 +389,7 @@ class ProcessorCombineData_ValueHash(ProcessorBaseClass):
 
 class ProcessorHeapSort(ProcessorBaseClass):
     """
+    IN-PROGRESS IMPLEMENTATION
     Implements a heap sort using the Python module heapq.
 
     Example configuration file entry::
