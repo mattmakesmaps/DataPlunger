@@ -431,7 +431,7 @@ class ProcessorHeapSort(ProcessorBaseClass):
             record = deserialized[1]
             return record
         except EOFError, e:
-            pass
+            return False
 
     def _make_temp_files(self, iterable):
         """
@@ -439,23 +439,26 @@ class ProcessorHeapSort(ProcessorBaseClass):
         records specified by the self.buffer_size parameter.
         """
         temp_files = []
-        try:
-            counter = 1
-            while iterable:
-                # Create Sorted List of Records
-                records = [iterable.next() for i in range(self.buffer_size)]
-                sorted(records, key=lambda k: k[self.sort_key])
-                enum_sorted_records = [r for r in enumerate(records)]
-                # Write To File
-                handle = self._create_pickled_file(enum_sorted_records, counter)
-                # Append open handle to temp_files
-                temp_files.append(handle)
-                counter += 1
-        except StopIteration, e:
-            # iterable is exhausted.
-            pass
-        finally:
-            return temp_files
+        counter = 1
+        keep_processing = True
+        while keep_processing:
+            # Create Sorted List of Records
+            records = []
+            try:
+                for i in range(self.buffer_size):
+                    records.append(iterable.next())
+            except StopIteration, e:
+                # iterable is exhausted
+                keep_processing = False
+
+            records = sorted(records, key=lambda k: k[self.sort_key])
+            enum_sorted_records = [r for r in enumerate(records)]
+            # Write To File
+            handle = self._create_pickled_file(enum_sorted_records, counter)
+            # Append open handle to temp_files
+            temp_files.append(handle)
+            counter += 1
+        return temp_files
 
     def _process(self, records_iterable):
         # Create file handles
