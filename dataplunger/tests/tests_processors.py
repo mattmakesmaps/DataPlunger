@@ -18,7 +18,6 @@ class TestBase(object):
         self.records = [{'name': u'Matt', 'age': 27, 'gender': u'male'}]
         self.devnull = ProcessorDevNull()
 
-
 class TestProcessorCSVWriter(TestBase):
     """
     CSV writer should output a set of input records as a CSV file.
