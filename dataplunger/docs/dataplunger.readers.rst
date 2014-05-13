@@ -1,5 +1,5 @@
-dataplunger.readers module
---------------------------
+dataplunger.readers
+===================
 
 .. automodule:: dataplunger.readers
     :members:

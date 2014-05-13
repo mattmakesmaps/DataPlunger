@@ -297,6 +297,8 @@ class ReaderCensus(ReaderBaseClass):
         """
         Create a dictionary of LOGRECNO values with associated attributes.
         Will be used as a lookup during iteration of estimate table.
+
+        Note that census data are expected to be encoded in Latin-1.
         """
         for f in self._geography_path:
             with open(f, 'rt') as geography_file_handle:
@@ -304,9 +306,12 @@ class ReaderCensus(ReaderBaseClass):
                 geography_reader = csv.DictReader(geography_file_handle, geography_field_names, delimiter=self.delimiter)
 
                 for record in geography_reader:
-                    # Just using index for GEOID and NAME column.
-                    # Alternative would have to be to pass a 50+ length list
-                    # of all field names to geography_reader constructor.
+                    """
+                    Just using index for GEOID and NAME column.
+                    Alternative would have to be to pass a 50+ length list
+                    of all field names to geography_reader constructor.
+                    FIPS is a concatenation of multiple geographic IDs.
+                    """
                     record_key = record['STUSAB'] + record['LOGRECNO']
                     self._geography_records[record_key] = {
                         'COMPONENT': unicode(record['COMPONENT'], 'latin-1'),
@@ -339,8 +344,7 @@ class ReaderCensus(ReaderBaseClass):
 
     def _field_mapper(self, value, field_type):
         """
-        Given a dict representing a
-        Return an input string mapped to a user-provided field type,
+        Return an input string coerced to a user-provided field type,
         as seen in the ReaderCensus.fields attribute of this class.
         """
         field_mapping = {
@@ -361,7 +365,9 @@ class ReaderCensus(ReaderBaseClass):
     def _build_estimate_vals(self, row, fields):
         """
         Build estimate values.
-        ValueError exceptions (e.g. Jam Values) are currently kept as strings.
+
+        ValueError exceptions (e.g. Jam Values) of ',' and empty string are converted to 0.
+        Other ValueError exceptions are logged and converted to strings.
 
         This function replaces the following one-liner, adding an exception handler::
 

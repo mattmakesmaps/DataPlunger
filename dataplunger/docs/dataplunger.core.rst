@@ -1,5 +1,5 @@
-dataplunger.core module
------------------------
+dataplunger.core
+================
 
 .. automodule:: dataplunger.core
     :members:

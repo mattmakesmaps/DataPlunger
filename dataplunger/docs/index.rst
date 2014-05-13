@@ -8,7 +8,7 @@ DataPlunger
 
 DataPlunger is a prototype ETL processing toolchain.
 
-The goal is to create a modular code for the purpose of extracting data from multiple backing stores,
+The goal is to create a modular package for the purpose of extracting data from multiple backing stores,
 performing n-number of transformational processing steps on those records, with the final output being loaded into
 a new format.
 
@@ -32,12 +32,37 @@ Processing pipelines are described using a JSON configuration file.
 Main Modules
 ------------
 
-:doc:`dataplunger.core` - Code for parsing a JSON configuration file, building a processing pipeline,
-and executing it.
+The DataPlunger package is broken down into three main modules, :doc:`dataplunger.core`, :doc:`dataplunger.processors`,
+and :doc:`dataplunger.readers`.
 
-:doc:`dataplunger.readers` - Connections to backing datastores (Postgres, CSV, SHP, etc).
+**Core** contains configuration and control code.
 
-:doc:`dataplunger.processors` - Tools designed to execute a on either a single record, or an aggregate of records.
+.. toctree::
+
+   dataplunger.core
+
+**Processors** perform actions on a collection records.
+
+.. toctree::
+
+   dataplunger.processors
+
+**Readers** are responsible for creating a connection to a backing datasource,
+and returning an iterable that yields a single record of data from that datasource.
+
+.. toctree::
+
+   dataplunger.readers
+
+Test Coverage
+-------------
+
+Unit tests currently cover the ``processors`` and ``readers`` modules.
+
+.. toctree::
+
+   dataplunger.tests.rst
+
 
 Indices and tables
 ==================

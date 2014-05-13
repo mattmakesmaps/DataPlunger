@@ -1,5 +1,5 @@
-dataplunger.processors module
------------------------------
+dataplunger.processors
+======================
 
 .. automodule:: dataplunger.processors
     :members:

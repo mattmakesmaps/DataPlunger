@@ -1,8 +1,5 @@
-dataplunger.tests package
-=========================
-
-Submodules
-----------
+dataplunger.tests
+=================
 
 dataplunger.tests.tests_processors module
 -----------------------------------------
@@ -20,11 +17,3 @@ dataplunger.tests.tests_readers module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: dataplunger.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:

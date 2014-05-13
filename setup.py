@@ -11,7 +11,7 @@ setup(
     author='Matthew Kenny',
     author_email='matthewkenny AT gmail DOT com',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Topic :: Scientific/Engineering :: GIS',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Intended Audience :: Developers'
