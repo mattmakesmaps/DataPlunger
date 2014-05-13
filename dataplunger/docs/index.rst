@@ -19,6 +19,15 @@ A workflow, or processing pipeline, is defined via a JSON configuration file con
 
 Source code for this project can be found at: `<https://github.com/mattmakesmaps/DataPlunger>`_
 
+**Install Instructions**::
+
+    # Create virtualenv
+    $ mkvirtualenv dp_dev_test
+    (dp_dev_test)$ cd /path/to/DataPlunger
+    # Install in development mode (sym-link to site-packages)
+    (dp_dev_test)$ python setup.py develop
+
+
 Configuration
 -------------
 
