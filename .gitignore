@@ -5,8 +5,10 @@
 /profiles
 /sample_output
 /sample_data
+/acs_configs
 /sample_configs/us_*
 /sample_configs/wa_*
+generate_acs_extracts.py
 freebase*
 dumpprof.py
 
