@@ -5,6 +5,8 @@
 /profiles
 /sample_output
 /sample_data
+/sample_configs/us_*
+/sample_configs/wa_*
 freebase*
 dumpprof.py
 

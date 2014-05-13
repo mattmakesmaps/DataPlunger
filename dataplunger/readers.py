@@ -374,8 +374,14 @@ class ReaderCensus(ReaderBaseClass):
             try:
                 estimate_vals[k] = self._field_mapper(value=row[index], field_type=type)
             except ValueError as e:
-                #print('ERROR: Unexpected value in field {0}: {1}. COERCING TO STRING'.format(k, e))
-                estimate_vals[k] = str(row[index])
+                # Jam Values (Expected)
+                if row[index] in ['', '.']:
+                    #print('INFO: Jam Value Encountered in Field {0}: {1} Replacing with 0'.format(k, e))
+                    estimate_vals[k] = 0
+                # Non-Jam Values (Un-Expected)
+                else:
+                    print('Error: Unexpected Value in Estimate Field {0}: {1} Coercing to string'.format(k, e))
+                    estimate_vals[k] = str(row[index])
         return estimate_vals
 
     def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
