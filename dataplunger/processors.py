@@ -387,10 +387,109 @@ class ProcessorCombineData_ValueHash(ProcessorBaseClass):
         return flatten_iterator
 
 
+class PickleParty(object):
+    """
+    - Pickle contents to a file.
+    - Implements an __iter__() method that yields a deserialized record.
+    - Should also implement a counter that raises a StopIteration error
+      to avoid an EOF error.
+
+    Example Usage::
+
+        source = [
+            {'name': 'Matt', 'hometown': 'Oxnard', 'age': 27},
+            {'name': 'Andrew', 'hometown': 'Menlo Park', 'age': 33},
+            {'name': 'Doug', 'hometown': 'London', 'age': 12},
+            {'name': 'Vanya', 'hometown': 'Fremont', 'age': 7},
+            {'name': 'Stacie', 'hometown': 'Aberdeen', 'age': 98},
+            {'name': 'Jim', 'hometown': 'Irwindale', 'age': 54},
+            {'name': 'Pat', 'hometown': 'Oxnard', 'age': 23},
+            {'name': 'Pat', 'hometown': 'Ventura', 'age': 13},
+            {'name': 'Adam', 'hometown': 'Santa Paula', 'age': 55}
+        ]
+        out_path = os.path.join(os.path.dirname(__file__), 'temp/p_test.pkl')
+        print out_path
+        # Create instance.
+        p_handle = PickleParty(out_path)
+        # Populate with data
+        for r in source:
+            p_handle.dump(r)
+
+        # Flush/Seek(0)
+        p_handle.flush()
+        p_handle.seek(0)
+
+        values = [r for r in p_handle]
+        pprint.pprint(values)
+    """
+
+    def __init__(self, file_path):
+        self.count = 0
+        self.file_path = file_path
+        self.file_handle = open(file_path, 'w+b')
+        self._pickler = cPickle.Pickler(self.file_handle, 2)
+        self._unpickler = cPickle.Unpickler(self.file_handle)
+
+    def dump(self, val):
+        """Serialize contents to a file."""
+        self._pickler.dump(val)
+        self.count += 1
+        return True
+
+    def load(self):
+        """Deserialize contents."""
+        record = self._unpickler.load()
+        self.count -= 1
+        return record
+
+    def flush(self):
+        """Flush Contents to File."""
+        self.file_handle.flush()
+        return True
+
+    def seek(self, position):
+        """Seek File"""
+        self.file_handle.seek(position)
+        return True
+
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
+        """Close the db connection. Note: Will be Called Twice if a Context Manager is used."""
+        if self.file_handle:
+            self.file_handle.close()
+            os.remove(self.file_path)
+        if exc_type is not None:
+            # Exception occurred
+            return False  # Will raise the exception
+        return True  # Everything's okay
+
+    def __iter__(self):
+        """
+        yield a deserialized record from the pickled file.
+        """
+        while self.count > 0:
+            record_in_tuple = self.load()
+            yield record_in_tuple
+        else:
+            raise StopIteration
+
 class ProcessorHeapSort(ProcessorBaseClass):
     """
-    IN-PROGRESS IMPLEMENTATION
     Implements a heap sort using the Python module heapq.
+    Lists are created with lengths determined by ``self.buffer_size``.
+    These lists are sorted by ``self.sort_key`` and pickled to an output
+    file specified by ``self.temp_dir``.
+
+    The resulting file handlers are passed to an instance of ``heapq.merge()``,
+    which yields a sorted record upon each iteration.
+
+    Required Config Parameters:
+
+    :param str sort_key: Field name (key) to perform sort against.
+    :param str temp_dir: Directory to store temp files used in sort.
+
+    Optional Config Parameters:
+
+    :param int buffer_size: Number of records to store per file. Defaults to 1000000.
 
     Example configuration file entry::
 
@@ -407,33 +506,23 @@ class ProcessorHeapSort(ProcessorBaseClass):
         self.temp_dir = temp_dir
         self.buffer_size = buffer_size
 
-    def _create_pickled_file(self, enumerated_records, counter):
+    def _create_pickled_file(self, sorted_records, counter):
         """
         Return a handle to a file containing picked representations
         of sorted/enumerated records.
         """
         # Open Handle
-        handle = open(os.path.join(self.temp_dir, str(counter)+'.temp'), 'w+b')
+        out_path = os.path.join(self.temp_dir, str(counter)+'.temp')
+        pickle_handle = PickleParty(out_path)
         # dump a pickled representation of record.
-        for record in enumerated_records:
-            cPickle.dump(record, handle)
-        handle.flush()
-        handle.seek(0)
-        # return an iterator that unpickles a record
-        return itertools.imap(self._load_from_pickle, handle)
+        for record in sorted_records:
+            pickle_handle.dump(record)
+        pickle_handle.flush()
+        pickle_handle.seek(0)
+        # Return pickle_handle (an iterable)
+        return pickle_handle
 
-    def _load_from_pickle(self, row):
-        """
-        Return a deserialized object from a pickled string.
-        """
-        try:
-            deserialized = cPickle.loads(row)
-            record = deserialized[1]
-            return record
-        except EOFError, e:
-            return False
-
-    def _make_temp_files(self, iterable):
+    def _make_temp_files(self, records_iterable):
         """
         Return a list of file handles each containing the number of
         records specified by the self.buffer_size parameter.
@@ -446,26 +535,37 @@ class ProcessorHeapSort(ProcessorBaseClass):
             records = []
             try:
                 for i in range(self.buffer_size):
-                    records.append(iterable.next())
+                    records.append(records_iterable.next())
             except StopIteration, e:
                 # iterable is exhausted
                 keep_processing = False
 
             records = sorted(records, key=lambda k: k[self.sort_key])
-            enum_sorted_records = [r for r in enumerate(records)]
+            # enum_sorted_records = [r for r in enumerate(records)]
+            tuple_convert_records = [(r[self.sort_key], r) for r in records]
             # Write To File
-            handle = self._create_pickled_file(enum_sorted_records, counter)
+            handle = self._create_pickled_file(tuple_convert_records, counter)
             # Append open handle to temp_files
             temp_files.append(handle)
             counter += 1
         return temp_files
+
+    def _extract_record(self, record):
+        """
+        Return a record from a two-element tuple
+        where the first element is the sort key, and the
+        second element is the record itself.
+
+        To be used in conjunction with PickleHandle class.
+        """
+        return record[1]
 
     def _process(self, records_iterable):
         # Create file handles
         iterables = self._make_temp_files(records_iterable)
         # Pass file handles to heapq merge
         sorted_iterator = iter(heapq.merge(*iterables))
-        return sorted_iterator
+        return itertools.imap(self._extract_record, sorted_iterator)
 
 
 class ProcessorMatchValue(ProcessorBaseClass):
