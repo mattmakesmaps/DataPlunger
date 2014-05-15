@@ -19,11 +19,7 @@ def execute_run(config_name, config_path):
 
 if __name__ == '__main__':
     configs = [
-        ('single_table', '/home/mkenny/Projects/DataPlunger/sample_configs/us_single_table.json'),
-        ('USA_BGs', '/home/mkenny/Projects/DataPlunger/sample_configs/us_bgs.json'),
-        ('USA_Counties', '/home/mkenny/Projects/DataPlunger/sample_configs/us_counties.json'),
-        ('USA_States', '/home/mkenny/Projects/DataPlunger/sample_configs/us_states.json'),
-        ('USA_ZCTA', '/home/mkenny/Projects/DataPlunger/sample_configs/us_zcta.json'),
+        ('StarHeapSortConfig', '/Users/matt/Projects/dataplunger/sample_configs/multi_reader.json'),
     ]
 
     total_begin_time = datetime.now()

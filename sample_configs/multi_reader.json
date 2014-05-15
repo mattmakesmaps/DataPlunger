@@ -2,12 +2,106 @@
     "type": "ConfigCollection",
     "configs": [
         {
+            "name": "StarSortedConfig",
+            "readers": {
+                "stars": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/star2002-full.csv",
+                    "delimiter": ",",
+                    "field_types": {
+                        "antiNucleus":"int",
+                        " eventFile":"int",
+                        " eventNumber":"int",
+                        " eventTime": "float",
+                        " histFile": "int",
+                        " multiplicity": "int",
+                        " NaboveLb": "int",
+                        " NbelowLb": "int",
+                        " NLb": "int",
+                        " primaryTracks": "int",
+                        " prodTime": "float",
+                        " Pt": "float",
+                        " runNumber": "int",
+                        " vertexX": "float",
+                        " vertexY": "float",
+                        " vertexZ": "float"
+                    }
+                }
+            },
+            "layers": [
+                {
+                    "name" : "Sorted_Sorted",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "stars"}},
+                        {"ProcessorSortRecords": {"sort_key": "antiNucleus"}},
+                        {"ProcessorCSVWriter": {
+                            "path":"/Users/matt/Projects/dataplunger/sample_output/starsorted.csv",
+                            "fields": ["antiNucleus"," eventFile", " eventNumber",
+                                " eventTime", " histFile", " multiplicity",
+                                " NaboveLb", " NbelowLb", " NLb", " primaryTracks",
+                                " prodTime", " Pt", " runNumber", " vertexX",
+                                " vertexY", " vertexZ" ]
+                        }}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "StarHeapSortConfig",
+            "readers": {
+                "stars": {
+                    "type": "ReaderCSV",
+                    "path": "/Users/matt/Projects/dataplunger/sample_data/star2002-full.csv",
+                    "delimiter": ",",
+                    "field_types": {
+                        "antiNucleus":"int",
+                        " eventFile":"int",
+                        " eventNumber":"int",
+                        " eventTime": "float",
+                        " histFile": "int",
+                        " multiplicity": "int",
+                        " NaboveLb": "int",
+                        " NbelowLb": "int",
+                        " NLb": "int",
+                        " primaryTracks": "int",
+                        " prodTime": "float",
+                        " Pt": "float",
+                        " runNumber": "int",
+                        " vertexX": "float",
+                        " vertexY": "float",
+                        " vertexZ": "float"
+                    }
+                }
+            },
+            "layers": [
+                {
+                    "name" : "Heap_Sorted",
+                    "processing_steps": [
+                        {"ProcessorGetData": {"reader": "stars"}},
+                        {"ProcessorHeapSort": {
+                            "temp_dir": "/Users/matt/Projects/dataplunger/temp",
+                            "sort_key": "antiNucleus",
+                            "buffer_size": 1000000
+                        }},
+                        {"ProcessorCSVWriter": {
+                            "path":"/Users/matt/Projects/dataplunger/sample_output/star_heap_sorted.csv",
+                            "fields": ["antiNucleus"," eventFile", " eventNumber",
+                                " eventTime", " histFile", " multiplicity",
+                                " NaboveLb", " NbelowLb", " NLb", " primaryTracks",
+                                " prodTime", " Pt", " runNumber", " vertexX",
+                                " vertexY", " vertexZ" ]
+                        }}
+                    ]
+                }
+            ]
+        },
+        {
             "name": "HeapSortConfig",
             "readers": {
                 "Grades": {
                     "type": "ReaderCSV",
                     "path": "/home/matt/Projects/DataPlunger/sample_data/grades.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 }
             },
@@ -75,12 +169,12 @@
                 "Grades": {
                     "type": "ReaderCSV",
                     "path": "/home/mkenny/Projects/DataPlunger/dataplunger/sample_data/grades.csv",
-                    "delimeter": ","
+                    "delimiter": ","
                 },
                 "People": {
                     "type": "ReaderCSV",
                     "path": "/home/mkenny/Projects/DataPlunger/dataplunger/sample_data/people.csv",
-                    "delimeter": ","
+                    "delimiter": ","
                 }
             },
             "layers": [
@@ -102,7 +196,7 @@
                 "NationalSingleFile": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/NATIONAL_SINGLE.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 }
             },
@@ -127,37 +221,37 @@
                 "FBDel_20": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_20.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 },
                 "FBDel_10": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 },
                 "FBDel_10_Trunc": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_10_t.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 },
                 "FBDel_5": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 },
                 "FBDel_5_Trunc": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5_t.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 },
                 "FBDel_5Rec": {
                     "type": "ReaderCSV",
                     "path": "/Users/matt/Projects/dataplunger/sample_data/freebase_5rec.csv",
-                    "delimeter": ",",
+                    "delimiter": ",",
                     "encoding": "UTF-8"
                 }
             },
