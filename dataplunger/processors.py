@@ -17,6 +17,7 @@ import os
 import readers
 import heapq
 import cPickle
+import kyotocabinet
 from collections import deque
 
 
@@ -472,6 +473,65 @@ class PickleParty(object):
         else:
             raise StopIteration
 
+
+class KHole(object):
+    """
+    A kyoto cabinet based backing store.
+    """
+
+    def __init__(self, file_path):
+        """
+        Requires a file path.
+        """
+        self._count = 0
+        self.file_path = file_path
+        self._k_db = kyotocabinet.DB()
+        # Open the DB
+        self._k_db.open(self.file_path, kyotocabinet.DB.OWRITER | kyotocabinet.DB.OCREATE)
+
+    def dump(self, val):
+        """Serialize contents to a file."""
+        self._k_db.add(self._count, val)
+        self._count += 1
+        return True
+
+    def cursor(self):
+        """
+        Create a database cursor
+        """
+        self._k_db_cursor = self._k_db.cursor()
+        return True
+
+    def jump(self):
+        """
+        Prepare the cursor for a forward scan.
+        """
+        self._k_db_cursor.jump()
+        return True
+
+    def __del__(self, exc_type=None, exc_val=None, exc_tb=None):
+        """Close the db connection. Note: Will be Called Twice if a Context Manager is used."""
+        if self._k_db:
+            self._k_db.close()
+            os.remove(self.file_path)
+        if exc_type is not None:
+            # Exception occurred
+            return False  # Will raise the exception
+        return True  # Everything's okay
+
+    def __iter__(self):
+        """
+        yield a deserialized record from the kyotocabinet file.
+        """
+        while True:
+            try:
+                key = self._k_db_cursor.next()
+                yield eval(self._k_db.get(key))
+            except StopIteration:
+                break
+                raise StopIteration
+
+
 class ProcessorHeapSort(ProcessorBaseClass):
     """
     Implements a heap sort using the Python module heapq.
@@ -506,21 +566,21 @@ class ProcessorHeapSort(ProcessorBaseClass):
         self.temp_dir = temp_dir
         self.buffer_size = buffer_size
 
-    def _create_pickled_file(self, sorted_records, counter):
+    def _create_file(self, sorted_records, counter):
         """
         Return a handle to a file containing picked representations
         of sorted/enumerated records.
         """
         # Open Handle
-        out_path = os.path.join(self.temp_dir, str(counter)+'.temp')
-        pickle_handle = PickleParty(out_path)
+        out_path = os.path.join(self.temp_dir, str(counter)+'.kct')
+        disk_handle = KHole(out_path)
         # dump a pickled representation of record.
         for record in sorted_records:
-            pickle_handle.dump(record)
-        pickle_handle.flush()
-        pickle_handle.seek(0)
+            disk_handle.dump(record)
         # Return pickle_handle (an iterable)
-        return pickle_handle
+        disk_handle.cursor()
+        disk_handle.jump()
+        return disk_handle
 
     def _make_temp_files(self, records_iterable):
         """
@@ -544,7 +604,7 @@ class ProcessorHeapSort(ProcessorBaseClass):
             # enum_sorted_records = [r for r in enumerate(records)]
             tuple_convert_records = [(r[self.sort_key], r) for r in records]
             # Write To File
-            handle = self._create_pickled_file(tuple_convert_records, counter)
+            handle = self._create_file(tuple_convert_records, counter)
             # Append open handle to temp_files
             temp_files.append(handle)
             counter += 1
