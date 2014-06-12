@@ -19,11 +19,11 @@ def execute_run(config_name, config_path):
 
 if __name__ == '__main__':
     configs = [
-        ('StarHeapSortConfig', '/Users/matt/Projects/dataplunger/sample_configs/multi_reader.json'),
+        ('StarSortedConfigFull', '/home/mkenny/Projects/DataPlunger/sample_configs/multi_reader.json'),
     ]
 
     total_begin_time = datetime.now()
     for config in configs:
         execute_run(config[0], config[1])
-    total_end_time = datetime.now()
+    total_end_time = datetime.now() - total_begin_time
     print "Total Execution Time: %s" % total_end_time

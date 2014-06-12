@@ -491,7 +491,9 @@ class KHole(object):
 
     def dump(self, val):
         """Serialize contents to a file."""
-        self._k_db.add(self._count, val)
+        pickled_val = cPickle.dumps(val)
+        self._k_db.add(self._count, pickled_val)
+        # self._k_db.add(self._count, val)
         self._count += 1
         return True
 
@@ -526,7 +528,8 @@ class KHole(object):
         while True:
             try:
                 key = self._k_db_cursor.next()
-                yield eval(self._k_db.get(key))
+                yield cPickle.loads(self._k_db.get(key))
+                # yield eval(self._k_db.get(key))
             except StopIteration:
                 break
                 raise StopIteration
